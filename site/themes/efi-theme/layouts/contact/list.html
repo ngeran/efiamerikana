@@ -8,7 +8,7 @@
         <div class="absolute -inset-4 border-2 border-pink-deep rotate-3" aria-hidden="true"></div>
         <div class="relative w-full aspect-[4/5] bg-ink overflow-hidden rounded-lg border-2 border-ink">
           {{- with .Params.image }}
-          <img class="w-full h-full object-cover" src="{{ . }}" alt="{{ $.Site.Params.creator }}" loading="lazy">
+          <img class="w-full h-full object-cover" src="{{ . }}" alt="{{ site.Data.site.creator }}" loading="lazy">
           {{- end }}
         </div>
       </div>
@@ -27,13 +27,13 @@
       <div class="flex flex-col gap-4">
         <span class="label-bold text-variant uppercase tracking-widest">Direct Email</span>
         <a class="text-headline-md underline decoration-tertiary decoration-4 underline-offset-8 transition-colors hover:text-pink-dark break-words"
-           href="mailto:{{ .Site.Params.email }}">{{ .Site.Params.email }}</a>
+           href="mailto:{{ site.Data.site.email }}">{{ site.Data.site.email }}</a>
       </div>
 
       <div class="flex flex-col gap-6">
         <span class="label-bold text-variant uppercase tracking-widest">Follow the Vibe</span>
         <div class="flex flex-wrap gap-4">
-          {{- range .Site.Params.social }}
+          {{- range site.Data.site.social }}
           <a class="flex items-center gap-3 px-6 py-3 border-2 border-ink label-bold uppercase transition-all hover:bg-ink hover:text-saffron"
              href="{{ .url }}" target="_blank" rel="me noopener">
             <span class="material-symbols-outlined" aria-hidden="true">{{ .icon }}</span>{{ .name }}

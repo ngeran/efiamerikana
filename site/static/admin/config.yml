@@ -87,8 +87,86 @@ collections:
           - { label: "Portrait image", name: "image", widget: "image" }
           - { label: "Body", name: "body", widget: "markdown" }
 
-# NOTE — intentionally NOT editing hugo.toml or data/analytics.yaml from the CMS:
-#   • hugo.toml holds the [[params.social]] array + nested tables that Decap would clobber.
-#   • analytics.yaml is a structured data file (edit it directly in the repo).
-# Site-wide settings (brand/handle/tagline/hero image/socials) can move to a CMS-editable
-# data/site.yaml later if you want them in the editor.
+      - label: "Contact"
+        name: "contact"
+        file: "content/contact/_index.md"
+        fields:
+          - { label: "Title", name: "title", widget: "string" }
+          - { label: "Description", name: "description", widget: "string" }
+          - { label: "Portrait image", name: "image", widget: "image", required: false }
+          - { label: "Body", name: "body", widget: "markdown", required: false }
+
+  # ── Home & site-wide content → data/site.yaml (single source for editable copy) ──
+  - name: "home"
+    label: "Home & Site"
+    delete: false
+    files:
+      - label: "Home & Site content"
+        name: "site"
+        file: "data/site.yaml"
+        fields:
+          - { label: "Brand", name: "brand", widget: "string" }
+          - { label: "Creator name", name: "creator", widget: "string" }
+          - { label: "Handle", name: "handle", widget: "string" }
+          - { label: "Role", name: "role", widget: "string" }
+          - { label: "Tagline", name: "tagline", widget: "string" }
+          - { label: "Subtagline", name: "subtagline", widget: "string" }
+          - { label: "Description (SEO)", name: "description", widget: "string" }
+          - { label: "Established", name: "est", widget: "string", required: false }
+          - { label: "Location", name: "location", widget: "string", required: false }
+          - { label: "Email", name: "email", widget: "string" }
+          - { label: "Hero image", name: "hero_image", widget: "image" }
+          - label: "Social links"
+            name: "social"
+            widget: "list"
+            min: 1
+            fields:
+              - { label: "Name", name: "name", widget: "string" }
+              - { label: "URL", name: "url", widget: "string" }
+              - { label: "Material icon", name: "icon", widget: "string", required: false }
+
+  # ── Analytics dashboard numbers → data/analytics.yaml ──
+  - name: "analytics"
+    label: "Analytics"
+    delete: false
+    files:
+      - label: "Dashboard numbers"
+        name: "analytics"
+        file: "data/analytics.yaml"
+        fields:
+          - label: "Metrics"
+            name: "metrics"
+            widget: "list"
+            fields:
+              - { label: "Label", name: "label", widget: "string" }
+              - { label: "Value", name: "value", widget: "string" }
+              - { label: "Delta", name: "delta", widget: "string" }
+              - { label: "Tone", name: "tone", widget: "select", options: ["pink", "red"], default: "red" }
+              - { label: "Icon", name: "icon", widget: "string" }
+          - label: "Growth"
+            name: "growth"
+            widget: "object"
+            fields:
+              - { label: "Period", name: "period", widget: "string" }
+              - label: "X-axis labels"
+                name: "x_labels"
+                widget: "list"
+                default: ["JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
+          - label: "Platforms"
+            name: "platforms"
+            widget: "list"
+            fields:
+              - { label: "Name", name: "name", widget: "string" }
+              - { label: "Share %", name: "share", widget: "number" }
+              - { label: "Tone", name: "tone", widget: "select", options: ["pink", "red", "variant"], default: "variant" }
+          - label: "Geo"
+            name: "geo"
+            widget: "object"
+            fields:
+              - { label: "Title", name: "title", widget: "string" }
+              - label: "Regions"
+                name: "regions"
+                widget: "list"
+                fields:
+                  - { label: "Country", name: "country", widget: "string" }
+                  - { label: "Share", name: "share", widget: "string" }

@@ -1,9 +1,9 @@
 {{- /* Charcoal footer (reference-faithful): wordmark · social row · copyright. Full-width single row on desktop. */ -}}
 <footer class="w-full bg-ink text-saffron font-display px-5 md:px-12 py-6 md:py-8">
   <div class="flex flex-col md:flex-row justify-between items-center gap-6 lowercase">
-    <a class="font-display font-normal text-[2rem] leading-none lowercase" href="/" aria-label="{{ .Site.Title }} — home">{{ .Site.Params.handle }}</a>
+    <a class="font-display font-normal text-[2rem] leading-none lowercase" href="/" aria-label="{{ .Site.Title }} — home">{{ site.Data.site.handle }}</a>
 
-    {{- with .Site.Params.social }}
+    {{- with site.Data.site.social }}
     <nav class="flex flex-wrap justify-center gap-6 md:gap-12 items-center" aria-label="Social links">
       {{- range . }}
       <a class="flex items-center gap-2 text-sm font-bold tracking-widest lowercase hover:text-white transition-colors" href="{{ .url }}" rel="me noopener" target="_blank">
@@ -13,6 +13,6 @@
     </nav>
     {{- end }}
 
-    <p class="text-[10px] tracking-widest opacity-70 lowercase">© {{ now.Format "2006" }} {{ .Site.Params.brand | upper }}. Bold taste, bold vision.</p>
+    <p class="text-[10px] tracking-widest opacity-70 lowercase">© {{ now.Format "2006" }} {{ site.Data.site.brand | upper }}. Bold taste, bold vision.</p>
   </div>
 </footer>

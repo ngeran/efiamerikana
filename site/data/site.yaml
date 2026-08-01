@@ -1,0 +1,24 @@
+# Single source for editable home + site-wide copy. Edited via the CMS
+# ("Home & Site" collection). Templates read site.Data.site.
+# (hugo.toml [params] is kept as a dormant fallback; this file overrides it.)
+brand: "Efi Amerikana"
+creator: "Effie Kazantzidis"
+handle: "efiamerikana"
+role: "Greek-American Home Cook"
+tagline: "Authentic Food • Everyday Cooking • UGC Creator"
+subtagline: "A little bit of cooking, little bit of humor, and even serious talk sometimes."
+description: "Effie Kazantzidis (efiamerikana) — Greek-American home cook sharing Mediterranean hearth food. Videos, pictures, and the story behind the flavors."
+est: "Est. 1988"
+location: "Los Angeles, California"
+email: "hello@efiamerikana.com"
+hero_image: "/img/efi-hero.png"
+social:
+  - name: "Instagram"
+    url: "https://instagram.com/efiamerikana"
+    icon: "camera"
+  - name: "TikTok"
+    url: "https://tiktok.com/@efiamerikana"
+    icon: "play_circle"
+  - name: "YouTube"
+    url: "https://youtube.com/@efiamerikana"
+    icon: "smart_display"

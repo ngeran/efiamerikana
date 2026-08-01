@@ -38,10 +38,10 @@
     </div>
 
     {{/* ── Media column: portrait ── */}}
-    <div class="relative max-w-sm mx-auto" data-reveal>
+    <div class="relative max-w-xs mx-auto" data-reveal>
       <figure class="relative border-2 border-ink overflow-hidden rounded-lg aspect-[4/5]">
         {{- with .Params.image }}
-        <img class="w-full h-full object-cover" src="{{ . }}" alt="{{ $.Site.Params.creator }}" width="600" height="750" loading="lazy">
+        <img class="w-full h-full object-cover" src="{{ . }}" alt="{{ site.Data.site.creator }}" width="600" height="750" loading="lazy">
         {{- end }}
       </figure>
       {{- with .Params.est }}
