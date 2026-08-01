@@ -17,17 +17,16 @@ jobs:
         with:
           extra-conf: |
             accept-flake-config = true
-            
+
       - name: Build Hugo site with Nix
-        run: |
-          nix build .#site
-          # This creates ./result with the built site
+        # Offline + reproducible. Leaves ./result → the built static site
+        # (Hugo only; Tailwind CSS is precompiled and committed, no Node needed).
+        run: nix build .#site
 
       - name: Deploy to Cloudflare Pages
-        uses: cloudflare/pages-action@v1
+        uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: efiamerikana
-          directory: ./result
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          # wrangler follows the ./result symlink (same path `just cf` uploads).
+          command: pages deploy ./result --project-name=efiamerikana --branch=main

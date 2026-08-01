@@ -6,7 +6,7 @@
 #                   sudo systemctl start k3s
 # Cloudflare Pages (public URL):  `just cf` uploads the Nix-built static site.
 #   one-time:  wrangler login   (or: export CLOUDFLARE_API_TOKEN=…)
-#              wrangler pages project create hugo-site --production-branch main
+#              wrangler pages project create efiamerikana --production-branch main
 # =========================================================================
 set shell := ["bash", "-c"]
 
@@ -15,7 +15,7 @@ tag   := "latest"
 ns    := "default"
 dep   := "hugo-site"
 port  := "8080"          # nginx container listen port (non-root high port)
-cf_project := "hugo-site"   # Cloudflare Pages project name (create once, see header)
+cf_project := "efiamerikana"   # Cloudflare Pages project name (create once, see header)
 
 # Build the Nix image (no Dockerfile, no docker).
 build:

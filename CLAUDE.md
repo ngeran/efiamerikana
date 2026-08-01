@@ -60,7 +60,7 @@ The design system lives in **`site/src/input.css`** as a Tailwind v4 `@theme` (c
 ## Two deploy targets
 
 - **k3s (default):** local cluster, image pulled from `localhost:5000`. Use `just deploy`. Reach it via `just forward` or the Service's cluster IP.
-- **Cloudflare Pages (public):** `just cf` runs `nix build .#site` (the built static site, not the image) and uploads it directly with `wrangler`. One-time setup (wrangler login + `wrangler pages project create hugo-site --production-branch main`) is noted in the `justfile` header. Same bytes either way.
+- **Cloudflare Pages (public):** `just cf` runs `nix build .#site` (the built static site, not the image) and uploads it directly with `wrangler`. One-time setup (wrangler login + `wrangler pages project create efiamerikana --production-branch main`) is noted in the `justfile` header. Same bytes either way.
 
 ## Site structure
 
