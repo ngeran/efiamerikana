@@ -1,0 +1,15 @@
+{{- /* Generic list fallback (taxonomy/term and any section without a specific layout). */ -}}
+{{ define "main" }}
+  <section class="section">
+    <div class="container">
+      <h1>{{ .Title }}</h1>
+      {{- with .Content }}<div class="muted">{{ . }}</div>{{ end }}
+      {{- range .Pages }}
+        <article style="margin-block-start:var(--space-6)">
+          <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+          <p class="muted">{{ .Summary }}</p>
+        </article>
+      {{- end }}
+    </div>
+  </section>
+{{ end }}

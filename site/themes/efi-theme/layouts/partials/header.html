@@ -1,0 +1,19 @@
+{{- /* Fixed site header: wordmark + desktop nav + mobile toggle + mobile panel. */ -}}
+<header class="fixed top-0 inset-x-0 z-50 h-20 bg-saffron border-b-2 border-ink">
+  <div class="h-full max-w-7xl mx-auto px-5 md:px-16 flex items-center justify-between gap-6">
+    <div class="flex items-center h-full">
+      <a class="font-display font-normal text-headline-md lowercase tracking-tight text-ink" href="/" aria-label="{{ .Site.Title }} — home">
+        {{ .Site.Params.handle }}<span class="hidden md:inline-block w-1 h-10 bg-tertiary ml-6 align-middle" aria-hidden="true"></span>
+      </a>
+    </div>
+
+    <button class="nav-toggle items-center justify-center w-11 h-11 border-2 border-ink bg-saffron text-ink"
+            type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="Toggle menu">
+      <span class="material-symbols-outlined icon-open" aria-hidden="true">menu</span>
+      <span class="material-symbols-outlined icon-close" aria-hidden="true">close</span>
+    </button>
+
+    {{ partial "nav.html" (dict "menu" .Site.Menus.main "page" . "class" "desktop-nav items-center gap-6") }}
+    {{ partial "nav.html" (dict "menu" .Site.Menus.main "page" . "class" "mobile-nav flex-col" "id" "primary-nav" "label" "Mobile" "mobile" true) }}
+  </div>
+</header>

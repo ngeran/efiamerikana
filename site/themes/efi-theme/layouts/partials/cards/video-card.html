@@ -1,0 +1,24 @@
+{{- /* Video gallery card: 3:4 media, duration chip, hover play overlay. */ -}}
+{{- $p := . -}}
+<article class="group flex flex-col gap-4" data-reveal>
+  <a class="relative block aspect-[4/3] overflow-hidden rounded-lg border-2 border-ink shadow-red transition-all duration-300 group-hover:-translate-x-1 group-hover:-translate-y-1 group-hover:shadow-pink-hover"
+     href="{{ .RelPermalink }}" aria-label="{{ .Title }}">
+    {{ partial "img.html" (dict "page" $p "image" $p.Params.image "alt" $p.Title) }}
+    {{- with $p.Params.duration }}
+    <span class="absolute top-6 right-6 bg-tertiary text-white label-sm px-3 py-1">{{ . }}</span>
+    {{- end }}
+    <div class="absolute inset-0 bg-gradient-to-t from-ink/80 via-transparent to-transparent opacity-0 flex items-center justify-center transition-opacity duration-300 group-hover:opacity-100">
+      <span class="w-20 h-20 rounded-full bg-bougainvillea text-white grid place-items-center transition-transform group-hover:scale-110">
+        <span class="material-symbols-outlined text-4xl ml-1" aria-hidden="true" style="font-variation-settings:'FILL' 1;">play_arrow</span>
+      </span>
+    </div>
+  </a>
+  <div class="mt-1">
+    <h3 class="text-headline-md font-semibold"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+    <div class="flex items-center gap-3 mt-2">
+      {{- with .Params.views }}<span class="label-sm text-pink-dark uppercase">{{ . }}</span>{{- end }}
+      {{- if and .Params.views .Params.category }}<span class="w-1.5 h-1.5 rounded-full bg-outline-variant" aria-hidden="true"></span>{{- end }}
+      {{- with .Params.category }}<span class="label-sm text-variant">{{ . }}</span>{{- end }}
+    </div>
+  </div>
+</article>

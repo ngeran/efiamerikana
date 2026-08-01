@@ -1,0 +1,23 @@
+# Dashboard data (CMS-editable). analytics/_index.md holds only page meta;
+# these numbers render the dashboard via site.Data.analytics.
+metrics:
+  - { label: "Content Reach",    value: "1.2M+",  delta: "+12%",  tone: "pink", icon: "public" }
+  - { label: "Engagement Rate",  value: "8.4%",   delta: "+2.1%", tone: "red",  icon: "favorite" }
+  - { label: "Recipe Saves",     value: "42.8K",  delta: "Hot",   tone: "pink", icon: "restaurant_menu" }
+  - { label: "New Followers",    value: "15.2K",  delta: "Weekly", tone: "red",  icon: "group" }
+
+growth:
+  period: "Q3 2024"
+  x_labels: ["JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
+
+platforms:
+  - { name: "Instagram", share: 45, tone: "pink" }
+  - { name: "TikTok",    share: 30, tone: "red" }
+  - { name: "YouTube",   share: 25, tone: "variant" }
+
+geo:
+  title: "Global Footprint"
+  regions:
+    - { country: "United States",  share: "68%" }
+    - { country: "Greece",         share: "18%" }
+    - { country: "United Kingdom", share: "14%" }

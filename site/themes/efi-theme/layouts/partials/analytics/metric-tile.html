@@ -1,0 +1,13 @@
+{{- /* One metric tile. `.` is a metric map: label, value, delta, tone, icon. */ -}}
+{{- $shadow := "shadow-tile-red" -}}
+{{- $icon := "text-tertiary" -}}
+{{- $delta := "text-tertiary" -}}
+{{- if eq .tone "pink" }}{{- $shadow = "shadow-tile-pink" -}}{{- $icon = "text-bougainvillea" -}}{{- $delta = "text-pink-dark" -}}{{- end -}}
+<div class="bg-paper border-2 border-ink p-6 md:p-8 transition-transform duration-300 hover:-translate-x-[3px] hover:-translate-y-[3px] {{ $shadow }}" data-reveal>
+  <span class="material-symbols-outlined text-3xl mb-4 {{ $icon }}" aria-hidden="true">{{ .icon }}</span>
+  <h3 class="label-bold text-variant uppercase mb-1">{{ .label }}</h3>
+  <div class="flex items-baseline gap-2">
+    <span class="text-headline-lg">{{ .value }}</span>
+    <span class="label-sm {{ $delta }}">{{ .delta }}</span>
+  </div>
+</div>

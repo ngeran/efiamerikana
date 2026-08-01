@@ -1,0 +1,24 @@
+{{- /* Dual-source <img>: remote URL used verbatim (v1 placeholders), or a local
+       page-bundle resource processed via .Fill (3:4 crop by default). No CLS:
+       width/height attrs match the processed dims. Hugo can't process remote
+       images, so remote stays a raw <img src>. */ -}}
+{{- $page := .page -}}
+{{- $img := .image -}}
+{{- $size := .size | default "600x800" -}}
+{{- $class := .class | default "w-full h-full object-cover" -}}
+{{- $alt := .alt | default "" -}}
+{{- $src := "" -}}
+{{- $w := 600 -}}
+{{- $h := 800 -}}
+{{- with $img -}}
+  {{- if (urls.Parse .).Host -}}
+    {{- $src = . -}}
+  {{- else -}}
+    {{- with $page.Resources.GetMatch . -}}
+      {{- $fit := .Fill (printf "%s center" $size) -}}
+      {{- $src = $fit.RelPermalink -}}
+      {{- $w = $fit.Width -}}{{- $h = $fit.Height -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+<img class="{{ $class }}" src="{{ $src }}" alt="{{ $alt }}" loading="lazy" width="{{ $w }}" height="{{ $h }}">

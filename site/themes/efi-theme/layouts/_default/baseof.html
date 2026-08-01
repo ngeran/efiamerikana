@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {{ partial "head.html" . }}
+</head>
+<body class="min-h-dvh flex flex-col">
+  <a class="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:top-4 focus:left-4 focus:bg-ink focus:text-white focus:px-6 focus:py-3 focus:label-sm" href="#main">Skip to content</a>
+  {{ partial "header.html" . }}
+  <main id="main" class="pt-20 flex-1 flex flex-col">
+    {{ block "main" . }}{{ end }}
+  </main>
+  {{ partial "footer.html" . }}
+  {{- with (resources.Get "js/main.js" | minify | fingerprint) }}
+  <script src="{{ .RelPermalink }}" defer integrity="{{ .Data.Integrity }}" crossorigin="anonymous"></script>
+  {{- end }}
+</body>
+</html>

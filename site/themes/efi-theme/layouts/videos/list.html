@@ -1,0 +1,19 @@
+{{ define "main" }}
+{{/* Gallery header: eyebrow, lowercase title with accent, lede, optional stat box. */}}
+<section class="max-w-7xl mx-auto w-full px-5 md:px-16 pt-10 md:pt-16 pb-8">
+  <div class="max-w-2xl">
+    <div class="flex items-center gap-4 mb-6">
+      <span class="label-bold uppercase tracking-[0.2em] text-variant">{{ .Params.eyebrow | default "Selected Works" }}</span>
+      <span class="h-0.5 w-12 bg-tertiary" aria-hidden="true"></span>
+    </div>
+    <h1 class="text-headline-xl lowercase">{{ .Params.heading | default "the kitchen" }}
+      <em class="text-pink-dark italic">{{ .Params.heading_accent | default "archives" }}</em>
+    </h1>
+    {{- with .Params.lede }}<p class="text-body-lg text-variant mt-6 max-w-xl">{{ . }}</p>{{- end }}
+  </div>
+</section>
+
+<section class="max-w-7xl mx-auto w-full px-5 md:px-16 pb-14 md:pb-24">
+  {{ partial "cards/media-grid.html" (dict "pages" .Pages "card" "cards/video-card.html") }}
+</section>
+{{ end }}

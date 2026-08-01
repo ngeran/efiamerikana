@@ -1,0 +1,19 @@
+{{- /* Charcoal footer: wordmark + social row + copyright. Sharp corners. */ -}}
+<footer class="w-full bg-ink text-surface-high py-6">
+  <div class="max-w-7xl mx-auto px-5 md:px-16 flex flex-col md:flex-row items-center justify-between gap-6">
+    <a class="font-display font-normal text-white lowercase" href="/" aria-label="{{ .Site.Title }} — home">{{ .Site.Params.handle }}</a>
+
+    {{- with .Site.Params.social }}
+    <nav class="flex flex-wrap items-center gap-4" aria-label="Social links">
+      {{- range . }}
+        <a class="flex items-center gap-3 px-5 py-2 border-2 border-ink label-bold text-surface-high transition-colors hover:bg-saffron hover:text-ink" href="{{ .url }}" rel="me noopener" target="_blank">
+          <span class="material-symbols-outlined" aria-hidden="true">{{ .icon }}</span>
+          {{ .name }}
+        </a>
+      {{- end }}
+    </nav>
+    {{- end }}
+
+    <p class="label-sm text-surface-high/60">© {{ now.Format "2006" }} {{ .Site.Params.brand | upper }}. Bold taste, bold vision.</p>
+  </div>
+</footer>

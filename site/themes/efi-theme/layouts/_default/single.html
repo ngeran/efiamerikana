@@ -1,0 +1,9 @@
+{{- /* Generic single-page fallback. */ -}}
+{{ define "main" }}
+  <article class="single">
+    <div class="single__inner">
+      <h1>{{ .Title }}</h1>
+      <div>{{ .Content }}</div>
+    </div>
+  </article>
+{{ end }}

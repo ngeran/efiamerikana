@@ -1,0 +1,205 @@
+/* =========================================================================
+   input.css — Tailwind v4 source for the Mediterranean Hearth theme.
+   The @theme block IS the custom theme (every token becomes a utility).
+   Compile (devShell only — keeps the Nix image build offline / Node-free):
+       npx @tailwindcss/cli -i src/input.css -o static/css/main.css --minify
+       npx @tailwindcss/cli -i src/input.css -o static/css/main.css --watch
+   Hugo serves static/css/main.css verbatim. Re-run before committing changes.
+   ========================================================================= */
+
+@import "tailwindcss";
+
+/* Scan theme templates (and this project) for used utility classes. */
+@source "../themes/efi-theme/layouts/**/*.html";
+
+/* Tailwind's default spacing (0.25rem unit) + breakpoints (md=48rem/768px,
+   lg=64rem/1024px) already match the spec, so we lean on them directly.      */
+@theme {
+  /* ── Brand palette ── */
+  --color-saffron: #ffde59;          /* primary background */
+  --color-saffron-dim: #e4c542;
+  --color-saffron-deep: #705d00;     /* hover/active on saffron-tone */
+  --color-on-saffron: #756100;
+
+  --color-ink: #1c1b1b;              /* text, 2px borders */
+  --color-paper: #fcf9f8;            /* card fill on saffron */
+  --color-white: #ffffff;
+  --color-variant: #4c4735;          /* muted/meta body */
+
+  --color-tertiary: #c00018;         /* solid red fills + hard shadow + divider */
+  --color-ardent: #ff3a3a;           /* accent text/icons (NOT fills) */
+  --color-bougainvillea: #ff1fa9;    /* primary buttons + hover glow */
+  --color-pink-deep: #de0091;        /* sidebar / strong pink */
+  --color-pink-dark: #b20073;        /* pink text-on-saffron */
+  --color-pink-soft: #ffafd1;
+
+  --color-outline: #7e7763;
+  --color-outline-variant: #cfc6af;
+  --color-surface-lowest: #ffffff;
+  --color-surface-low: #f6f3f2;
+  --color-surface: #f0eded;
+  --color-surface-high: #eae7e7;
+  --color-surface-highest: #e5e2e1;
+
+  /* ── Fonts ── */
+  --font-display: "Libre Caslon Text", Georgia, "Times New Roman", serif;
+  --font-ui: "Work Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* ── Fluid type scale (mobile sizes arrive via clamp) ── */
+  --text-headline-xl: clamp(2.5rem, 1.6rem + 3.6vw, 4rem);
+  --text-headline-xl--line-height: 1.1;
+  --text-headline-xl--letter-spacing: -0.02em;
+  --text-headline-lg: clamp(2rem, 1.4rem + 2.4vw, 3rem);
+  --text-headline-lg--line-height: 1.15;
+  --text-headline-lg--letter-spacing: -0.02em;
+  --text-headline-md: clamp(1.625rem, 1.2rem + 1.6vw, 2rem);
+  --text-headline-md--line-height: 1.25;
+  --text-body-lg: clamp(1.125rem, 1.05rem + 0.3vw, 1.25rem);
+  --text-body-lg--line-height: 1.6;
+  --text-body-md: 1rem;
+  --text-body-md--line-height: 1.6;
+
+  /* ── Hard-offset shadows (NO soft shadows anywhere) ── */
+  --shadow-red: 8px 8px 0 var(--color-tertiary);
+  --shadow-red-sm: 6px 6px 0 var(--color-tertiary);
+  --shadow-pink: 8px 8px 0 var(--color-bougainvillea);
+  --shadow-pink-hover: 12px 12px 0 var(--color-bougainvillea);
+  --shadow-pink-lg: 16px 16px 0 var(--color-tertiary);
+  --shadow-tile-pink: 6px 6px 0 var(--color-bougainvillea);
+  --shadow-tile-red: 6px 6px 0 var(--color-tertiary);
+
+  /* ── Radii: sharp UI (default 0), rounded media only ── */
+  --radius-media: 8px;
+
+  /* ── Motion ── */
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* nav height used by templates */
+  --spacing-nav: 5rem; /* 80px */
+}
+
+/* ── Helio: Material Symbols helper + base typography ── */
+@layer base {
+  body {
+    background-color: var(--color-saffron);
+    color: var(--color-ink);
+    font-family: var(--font-display);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+  :focus-visible { outline: 3px solid var(--color-ardent); outline-offset: 3px; }
+  ::selection { background: var(--color-bougainvillea); color: var(--color-white); }
+
+  .material-symbols-outlined {
+    font-family: "Material Symbols Outlined";
+    font-weight: normal; font-style: normal;
+    line-height: 1; letter-spacing: normal; text-transform: none;
+    display: inline-block; white-space: nowrap; word-wrap: normal; direction: ltr;
+    -webkit-font-feature-settings: "liga"; -webkit-font-smoothing: antialiased;
+    font-variation-settings: "FILL" 0, "wght" 400;
+  }
+}
+
+/* ── Reusable label/eyebrow helpers (heavily repeated) ── */
+@utility eyebrow {
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 0.875rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-tertiary);
+}
+@utility label-bold {
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+@utility label-sm {
+  font-family: var(--font-ui);
+  font-weight: 500;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* ── Buttons & chips (self-contained; sharp corners, hard-offset hover) ── */
+.btn {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  font-family: var(--font-ui); font-weight: 700;
+  font-size: 0.875rem; letter-spacing: 0.05em; text-transform: uppercase;
+  padding: 0.75rem 1.5rem; border: 2px solid var(--color-ink); cursor: pointer;
+  transition: transform 0.3s var(--ease-bounce), box-shadow 0.3s var(--ease-bounce),
+              background 0.3s, color 0.3s;
+}
+.btn-primary { background: var(--color-bougainvillea); color: var(--color-white); }
+.btn-primary:hover { transform: translate(-2px, -2px); box-shadow: var(--shadow-pink-hover); }
+.btn-secondary { background: transparent; color: var(--color-ink); }
+.btn-secondary:hover { background: var(--color-ink); color: var(--color-saffron); }
+
+.chip {
+  display: inline-flex; align-items: center;
+  font-family: var(--font-ui); font-weight: 700;
+  font-size: 0.75rem; letter-spacing: 0.05em; text-transform: uppercase;
+  padding: 0.25rem 0.75rem; background: var(--color-ink); color: var(--color-white);
+}
+
+/* ── Navigation: desktop/mobile visibility + active state ── */
+/* Desktop nav hidden on mobile; toggle + mobile panel hidden on desktop. */
+.desktop-nav { display: none; }
+@media (min-width: 48rem) { .desktop-nav { display: flex; } }
+
+.nav-toggle { display: inline-flex; }
+.mobile-nav { display: none; }
+@media (min-width: 48rem) {
+  .nav-toggle, .mobile-nav { display: none; }
+}
+/* Mobile panel revealed by JS adding html.nav-open (resilient: still links in footer). */
+html.nav-open .mobile-nav { display: flex; }
+body.nav-locked { overflow: hidden; }
+
+/* Toggle icon swap (hamburger ↔ close) based on aria-expanded. */
+.nav-toggle[aria-expanded="true"] .icon-open { display: none; }
+.nav-toggle[aria-expanded="false"] .icon-close { display: none; }
+
+/* Active link: 4px tertiary underline spanning the link's own width. */
+.nav-link[aria-current="page"] {
+  color: var(--color-ink);
+  box-shadow: inset 0 -4px 0 var(--color-tertiary);
+}
+
+/* ── Scroll reveal + chart/bar draw-in (IntersectionObserver in main.js) ── */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(2rem);
+  transition: opacity 0.7s var(--ease-bounce), transform 0.7s var(--ease-bounce);
+}
+[data-reveal].is-visible { opacity: 1; transform: none; }
+html:not(.js) [data-reveal] { opacity: 1; transform: none; }
+
+.animate-draw { stroke-dasharray: 2400; stroke-dashoffset: 2400; }
+.animate-draw.is-visible { animation: draw 1.8s var(--ease-bounce) forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+
+.bars-fill { width: 0; transition: width 1.4s var(--ease-bounce); }
+.bars-fill.is-visible { width: var(--bar-w); }
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

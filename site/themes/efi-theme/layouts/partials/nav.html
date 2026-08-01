@@ -1,0 +1,15 @@
+{{- /* Primary nav. Called twice (desktop + mobile) via dict. */ -}}
+{{- $page := .page -}}
+{{- $mobile := .mobile -}}
+<nav class="{{ .class }}" id="{{ .id | default "" }}" aria-label="{{ .label | default "Primary" }} navigation">
+  {{- range .menu }}
+    {{- $active := false -}}
+    {{- if eq $page.RelPermalink .URL }}{{- $active = true -}}{{- end -}}
+    {{- if and (ne .URL "/") (hasPrefix $page.RelPermalink .URL) }}{{- $active = true -}}{{- end -}}
+    {{- if $mobile }}
+      <a class="nav-link font-display font-normal lowercase text-base block px-5 py-4 text-ink border-b border-ink/10" href="{{ .URL }}"{{ if $active }} aria-current="page"{{ end }}>{{ .Name }}</a>
+    {{- else }}
+      <a class="nav-link font-display font-normal lowercase text-base py-2 text-variant transition-colors hover:text-ink" href="{{ .URL }}"{{ if $active }} aria-current="page"{{ end }}>{{ .Name }}</a>
+    {{- end }}
+  {{- end -}}
+</nav>

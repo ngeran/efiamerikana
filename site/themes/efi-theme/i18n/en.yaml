@@ -1,0 +1,7 @@
+# UI strings (future CMS / translation hook).
+toggle_menu:
+  other: Toggle menu
+skip_to_content:
+  other: Skip to content
+view_portfolio:
+  other: View portfolio

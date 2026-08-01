@@ -1,0 +1,73 @@
+baseURL = "https://efiamerikana.pages.dev/"
+title = "Efi Amerikana"
+theme = "efi-theme"
+enableRobotsTXT = true
+summaryLength = 70
+disableKinds = ["taxonomy", "term"]   # no tags/categories → drop the empty /tags /categories pages
+defaultContentLanguage = "en"
+
+[languages.en]
+  locale = "en-us"
+  label = "English"
+  weight = 1
+
+# ── Site-wide content (future CMS config.yml fields map onto these verbatim) ──
+[params]
+  brand       = "Efi Amerikana"
+  creator     = "Effie Kazantzidis"
+  handle      = "efiamerikana"
+  role        = "Greek-American Home Cook"
+  tagline     = "Authentic Food • Everyday Cooking • UGC Creator"
+  subtagline  = "A little bit of cooking, little bit of humor, and even serious talk sometimes."
+  description = "Effie Kazantzidis (efiamerikana) — Greek-American home cook sharing Mediterranean hearth food. Videos, pictures, and the story behind the flavors."
+  est         = "Est. 1988"
+  location    = "Los Angeles, California"
+  email       = "hello@efiamerikana.com"
+  # Owned portrait served from /static/img/efi-hero.png (1122×1402, 4:5).
+  hero_image  = "/img/efi-hero.png"
+
+[[params.social]]
+  name = "Instagram"
+  url  = "https://instagram.com/efiamerikana"
+  icon = "camera"
+
+[[params.social]]
+  name = "TikTok"
+  url  = "https://tiktok.com/@efiamerikana"
+  icon = "play_circle"
+
+[[params.social]]
+  name = "YouTube"
+  url  = "https://youtube.com/@efiamerikana"
+  icon = "smart_display"
+
+# ── Primary navigation (active state derived per-link in partials/nav.html) ──
+[[menu.main]]
+  name   = "Home"            # display label
+  url    = "/"
+  weight = 1
+
+[[menu.main]]
+  name   = "About Me"
+  url    = "/about/"
+  weight = 2
+
+[[menu.main]]
+  name   = "Favorite Videos"
+  url    = "/videos/"
+  weight = 3
+
+[[menu.main]]
+  name   = "Pictures"
+  url    = "/pictures/"
+  weight = 4
+
+[[menu.main]]
+  name   = "Analytics"
+  url    = "/analytics/"
+  weight = 5
+
+[[menu.main]]
+  name   = "Contact"
+  url    = "/contact/"
+  weight = 6

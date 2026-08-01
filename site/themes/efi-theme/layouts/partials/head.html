@@ -1,0 +1,25 @@
+{{- /* Document <head>: title, meta, fonts, CSS (Tailwind-compiled, fingerprinted), JS. */ -}}
+<title>{{ if and .Title (ne .Title .Site.Title) }}{{ .Title }} — {{ end }}{{ .Site.Title }}</title>
+<meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ .Site.Params.description }}{{ end }}">
+<meta name="theme-color" content="#ffde59">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+{{- /* Fonts: Libre Caslon Text (display/body) + Work Sans (UI) + Material Symbols. */ -}}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,600;0,700;1,400&family=Work+Sans:wght@500;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap">
+
+{{- /* Tailwind v4 output, committed & fingerprinted (pure-Go pipe → offline-safe, SRI). */ -}}
+{{- $css := resources.Get "css/main.css" | fingerprint -}}
+<link rel="stylesheet"
+      href="{{ $css.RelPermalink }}"
+      integrity="{{ $css.Data.Integrity }}"
+      crossorigin="anonymous">
+
+{{- /* Open Graph basics. */ -}}
+<meta property="og:title" content="{{ with .Title }}{{ . }}{{ else }}{{ .Site.Title }}{{ end }}">
+<meta property="og:site_name" content="{{ .Site.Title }}">
+<meta property="og:type" content="{{ if .IsSection }}website{{ else if .IsPage }}article{{ else }}website{{ end }}">
+<meta property="og:description" content="{{ with .Description }}{{ . }}{{ else }}{{ .Site.Params.description }}{{ end }}">
+<meta name="twitter:card" content="summary_large_image">

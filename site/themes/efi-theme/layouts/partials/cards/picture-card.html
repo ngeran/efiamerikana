@@ -1,0 +1,13 @@
+{{- /* Picture gallery card: same 3:4 media chrome as videos (consistent per spec),
+       but no duration/play — caption + category meta instead. */ -}}
+<article class="group flex flex-col gap-4" data-reveal>
+  <a class="relative block aspect-[4/3] overflow-hidden rounded-lg border-2 border-ink shadow-red transition-all duration-300 group-hover:-translate-x-1 group-hover:-translate-y-1 group-hover:shadow-pink-hover"
+     href="{{ .RelPermalink }}" aria-label="{{ .Title }}">
+    {{ partial "img.html" (dict "page" . "image" .Params.image "alt" .Title) }}
+  </a>
+  <div class="mt-1">
+    <h3 class="text-headline-md font-semibold"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+    {{- with .Params.caption }}<p class="text-variant mt-2">{{ . }}</p>{{- end }}
+    {{- with .Params.category }}<span class="label-sm text-variant mt-2 block">{{ . }}</span>{{- end }}
+  </div>
+</article>

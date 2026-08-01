@@ -1,0 +1,9 @@
+{{- /* Shared responsive 3×2 grid wrapper (videos + pictures look identical).
+       Pass .pages (a Page collection) and .card (the partial name). */ -}}
+{{- $card := .card -}}
+{{- $pages := .pages -}}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+  {{- range $pages -}}
+    {{- partial $card . -}}
+  {{- end -}}
+</div>

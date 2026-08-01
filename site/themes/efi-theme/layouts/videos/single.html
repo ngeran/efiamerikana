@@ -1,0 +1,30 @@
+{{ define "main" }}
+<article class="max-w-7xl mx-auto w-full px-5 md:px-16 py-12 md:py-20">
+  <div class="max-w-3xl mx-auto flex flex-col gap-6">
+    <a class="label-bold text-variant hover:text-ink" href="/videos/">← Back to videos</a>
+    <h1 class="text-headline-xl">{{ .Title }}</h1>
+
+    <div class="flex flex-wrap items-center gap-4">
+      {{- with .Params.category }}<span class="chip">{{ . }}</span>{{- end }}
+      {{- with .Params.duration }}<span class="label-sm text-variant">{{ . }}</span>{{- end }}
+      {{- with .Params.views }}<span class="label-sm text-pink-dark uppercase">{{ . }}</span>{{- end }}
+    </div>
+
+    {{- if .Params.embed_url }}
+    <div class="aspect-video border-2 border-ink shadow-red">
+      <iframe class="w-full h-full" src="{{ .Params.embed_url }}" title="{{ .Title }}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+    </div>
+    {{- else }}
+    <figure class="aspect-[4/5] max-w-xs overflow-hidden rounded-lg border-2 border-ink shadow-red">
+      {{ partial "img.html" (dict "page" . "image" .Params.image "alt" .Title "size" "800x600") }}
+    </figure>
+    {{- end }}
+
+    {{- with .Content }}<div class="text-body-lg text-variant">{{ . }}</div>{{- end }}
+
+    {{- with .Params.external_url }}
+    <a class="btn btn-primary self-start mt-2" href="{{ . }}" target="_blank" rel="noopener">Watch externally →</a>
+    {{- end }}
+  </div>
+</article>
+{{ end }}

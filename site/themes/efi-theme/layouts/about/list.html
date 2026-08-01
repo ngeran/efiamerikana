@@ -1,0 +1,54 @@
+{{ define "main" }}
+<section class="max-w-7xl mx-auto w-full px-5 md:px-16 py-12 md:py-20">
+  {{/* Eyebrow sits above the grid so the portrait's top aligns with the headline's top. */}}
+  <div class="flex items-center gap-4 mb-8 md:mb-10" data-reveal>
+    <span class="eyebrow !text-ink">{{ .Params.eyebrow | default "The Story" }}</span>
+    <span class="h-0.5 w-12 bg-tertiary" aria-hidden="true"></span>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-[2fr_3fr] gap-12 md:gap-16 items-start">
+
+    {{/* ── Copy column ── */}}
+    <div class="flex flex-col" data-reveal>
+      <h1 class="text-headline-xl">
+        {{ .Params.headline | default "Authenticity is the" }}
+        <em class="text-pink-dark italic">{{ .Params.headline_accent | default "Main Ingredient." }}</em>
+      </h1>
+
+      <div class="mt-8 max-w-2xl text-body-lg text-variant [&_p+p]:mt-6">
+        {{ .Content }}
+      </div>
+
+      {{- if or .Params.philosophy .Params.signature }}
+      <dl class="grid grid-cols-1 sm:grid-cols-2 gap-8 mt-12 pt-8 border-t-2 border-ink/10">
+        {{- with .Params.philosophy }}
+        <div>
+          <dt class="label-bold">{{ $.Params.philosophy_label | default "Philosophy" }}</dt>
+          <dd class="mt-2 text-variant">{{ . }}</dd>
+        </div>
+        {{- end }}
+        {{- with .Params.signature }}
+        <div>
+          <dt class="label-bold">{{ $.Params.signature_label | default "Signature" }}</dt>
+          <dd class="mt-2 text-variant">{{ . }}</dd>
+        </div>
+        {{- end }}
+      </dl>
+      {{- end }}
+    </div>
+
+    {{/* ── Media column: portrait with offset backer + hard red shadow ── */}}
+    <div class="relative" data-reveal>
+      <div class="absolute inset-0 bg-pink-deep border-2 border-ink translate-x-4 translate-y-4" aria-hidden="true"></div>
+      <figure class="relative border-2 border-ink overflow-hidden rounded-lg aspect-[4/5] shadow-pink-lg transition-transform duration-300 hover:-translate-y-2">
+        {{- with .Params.image }}
+        <img class="w-full h-full object-cover" src="{{ . }}" alt="{{ $.Site.Params.creator }}" width="600" height="750" loading="lazy">
+        {{- end }}
+      </figure>
+      {{- with .Params.est }}
+      <span class="hidden md:block absolute left-[-2rem] top-1/2 -translate-y-1/2 -rotate-90 bg-ink text-white px-6 py-2 label-sm">{{ . }}</span>
+      {{- end }}
+    </div>
+  </div>
+</section>
+{{ end }}

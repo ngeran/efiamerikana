@@ -1,0 +1,43 @@
+{{- /* Home hero: portrait · name · tagline · red divider · pink "view portfolio" sidebar. */ -}}
+{{- $p := .Site.Params -}}
+{{- $videos := site.GetPage "/videos" -}}
+<section class="relative flex flex-col bg-saffron lg:grid lg:grid-cols-[1fr_2.25rem_14rem] flex-1 max-w-7xl mx-auto w-full">
+  <div class="px-5 md:px-16 py-10 md:py-12 flex flex-col md:flex-row items-center md:items-center lg:self-center gap-10 md:gap-6">
+    <div class="w-[16rem] sm:w-[18rem] md:w-[20rem] lg:w-[20rem] xl:w-[37rem] shrink-0 mx-auto md:mx-0">
+      <figure class="relative w-full aspect-[4/5] overflow-hidden rounded-lg border-2 border-ink shadow-red">
+        {{- with $p.hero_image }}
+        <img class="w-full h-full object-cover" src="{{ . }}" alt="{{ $p.creator }}" width="720" height="900" loading="eager">
+        {{- end }}
+      </figure>
+    </div>
+
+    <div class="flex-1 flex flex-col gap-6 md:gap-8">
+      <div>
+        {{- $parts := split $p.creator " " -}}
+        <h1 class="text-headline-lg leading-[1.05]">
+          {{ index $parts 0 }}<br>
+          {{ index $parts 1 }}<br>
+          <span class="text-pink-dark">({{ $p.handle }})</span>
+        </h1>
+        <div class="w-24 h-1 bg-tertiary mt-4" aria-hidden="true"></div>
+      </div>
+      <div class="flex flex-col gap-4">
+        <p class="text-headline-md font-semibold text-variant">{{ $p.role }}</p>
+        <p class="label-bold text-ink">{{ $p.tagline }}</p>
+        <p class="text-body-lg italic text-variant max-w-lg">{{ $p.subtagline }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="hidden lg:block bg-tertiary" aria-hidden="true"></div>
+
+  <aside class="bg-pink-deep text-white flex flex-col items-center justify-center gap-6 text-center px-8 py-10">
+    <span class="font-display font-normal text-headline-md leading-tight text-ink">view my<br>portfolio</span>
+    {{- with $videos }}
+    <a class="w-20 h-20 rounded-full border-[3px] border-ink bg-ink grid place-items-center text-white transition-colors hover:bg-white hover:text-ink"
+       href="{{ .RelPermalink }}" aria-label="View portfolio">
+      <span class="material-symbols-outlined text-5xl ml-1" aria-hidden="true" style="font-variation-settings:'FILL' 1;">play_arrow</span>
+    </a>
+    {{- end }}
+  </aside>
+</section>

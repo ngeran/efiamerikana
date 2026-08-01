@@ -1,0 +1,9 @@
+# Theme metadata only — site config lives in site/hugo.toml.
+name = "efi-theme"
+license = "Proprietary"
+description = "Mediterranean Hearth — a bold neo-bistro theme for Efi Amerikana (efiamerikana), Greek-American home cook."
+tags = ["food", "portfolio", "creator", "magazine", "responsive"]
+min_version = "0.128.0"
+
+[author]
+name = "Efi Amerikana"
