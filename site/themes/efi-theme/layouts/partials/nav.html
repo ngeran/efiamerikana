@@ -2,14 +2,14 @@
 {{- $page := .page -}}
 {{- $mobile := .mobile -}}
 <nav class="{{ .class }}" id="{{ .id | default "" }}" aria-label="{{ .label | default "Primary" }} navigation">
-  {{- range .menu }}
+  {{- range sort .menu "weight" }}
     {{- $active := false -}}
-    {{- if eq $page.RelPermalink .URL }}{{- $active = true -}}{{- end -}}
-    {{- if and (ne .URL "/") (hasPrefix $page.RelPermalink .URL) }}{{- $active = true -}}{{- end -}}
+    {{- if eq $page.RelPermalink .url }}{{- $active = true -}}{{- end -}}
+    {{- if and (ne .url "/") (hasPrefix $page.RelPermalink .url) }}{{- $active = true -}}{{- end -}}
     {{- if $mobile }}
-      <a class="nav-link font-display font-normal lowercase text-lg block px-5 md:px-8 py-4 text-ink border-b border-ink/10" href="{{ .URL }}"{{ if $active }} aria-current="page"{{ end }}>{{ .Name }}</a>
+      <a class="nav-link font-display font-normal lowercase text-lg block px-5 md:px-8 py-4 text-ink border-b border-ink/10" href="{{ .url }}"{{ if $active }} aria-current="page"{{ end }}>{{ .name }}</a>
     {{- else }}
-      <a class="nav-link font-display font-normal lowercase text-lg py-2 text-variant transition-colors hover:text-ink" href="{{ .URL }}"{{ if $active }} aria-current="page"{{ end }}>{{ .Name }}</a>
+      <a class="nav-link font-display font-normal lowercase text-lg py-2 text-variant transition-colors hover:text-ink" href="{{ .url }}"{{ if $active }} aria-current="page"{{ end }}>{{ .name }}</a>
     {{- end }}
   {{- end -}}
 </nav>

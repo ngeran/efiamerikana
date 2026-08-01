@@ -12,7 +12,7 @@
       <span class="material-symbols-outlined icon-close" aria-hidden="true">close</span>
     </button>
 
-    {{ partial "nav.html" (dict "menu" .Site.Menus.main "page" . "class" "desktop-nav items-center gap-8") }}
-    {{ partial "nav.html" (dict "menu" .Site.Menus.main "page" . "class" "mobile-nav absolute top-full inset-x-0 z-50 flex-col bg-saffron border-b border-ink/10" "id" "primary-nav" "label" "Mobile" "mobile" true) }}
+    {{ partial "nav.html" (dict "menu" site.Data.site.menu "page" . "class" "desktop-nav items-center gap-8") }}
+    {{ partial "nav.html" (dict "menu" site.Data.site.menu "page" . "class" "mobile-nav absolute top-full inset-x-0 z-50 flex-col bg-saffron border-b border-ink/10" "id" "primary-nav" "label" "Mobile" "mobile" true) }}
   </div>
 </header>

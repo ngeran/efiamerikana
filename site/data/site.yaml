@@ -22,3 +22,11 @@ social:
   - name: "YouTube"
     url: "https://youtube.com/@efiamerikana"
     icon: "smart_display"
+footer_tagline: "Bold taste, bold vision."
+menu:
+  - { name: "Home",            url: "/",          weight: 1 }
+  - { name: "About Me",        url: "/about/",    weight: 2 }
+  - { name: "Favorite Videos", url: "/videos/",   weight: 3 }
+  - { name: "Pictures",        url: "/pictures/", weight: 4 }
+  - { name: "Analytics",       url: "/analytics/",weight: 5 }
+  - { name: "Contact",         url: "/contact/",  weight: 6 }
