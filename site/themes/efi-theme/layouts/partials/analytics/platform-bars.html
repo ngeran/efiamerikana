@@ -1,5 +1,5 @@
 {{- /* Platform distribution bars. Width animates from 0 → share% on reveal. */ -}}
-<div class="bg-paper border-2 border-ink shadow-tile-pink p-8" data-reveal>
+<div class="bg-paper border-2 border-ink rounded-2xl p-8" data-reveal>
   <h2 class="text-headline-md mb-8">Ecosystem Mix</h2>
   <div class="flex flex-col gap-7">
     {{- range hugo.Data.analytics.platforms -}}
@@ -11,8 +11,8 @@
           <span class="label-bold uppercase">{{ .name }}</span>
           <span class="text-headline-md {{ $txt }}">{{ .share }}%</span>
         </div>
-        <div class="h-4 bg-surface overflow-hidden">
-          <div class="bars-fill h-full {{ $bar }}" style="--bar-w: {{ .share }}%"></div>
+        <div class="h-4 bg-surface overflow-hidden rounded-full">
+          <div class="bars-fill h-full rounded-full {{ $bar }}" style="--bar-w: {{ .share }}%"></div>
         </div>
       </div>
     {{- end -}}

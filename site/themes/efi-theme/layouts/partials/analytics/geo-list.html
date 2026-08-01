@@ -1,6 +1,6 @@
 {{- /* Dark "Global Footprint" geo strip. */ -}}
 {{- $geo := hugo.Data.analytics.geo -}}
-<div class="bg-ink text-surface-high border-2 border-ink shadow-tile-red p-8" data-reveal>
+<div class="bg-ink text-surface-high border-2 border-ink rounded-2xl p-8" data-reveal>
   <h2 class="label-bold text-surface-high uppercase mb-6">{{ $geo.title }}</h2>
   <ul class="flex flex-col gap-4 list-none p-0 m-0">
     {{- range $i, $r := $geo.regions -}}

@@ -6,7 +6,7 @@
     <span class="h-0.5 w-12 bg-tertiary" aria-hidden="true"></span>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-[2fr_3fr] gap-12 md:gap-16 items-start">
+  <div class="grid grid-cols-1 md:grid-cols-[3fr_2fr] gap-12 md:gap-16 items-start">
 
     {{/* ── Copy column ── */}}
     <div class="flex flex-col" data-reveal>
@@ -37,9 +37,8 @@
       {{- end }}
     </div>
 
-    {{/* ── Media column: portrait with offset backer + hard red shadow ── */}}
-    <div class="relative" data-reveal>
-      <div class="absolute inset-0 bg-pink-deep border-2 border-ink translate-x-4 translate-y-4" aria-hidden="true"></div>
+    {{/* ── Media column: portrait ── */}}
+    <div class="relative max-w-sm mx-auto" data-reveal>
       <figure class="relative border-2 border-ink overflow-hidden rounded-lg aspect-[4/5]">
         {{- with .Params.image }}
         <img class="w-full h-full object-cover" src="{{ . }}" alt="{{ $.Site.Params.creator }}" width="600" height="750" loading="lazy">
