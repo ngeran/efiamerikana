@@ -8,9 +8,9 @@ backend:
   name: github
   repo: ngeran/efiamerikana
   branch: main
-  base_url: https://efiamerikana-cms-oauth.REPLACE.workers.dev
+  base_url: https://efiamerikana-cms-oauth.ngeran.workers.dev
   auth_endpoint: /auth
-  app_id: REPLACE_WITH_GITHUB_OAUTH_CLIENT_ID
+  app_id: Ov23licpD5ptuMAlcOPt
 
 # No editorial_workflow → every save commits straight to main (instant deploy).
 site_url: https://efiamerikana.pages.dev
