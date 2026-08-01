@@ -6,7 +6,7 @@
     <div class="md:col-span-6">
       <div class="relative w-full max-w-xs mx-auto md:mx-0">
         <div class="absolute -inset-4 border-2 border-pink-deep rotate-3" aria-hidden="true"></div>
-        <div class="relative w-full aspect-[4/5] bg-ink overflow-hidden rounded-lg border-2 border-ink shadow-pink-lg">
+        <div class="relative w-full aspect-[4/5] bg-ink overflow-hidden rounded-lg border-2 border-ink">
           {{- with .Params.image }}
           <img class="w-full h-full object-cover" src="{{ . }}" alt="{{ $.Site.Params.creator }}" loading="lazy">
           {{- end }}

@@ -1,0 +1,8 @@
+name = "efiamerikana-cms-oauth"
+main = "worker.js"
+compatibility_date = "2024-11-01"
+
+# No vars here — credentials are SECRETS, not version-controlled.
+# Set them once (see README.md):
+#   wrangler secret put OAUTH_CLIENT_ID
+#   wrangler secret put OAUTH_CLIENT_SECRET

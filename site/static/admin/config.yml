@@ -1,0 +1,94 @@
+# Sveltia/Decap CMS config — Efi Amerikana
+# Git-based: edits commit to GitHub → the Cloudflare Pages Action rebuilds the site.
+#
+# BEFORE FIRST USE — fill in these two (see cms-oauth/README.md):
+#   base_url : your deployed OAuth Worker URL (https://…workers.dev)
+#   app_id   : the Client ID of the GitHub OAuth App you created
+backend:
+  name: github
+  repo: ngeran/efiamerikana
+  branch: main
+  base_url: https://efiamerikana-cms-oauth.REPLACE.workers.dev
+  auth_endpoint: /auth
+  app_id: REPLACE_WITH_GITHUB_OAUTH_CLIENT_ID
+
+# No editorial_workflow → every save commits straight to main (instant deploy).
+site_url: https://efiamerikana.pages.dev
+
+# CMS uploads land in the repo here and are served from this URL path.
+media_folder: "site/static/img"
+public_folder: "/img"
+
+collections:
+  # ── Videos ──────────────────────────────────────────────────────
+  - name: "videos"
+    label: "Videos"
+    label_singular: "Video"
+    folder: "content/videos"
+    create: true
+    delete: true
+    extension: "md"
+    format: "frontmatter"
+    slug: "{{slug}}"
+    summary: "{{title}} — {{category}} ({{views}})"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Publish date", name: "date", widget: "datetime" }
+      - { label: "Draft", name: "draft", widget: "boolean", default: false }
+      - { label: "Category", name: "category", widget: "string", required: false }
+      - { label: "Views", name: "views", widget: "string", required: false }
+      - { label: "Duration", name: "duration", widget: "string", required: false }
+      - { label: "Cover image", name: "image", widget: "image", required: false }
+      - { label: "Embed URL (iframe)", name: "embed_url", widget: "string", required: false }
+      - { label: "External watch URL", name: "external_url", widget: "string", required: false }
+      - { label: "Short description", name: "description", widget: "string", required: false }
+      - { label: "Body (notes)", name: "body", widget: "markdown", required: false }
+
+  # ── Pictures ────────────────────────────────────────────────────
+  - name: "pictures"
+    label: "Pictures"
+    label_singular: "Picture"
+    folder: "content/pictures"
+    create: true
+    delete: true
+    extension: "md"
+    format: "frontmatter"
+    slug: "{{slug}}"
+    summary: "{{title}} — {{category}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Publish date", name: "date", widget: "datetime" }
+      - { label: "Draft", name: "draft", widget: "boolean", default: false }
+      - { label: "Category", name: "category", widget: "string", required: false }
+      - { label: "Image", name: "image", widget: "image" }
+      - { label: "Caption", name: "caption", widget: "string", required: false }
+      - { label: "Body", name: "body", widget: "markdown", required: false }
+
+  # ── Pages (single-file sections) ────────────────────────────────
+  - name: "pages"
+    label: "Pages"
+    delete: false
+    files:
+      - label: "About"
+        name: "about"
+        file: "content/about/_index.md"
+        fields:
+          - { label: "Title", name: "title", widget: "string" }
+          - { label: "SEO title", name: "seo_title", widget: "string", required: false }
+          - { label: "Description", name: "description", widget: "string" }
+          - { label: "Eyebrow", name: "eyebrow", widget: "string" }
+          - { label: "Headline", name: "headline", widget: "string" }
+          - { label: "Headline accent", name: "headline_accent", widget: "string" }
+          - { label: "Established", name: "est", widget: "string", required: false }
+          - { label: "Philosophy label", name: "philosophy_label", widget: "string", required: false }
+          - { label: "Philosophy", name: "philosophy", widget: "string", required: false }
+          - { label: "Signature label", name: "signature_label", widget: "string", required: false }
+          - { label: "Signature", name: "signature", widget: "string", required: false }
+          - { label: "Portrait image", name: "image", widget: "image" }
+          - { label: "Body", name: "body", widget: "markdown" }
+
+# NOTE — intentionally NOT editing hugo.toml or data/analytics.yaml from the CMS:
+#   • hugo.toml holds the [[params.social]] array + nested tables that Decap would clobber.
+#   • analytics.yaml is a structured data file (edit it directly in the repo).
+# Site-wide settings (brand/handle/tagline/hero image/socials) can move to a CMS-editable
+# data/site.yaml later if you want them in the editor.

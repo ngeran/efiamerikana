@@ -45,7 +45,7 @@
       if (e.key === "Escape") closeNav();
     });
     // Reset state past the tablet breakpoint.
-    var mq = window.matchMedia("(min-width: 48em)");
+    var mq = window.matchMedia("(min-width: 64em)");
     var onBreak = function () { if (mq.matches) closeNav(); };
     if (mq.addEventListener) mq.addEventListener("change", onBreak);
     else if (mq.addListener) mq.addListener(onBreak);

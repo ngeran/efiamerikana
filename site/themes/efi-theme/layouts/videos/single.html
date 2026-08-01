@@ -11,11 +11,11 @@
     </div>
 
     {{- if .Params.embed_url }}
-    <div class="aspect-video border-2 border-ink shadow-red">
+    <div class="aspect-video border-2 border-ink">
       <iframe class="w-full h-full" src="{{ .Params.embed_url }}" title="{{ .Title }}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
     </div>
     {{- else }}
-    <figure class="aspect-[4/5] max-w-xs overflow-hidden rounded-lg border-2 border-ink shadow-red">
+    <figure class="aspect-[4/5] max-w-xs overflow-hidden rounded-lg border-2 border-ink">
       {{ partial "img.html" (dict "page" . "image" .Params.image "alt" .Title "size" "800x600") }}
     </figure>
     {{- end }}

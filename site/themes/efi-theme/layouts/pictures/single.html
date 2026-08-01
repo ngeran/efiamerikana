@@ -8,7 +8,7 @@
       {{- with .Params.date }}<span class="label-sm text-variant">{{ . | time.Format "January 2, 2006" }}</span>{{- end }}
     </div>
 
-    <figure class="aspect-[4/5] max-w-xs overflow-hidden rounded-lg border-2 border-ink shadow-red">
+    <figure class="aspect-[4/5] max-w-xs overflow-hidden rounded-lg border-2 border-ink">
       {{ partial "img.html" (dict "page" . "image" .Params.image "alt" .Title) }}
     </figure>
 

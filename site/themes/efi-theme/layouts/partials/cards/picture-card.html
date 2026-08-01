@@ -1,7 +1,7 @@
 {{- /* Picture gallery card: same 3:4 media chrome as videos (consistent per spec),
        but no duration/play — caption + category meta instead. */ -}}
 <article class="group flex flex-col gap-4" data-reveal>
-  <a class="relative block aspect-[4/3] overflow-hidden rounded-lg border-2 border-ink shadow-red transition-all duration-300 group-hover:-translate-x-1 group-hover:-translate-y-1 group-hover:shadow-pink-hover"
+  <a class="relative block aspect-[4/3] overflow-hidden rounded-lg border-2 border-ink"
      href="{{ .RelPermalink }}" aria-label="{{ .Title }}">
     {{ partial "img.html" (dict "page" . "image" .Params.image "alt" .Title) }}
   </a>

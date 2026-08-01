@@ -28,6 +28,7 @@
 
   --color-tertiary: #c00018;         /* solid red fills + hard shadow + divider */
   --color-ardent: #ff3a3a;           /* accent text/icons (NOT fills) */
+  --color-brick: #8b0000;            /* dark red — reference accent (dividers, lines, borders) */
   --color-bougainvillea: #ff1fa9;    /* primary buttons + hover glow */
   --color-pink-deep: #de0091;        /* sidebar / strong pink */
   --color-pink-dark: #b20073;        /* pink text-on-saffron */
@@ -157,11 +158,11 @@
 /* ── Navigation: desktop/mobile visibility + active state ── */
 /* Desktop nav hidden on mobile; toggle + mobile panel hidden on desktop. */
 .desktop-nav { display: none; }
-@media (min-width: 48rem) { .desktop-nav { display: flex; } }
+@media (min-width: 64rem) { .desktop-nav { display: flex; } }   /* lg (1024): tablet portrait uses the hamburger */
 
 .nav-toggle { display: inline-flex; }
 .mobile-nav { display: none; }
-@media (min-width: 48rem) {
+@media (min-width: 64rem) {
   .nav-toggle, .mobile-nav { display: none; }
 }
 /* Mobile panel revealed by JS adding html.nav-open (resilient: still links in footer). */
@@ -175,7 +176,7 @@ body.nav-locked { overflow: hidden; }
 /* Active link: 4px tertiary underline spanning the link's own width. */
 .nav-link[aria-current="page"] {
   color: var(--color-ink);
-  box-shadow: inset 0 -4px 0 var(--color-tertiary);
+  box-shadow: inset 0 -4px 0 var(--color-brick);
 }
 
 /* ── Scroll reveal + chart/bar draw-in (IntersectionObserver in main.js) ── */

@@ -11,7 +11,8 @@
 {{- $w := 600 -}}
 {{- $h := 800 -}}
 {{- with $img -}}
-  {{- if (urls.Parse .).Host -}}
+  {{- if or (urls.Parse .).Host (hasPrefix . "/") -}}
+    {{- /* remote URL, or a static asset path like /img/x.png (CMS uploads) — use verbatim */ -}}
     {{- $src = . -}}
   {{- else -}}
     {{- with $page.Resources.GetMatch . -}}
