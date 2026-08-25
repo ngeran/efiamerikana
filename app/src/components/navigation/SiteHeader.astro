@@ -1,0 +1,289 @@
+---
+import Icon from '../ui/Icon.astro';
+import { locales, localeSwitcherLabel, type Locale } from '../../i18n/config';
+import { switchLocale } from '../../i18n/utils';
+import { translator } from '../../i18n/ui';
+import type { SectionId } from '../../content.config';
+
+interface NavItem {
+  id: SectionId;
+  label: string;
+}
+
+interface Props {
+  locale: Locale;
+  /** Localized nav items for enabled sections (footer excluded). */
+  navItems: NavItem[];
+  /** Mailto target for the always-visible email icon. */
+  email: string;
+  /** '' on the landing page (pure #anchors) or `/{locale}` on subpages. */
+  anchorBase?: string;
+  /** Enable the scroll-spy active-section indicator (landing page only). */
+  spy?: boolean;
+  /** Path of the current page, locale-included, for the language switcher. */
+  currentPath: string;
+}
+
+const { locale, navItems, email, anchorBase = '', spy = false, currentPath } = Astro.props;
+
+const t = translator(locale);
+
+const linkClasses = [
+  'font-label text-xs font-bold tracking-[0.18em] uppercase transition-[text-decoration] duration-200',
+  'hover:underline hover:decoration-2 hover:underline-offset-8',
+  'aria-[current=true]:underline aria-[current=true]:decoration-2 aria-[current=true]:underline-offset-8',
+].join(' ');
+
+const langClasses = (active: boolean) =>
+  [
+    'transition-[text-decoration] duration-200 hover:underline hover:decoration-2 hover:underline-offset-8',
+    active ? 'text-charcoal underline decoration-2 underline-offset-8' : 'text-charcoal',
+  ].join(' ');
+---
+
+<header
+  id="site-header"
+  class="fixed inset-x-0 top-0 z-50 w-full border-b border-charcoal/10 bg-brand-yellow/90 text-charcoal backdrop-blur-md"
+>
+  <div class="shell flex h-16 items-center justify-between gap-3">
+    <a
+      href={`/${locale}`}
+      class="font-display text-xl font-bold tracking-tight whitespace-nowrap lowercase"
+      >{t.wordmark}</a
+    >
+
+    <!-- Desktop section links -->
+    <nav class="desktop-nav hidden lg:flex" aria-label={t.mainNav}>
+      <ul class="flex items-center gap-5 xl:gap-7">
+        {
+          navItems.map((item) => (
+            <li>
+              <a
+                href={`${anchorBase}#${item.id}`}
+                data-nav-link={spy ? item.id : undefined}
+                class={linkClasses}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="flex items-center gap-2 sm:gap-3">
+      <!-- Language switcher: EN | ΕΛ -->
+      <nav
+        class="flex items-center gap-1.5 font-label text-xs font-bold tracking-[0.18em] uppercase"
+        aria-label={t.languageSwitch}
+      >
+        {
+          locales.map((l, i) => (
+            <span class="flex items-center gap-1.5">
+              {i > 0 && (
+                <span class="text-charcoal/30" aria-hidden="true">
+                  |
+                </span>
+              )}
+              <a
+                href={l === locale ? currentPath : switchLocale(currentPath, l)}
+                hreflang={l}
+                aria-current={l === locale ? 'page' : undefined}
+                aria-label={l === locale ? undefined : translator(l).switchToLocale}
+                class={langClasses(l === locale)}
+              >
+                {localeSwitcherLabel(l)}
+              </a>
+            </span>
+          ))
+        }
+      </nav>
+
+      <!-- Email icon: visible at every viewport size (label from md up) -->
+      <a
+        href={`mailto:${email}`}
+        class="group flex items-center gap-2 rounded-full px-2 py-1.5 transition-colors duration-200 hover:bg-charcoal/5"
+        aria-label={`${t.emailAria} (${email})`}
+      >
+        <Icon
+          name="mail"
+          class="h-5 w-5 shrink-0 text-brand-red transition-transform duration-200 group-hover:scale-110"
+        />
+        <span
+          class="hidden border-b-2 border-charcoal/20 font-label text-xs font-bold tracking-[0.18em] whitespace-nowrap uppercase md:inline-block"
+        >
+          {t.emailLabel}
+        </span>
+      </a>
+
+      <!-- Mobile menu toggle -->
+      <button
+        id="menu-toggle"
+        type="button"
+        class="grid h-10 w-10 place-items-center rounded-full transition-colors duration-200 hover:bg-charcoal/5 lg:hidden"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+        data-label-open={t.openMenu}
+        data-label-close={t.closeMenu}
+      >
+        <span class="sr-only">{t.openMenu}</span>
+        <Icon name="menu" class="h-6 w-6" />
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile menu panel -->
+  <div id="mobile-menu" hidden class="border-t border-charcoal/10 bg-brand-yellow lg:hidden">
+    <nav
+      class="mobile-nav shell flex max-h-[calc(100dvh-4rem)] flex-col overflow-y-auto py-4"
+      aria-label={t.mainNav}
+    >
+      <ul class="flex flex-col">
+        {
+          navItems.map((item) => (
+            <li>
+              <a
+                href={`${anchorBase}#${item.id}`}
+                class="mobile-link flex items-center justify-between border-b border-charcoal/10 py-3.5 font-label text-sm font-bold tracking-[0.18em] uppercase transition-[text-decoration] duration-200 hover:underline hover:decoration-2 hover:underline-offset-8"
+              >
+                {item.label}
+                <Icon name="chevron-right" class="h-4 w-4 text-charcoal/40" />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <div class="flex flex-wrap items-center justify-between gap-4 pt-4">
+        <div
+          class="flex items-center gap-1.5 font-label text-sm font-bold tracking-[0.18em] uppercase"
+        >
+          {
+            locales.map((l, i) => (
+              <span class="flex items-center gap-1.5">
+                {i > 0 && (
+                  <span class="text-charcoal/30" aria-hidden="true">
+                    |
+                  </span>
+                )}
+                <a
+                  href={l === locale ? currentPath : switchLocale(currentPath, l)}
+                  hreflang={l}
+                  aria-current={l === locale ? 'page' : undefined}
+                  class={langClasses(l === locale)}
+                >
+                  {localeSwitcherLabel(l)}
+                </a>
+              </span>
+            ))
+          }
+        </div>
+        <a
+          href={`mailto:${email}`}
+          class="mobile-link flex items-center gap-2 font-label text-sm font-bold tracking-[0.18em] uppercase"
+        >
+          <Icon name="mail" class="h-5 w-5 text-brand-red" />
+          {t.emailLabel}
+        </a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<script>
+  // ------------------------------------------------------------------
+  // Mobile menu: disclosure with Escape, focus management and a light
+  // focus trap while open. Closes on link activation and on lg breakpoint.
+  // ------------------------------------------------------------------
+  const toggle = document.getElementById('menu-toggle');
+  const panel = document.getElementById('mobile-menu');
+
+  const focusablesIn = (root: HTMLElement | null): HTMLElement[] =>
+    root
+      ? Array.from(root.querySelectorAll<HTMLElement>('a, button')).filter(
+          (el) => el.offsetParent !== null,
+        )
+      : [];
+
+  function syncLabel(open: boolean): void {
+    if (!toggle) return;
+    const label = toggle.getAttribute('data-label-' + (open ? 'close' : 'open'));
+    if (label) {
+      toggle.setAttribute('aria-label', label);
+      const sr = toggle.querySelector('.sr-only');
+      if (sr) sr.textContent = label;
+    }
+  }
+
+  function setMenu(open: boolean): void {
+    if (!toggle || !panel) return;
+    const wasOpen = !panel.hidden;
+    panel.hidden = !open;
+    toggle.setAttribute('aria-expanded', String(open));
+    document.body.classList.toggle('overflow-hidden', open);
+    syncLabel(open);
+    if (open) {
+      focusablesIn(panel)[0]?.focus();
+    } else if (wasOpen) {
+      toggle.focus();
+    }
+  }
+
+  toggle?.addEventListener('click', () => setMenu(panel?.hidden ?? false));
+
+  panel?.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      setMenu(false);
+      return;
+    }
+    if (event.key === 'Tab') {
+      const items = focusablesIn(panel);
+      if (items.length === 0) return;
+      const first = items[0]!;
+      const last = items[items.length - 1]!;
+      const active = document.activeElement as HTMLElement | null;
+      if (event.shiftKey && active === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+  });
+
+  panel?.addEventListener('click', (event) => {
+    if ((event.target as HTMLElement).closest('a') !== null) setMenu(false);
+  });
+
+  window.matchMedia('(min-width: 1024px)').addEventListener('change', (mq) => {
+    if (mq.matches) setMenu(false);
+  });
+
+  // ------------------------------------------------------------------
+  // Scroll-spy: mark the nav link of the section in view as current.
+  // ------------------------------------------------------------------
+  const navLinks = Array.from(
+    document.querySelectorAll<HTMLAnchorElement>('[data-nav-link]') ?? [],
+  );
+  if (navLinks.length > 0 && 'IntersectionObserver' in window) {
+    const setActive = (id: string | null) => {
+      for (const link of navLinks) {
+        if (id !== null && link.dataset.navLink === id) link.setAttribute('aria-current', 'true');
+        else link.removeAttribute('aria-current');
+      }
+    };
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) setActive(entry.target.id);
+        }
+      },
+      { rootMargin: '-45% 0px -50% 0px', threshold: 0 },
+    );
+    for (const link of navLinks) {
+      const target = document.getElementById(link.dataset.navLink ?? '');
+      if (target) observer.observe(target);
+    }
+  }
+</script>

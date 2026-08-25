@@ -1,0 +1,54 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { locales, type Locale } from '../../i18n/config';
+import { translator } from '../../i18n/ui';
+
+export function getStaticPaths() {
+  return locales.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params;
+const locale: Locale = locales.includes(lang as Locale) ? (lang as Locale) : locales[0];
+const t = translator(locale);
+
+const path = `/${locale}/how-to-use`;
+---
+
+<BaseLayout
+  locale={locale}
+  title={`${t.howToUse.title} · ${t.wordmark}`}
+  description={t.howToUse.intro}
+  path={path}
+>
+  <section class="w-full bg-cream text-charcoal" aria-labelledby="how-to-use-heading">
+    <div class="shell max-w-3xl py-16 sm:py-20 lg:py-24">
+      <h1 id="how-to-use-heading" class="font-display text-section leading-[1.05]">
+        {t.howToUse.title}
+      </h1>
+      <p class="mt-6 text-lg leading-relaxed text-charcoal/80">{t.howToUse.intro}</p>
+
+      <ol class="mt-12 space-y-8">
+        {
+          t.howToUse.sections.map((section, index) => (
+            <li class="border-l-4 border-brand-red pl-5 sm:pl-6">
+              <h2 class="flex items-baseline gap-3 font-display text-xl sm:text-2xl">
+                <span class="font-label text-sm font-bold text-brand-red-deep" aria-hidden="true">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                {section.heading}
+              </h2>
+              <p class="mt-2 leading-relaxed text-charcoal/80">{section.body}</p>
+            </li>
+          ))
+        }
+      </ol>
+
+      <a
+        href={`/${locale}`}
+        class="mt-12 inline-flex items-center gap-2 rounded-full bg-charcoal px-6 py-3 font-ui text-sm font-bold tracking-wider text-brand-yellow uppercase transition-colors duration-200 hover:bg-charcoal/85"
+      >
+        {t.howToUse.backHome}
+      </a>
+    </div>
+  </section>
+</BaseLayout>

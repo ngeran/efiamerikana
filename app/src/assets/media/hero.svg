@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000" role="img">
+  <rect width="800" height="1000" fill="#ffde59"/>
+  <circle cx="400" cy="380" r="230" fill="#17130f"/>
+  <circle cx="400" cy="330" r="86" fill="#f7f2e7"/>
+  <path d="M170 820 q230 -190 460 0 v180 h-460 z" fill="#ff1fa9"/>
+  <rect x="0" y="800" width="800" height="200" fill="#d62839" opacity="0.12"/>
+  <text x="60" y="120" font-family="Helvetica, Arial, sans-serif" font-size="30" letter-spacing="8" fill="#17130f">PLACEHOLDER ARTWORK</text>
+  <text x="60" y="960" font-family="Helvetica, Arial, sans-serif" font-size="24" fill="#17130f" opacity="0.7">Hero portrait — replace via the CMS</text>
+</svg>

@@ -1,0 +1,153 @@
+---
+import SectionHeading from '../ui/SectionHeading.astro';
+import VideoCard from '../media/VideoCard.astro';
+import MediaScrollRow from '../media/MediaScrollRow.astro';
+import { translator } from '../../i18n/ui';
+import type { Locale } from '../../i18n/config';
+import { getVideoSection, getVideos } from '../../utils/content';
+
+interface Props {
+  locale: Locale;
+  label?: string;
+}
+
+const { locale, label } = Astro.props;
+const data = await getVideoSection(locale);
+const videos = await getVideos(locale);
+const t = translator(locale).video;
+
+const scrollItem = 'w-[68%] shrink-0 snap-start sm:w-[42%] lg:w-[31%]';
+---
+
+<section id="videos" aria-labelledby="videos-heading" class="w-full bg-cream text-charcoal">
+  <div class="shell py-16 sm:py-20 lg:py-24">
+    <SectionHeading id="videos-heading" label={label} heading={data.heading} intro={data.intro} />
+
+    {
+      videos.length === 0 ? (
+        <p class="mt-10 text-charcoal/60">—</p>
+      ) : data.layout === 'scroll' ? (
+        <div class="mt-10" data-videos>
+          <MediaScrollRow label={t.railLabel} prevLabel={t.prev} nextLabel={t.next}>
+            {videos.map((video, index) => (
+              <li class={scrollItem}>
+                <VideoCard video={video} locale={locale} index={index} />
+              </li>
+            ))}
+          </MediaScrollRow>
+        </div>
+      ) : (
+        <ul
+          role="list"
+          class="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+          data-videos
+        >
+          {videos.map((video, index) => (
+            <li>
+              <VideoCard video={video} locale={locale} index={index} />
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </div>
+</section>
+
+<script>
+  // ------------------------------------------------------------------
+  // Video card behaviour (delegated per [data-videos] section):
+  //  - click/tap the media surface → play (muted) / pause
+  //  - explicit unmute button (audio never autoplays)
+  //  - hover preview, ONLY on hover-capable pointers, muted
+  //  - + / × toggles the metadata overlay (touch + keyboard)
+  //  - cards leaving the viewport are paused
+  // All labels come from data-* attributes rendered server-side.
+  // ------------------------------------------------------------------
+  const canHover = window.matchMedia('(hover: hover) and (pointer: fine)');
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-videos]')) {
+    for (const card of root.querySelectorAll<HTMLElement>('[data-video-card]')) {
+      const video = card.querySelector<HTMLVideoElement>('video[data-video]');
+      const playBtn = card.querySelector<HTMLButtonElement>('[data-play-toggle]');
+      const muteBtn = card.querySelector<HTMLButtonElement>('[data-mute-toggle]');
+      const detailsBtn = card.querySelector<HTMLButtonElement>('[data-details-toggle]');
+      if (!video || !playBtn) continue;
+
+      const play = () => void video.play().catch(() => {});
+      const pause = () => video.pause();
+
+      // Reflect playback state onto the card (drives CSS icon swaps).
+      const sync = () => {
+        const playing = !video.paused && !video.ended;
+        card.dataset.playing = String(playing);
+        card.dataset.muted = String(video.muted);
+        playBtn.setAttribute('aria-pressed', String(playing));
+        playBtn.setAttribute(
+          'aria-label',
+          (playing ? playBtn.dataset.labelPause : playBtn.dataset.labelPlay) ?? '',
+        );
+      };
+      video.addEventListener('play', sync);
+      video.addEventListener('pause', sync);
+
+      // Explicit click/tap playback — the primary control. Toggles on user
+      // intent (not raw paused state) so a running hover-preview is
+      // "adopted" by the first click instead of paused by it.
+      playBtn.addEventListener('click', () => {
+        if (card.dataset.intent === 'play') {
+          card.dataset.intent = 'pause';
+          pause();
+        } else {
+          card.dataset.intent = 'play';
+          play();
+        }
+      });
+
+      // Hover preview — enhancement only, never the sole control.
+      if (canHover.matches) {
+        card.addEventListener('mouseenter', () => {
+          if (video.paused && card.dataset.intent !== 'pause') play();
+        });
+        card.addEventListener('mouseleave', () => {
+          if (!video.paused && card.dataset.intent !== 'play') pause();
+        });
+      }
+
+      if (muteBtn) {
+        muteBtn.addEventListener('click', () => {
+          video.muted = !video.muted;
+          muteBtn.setAttribute(
+            'aria-label',
+            (video.muted ? muteBtn.dataset.labelMute : muteBtn.dataset.labelUnmute) ?? '',
+          );
+          sync();
+        });
+      }
+
+      if (detailsBtn) {
+        detailsBtn.addEventListener('click', () => {
+          const open = detailsBtn.getAttribute('aria-expanded') !== 'true';
+          detailsBtn.setAttribute('aria-expanded', String(open));
+          detailsBtn.setAttribute(
+            'aria-label',
+            (open ? detailsBtn.dataset.labelHide : detailsBtn.dataset.labelShow) ?? '',
+          );
+          card.dataset.open = String(open);
+        });
+      }
+
+      // Pause videos that leave the viewport — always, regardless of how
+      // playback started (spec: pause offscreen media when practical).
+      if ('IntersectionObserver' in window) {
+        new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) pause();
+            }
+          },
+          { threshold: 0.15 },
+        ).observe(card);
+      }
+    }
+  }
+</script>

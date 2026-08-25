@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000" role="img">
+  <rect width="800" height="1000" fill="#17130f"/>
+  <circle cx="400" cy="420" r="260" fill="#ffde59" opacity="0.25"/>
+  <circle cx="400" cy="420" r="180" fill="#ffde59" opacity="0.35"/>
+  <text x="50" y="800" font-family="Georgia, serif" font-size="64" fill="#ffde59">Sunset Dinner</text>
+  <text x="50" y="850" font-family="Helvetica, Arial, sans-serif" font-size="26" letter-spacing="5" fill="#ffde59" opacity="0.75">PLACEHOLDER IMAGE</text>
+  <text x="50" y="950" font-family="Helvetica, Arial, sans-serif" font-size="24" fill="#ffde59" opacity="0.6">sunset-dinner — replace via the CMS</text>
+</svg>

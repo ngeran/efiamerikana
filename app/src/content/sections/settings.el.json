@@ -1,0 +1,13 @@
+{
+  "siteTitle": "efiamerikana · UGC & γαστρονομική αφήγηση",
+  "siteDescription": "Η Εφή Καζαντζίδη — Ελληνοαμερικανίδα μαγείρισσα, δημιουργός UGC και γαστρονομική αφηγήτρια. Σύντομα βίντεο, φωτογραφίες και συνεργασίες.",
+  "sections": [
+    { "id": "hero", "enabled": true, "navLabel": "Αρχή" },
+    { "id": "videos", "enabled": true, "navLabel": "Βίντεο" },
+    { "id": "pictures", "enabled": true, "navLabel": "Φωτογραφίες" },
+    { "id": "about", "enabled": true, "navLabel": "Περί" },
+    { "id": "analytics", "enabled": true, "navLabel": "Στοιχεία" },
+    { "id": "contact", "enabled": true, "navLabel": "Επικοινωνία" },
+    { "id": "footer", "enabled": true, "navLabel": "Υποσέλιδο" }
+  ]
+}

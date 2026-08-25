@@ -1,0 +1,108 @@
+---
+import Icon, { type IconName } from '../ui/Icon.astro';
+import { translator } from '../../i18n/ui';
+import type { Locale } from '../../i18n/config';
+import { getContact } from '../../utils/content';
+
+interface Props {
+  locale: Locale;
+  label?: string;
+}
+
+const { locale, label } = Astro.props;
+const data = await getContact(locale);
+const t = translator(locale).contact;
+
+const emailMethod = data.methods.find((m) => m.icon === 'email');
+const mailto = emailMethod?.href ?? (emailMethod ? `mailto:${emailMethod.value}` : '#contact');
+---
+
+<section id="contact" aria-labelledby="contact-heading" class="w-full bg-brand-red text-white">
+  <div class="shell flex max-w-3xl flex-col items-center gap-8 py-20 text-center sm:py-24 lg:py-28">
+    {
+      label && (
+        <p class="rounded-full bg-charcoal px-3 py-1 font-label text-xs font-semibold tracking-[0.18em] text-cream uppercase">
+          {label}
+        </p>
+      )
+    }
+    <h2 id="contact-heading" class="font-display text-contact leading-[1.05] italic">
+      {data.heading}
+    </h2>
+    <p class="max-w-xl text-lg leading-relaxed text-white">{data.intro}</p>
+
+    {
+      emailMethod && (
+        <a
+          href={mailto}
+          class="font-display text-xl leading-tight break-all underline decoration-brand-yellow decoration-2 underline-offset-8 transition-colors duration-200 hover:text-brand-yellow sm:text-3xl"
+        >
+          {emailMethod.value}
+        </a>
+      )
+    }
+
+    {
+      data.methods.filter((m) => m.icon !== 'email').length > 0 && (
+        <div class="w-full space-y-3">
+          <h3 class="font-label text-xs font-bold tracking-[0.2em] text-white uppercase">
+            {t.methodsTitle}
+          </h3>
+          <ul role="list" class="flex flex-wrap items-center justify-center gap-3">
+            {data.methods
+              .filter((m) => m.icon !== 'email')
+              .map((method) => (
+                <li class="flex items-center gap-2 rounded-full border border-white/40 px-4 py-2 text-sm">
+                  <Icon name={method.icon as IconName} class="h-4 w-4 shrink-0 text-brand-yellow" />
+                  <span class="text-white">{method.label}: </span>
+                  {method.href ? (
+                    <a
+                      href={method.href}
+                      class="font-semibold underline decoration-white/40 underline-offset-2 hover:text-brand-yellow"
+                    >
+                      {method.value}
+                    </a>
+                  ) : (
+                    <span class="font-semibold">{method.value}</span>
+                  )}
+                </li>
+              ))}
+          </ul>
+        </div>
+      )
+    }
+
+    {
+      data.socials.length > 0 && (
+        <div class="w-full space-y-3">
+          <h3 class="font-label text-xs font-bold tracking-[0.2em] text-white uppercase">
+            {t.socialsTitle}
+          </h3>
+          <ul role="list" class="flex flex-wrap items-center justify-center gap-3">
+            {data.socials.map((social) => (
+              <li>
+                <a
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="flex items-center gap-2 rounded-full border border-white/40 px-4 py-2 font-label text-xs font-bold tracking-[0.15em] uppercase transition-colors duration-200 hover:bg-charcoal/30"
+                >
+                  <Icon name={social.icon as IconName} class="h-4 w-4" />
+                  {social.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )
+    }
+
+    <a
+      href={mailto}
+      class="mt-2 inline-flex items-center gap-2 rounded-full bg-brand-yellow px-7 py-3.5 font-ui text-sm font-bold tracking-wider text-charcoal uppercase transition-transform duration-200 hover:scale-[1.03]"
+    >
+      {data.ctaLabel}
+      <Icon name="arrow-right" class="h-4 w-4" />
+    </a>
+  </div>
+</section>

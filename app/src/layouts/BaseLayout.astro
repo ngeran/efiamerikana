@@ -1,0 +1,118 @@
+---
+import '../styles/global.css';
+import SiteHeader from '../components/navigation/SiteHeader.astro';
+import SiteFooter from '../components/sections/SiteFooter.astro';
+import { locales, type Locale } from '../i18n/config';
+import { localize, stripLocale } from '../i18n/utils';
+import { translator } from '../i18n/ui';
+import { contactEmail, getContact, getFooter, getSettings, navItemsFrom } from '../utils/content';
+
+interface Props {
+  locale: Locale;
+  title: string;
+  description: string;
+  /** Localized path of THIS page, e.g. `/en` or `/el/how-to-use`. */
+  path: string;
+  /** '' on the landing page (pure #anchors), `/{locale}` on subpages. */
+  anchorBase?: string;
+  /** Enable scroll-spy + section anchoring (landing page only). */
+  spy?: boolean;
+  /** Footer visibility is CMS-controlled (settings.sections). */
+  showFooter?: boolean;
+}
+
+const {
+  locale,
+  title,
+  description,
+  path,
+  anchorBase = `/${locale}`,
+  spy = false,
+  showFooter = true,
+} = Astro.props;
+
+const settings = await getSettings(locale);
+const contact = await getContact(locale);
+const footer = await getFooter(locale);
+
+const navItems = navItemsFrom(settings);
+const email = contactEmail(contact);
+
+const site = Astro.site ?? new URL('https://efiamerikana.com');
+const canonical = new URL(path, site);
+const localeFreePath = stripLocale(path);
+const alternates = locales.map((l) => ({
+  locale: l,
+  href: new URL(localize(localeFreePath, l), site),
+}));
+
+// Sitewide JSON-LD: a Person record (this is a personal landing page, so
+// the schema is valid on every page). Serialized with every `<` escaped so
+// a `</script>` breakout is impossible even via CMS-controlled strings.
+const jsonLdScript = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Effie Kazantzidis',
+  alternateName: 'efiamerikana',
+  description: settings.siteDescription,
+  url: canonical.href,
+  sameAs: contact.socials.map((social) => social.href),
+}).replace(/</g, '\\u003c');
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {alternates.map((alt) => <link rel="alternate" hreflang={alt.locale} href={alt.href} />)}
+    <link rel="alternate" hreflang="x-default" href={alternates[0]?.href} />
+
+    <meta name="theme-color" content="#ffde59" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={settings.siteTitle} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={locale === 'el' ? 'el_GR' : 'en_US'} />
+    <meta property="og:locale:alternate" content={locale === 'el' ? 'en_US' : 'el_GR'} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+
+    <!-- eslint-disable astro/no-set-html-directive (audited: jsonLdScript is JSON.stringify of a typed object with every less-than sign escaped, see frontmatter) -->
+    <script is:inline type="application/ld+json" set:html={jsonLdScript} />
+    <!-- eslint-enable astro/no-set-html-directive -->
+  </head>
+  <body class="bg-charcoal text-charcoal antialiased">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:rounded-full focus:bg-charcoal focus:px-5 focus:py-3 focus:font-label focus:text-sm focus:font-bold focus:tracking-widest focus:text-brand-yellow focus:uppercase"
+    >
+      {translator(locale).skipToContent}
+    </a>
+
+    <SiteHeader
+      locale={locale}
+      navItems={navItems}
+      email={email}
+      anchorBase={anchorBase}
+      spy={spy}
+      currentPath={path}
+    />
+
+    <main id="main" class="w-full pt-16">
+      <slot />
+    </main>
+
+    {showFooter && <SiteFooter data={footer} locale={locale} />}
+  </body>
+</html>

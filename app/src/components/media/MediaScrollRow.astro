@@ -1,0 +1,72 @@
+---
+import Icon from '../ui/Icon.astro';
+
+/**
+ * Horizontal scroll rail with snap points and keyboard-accessible
+ * prev/next controls. Items arrive via the slot (callers wrap each card
+ * in an <li> with `snap-start shrink-0` sizing classes).
+ */
+interface Props {
+  label: string;
+  prevLabel: string;
+  nextLabel: string;
+}
+
+const { label, prevLabel, nextLabel } = Astro.props;
+---
+
+<div class="relative" data-scroll-row>
+  <div class="mb-4 flex items-center justify-end gap-2">
+    <button
+      type="button"
+      data-scroll-prev
+      aria-label={prevLabel}
+      class="grid h-10 w-10 place-items-center rounded-full border border-charcoal/20 text-charcoal transition-colors duration-200 hover:bg-charcoal/5 disabled:cursor-not-allowed disabled:opacity-40"
+    >
+      <Icon name="chevron-left" class="h-5 w-5" />
+    </button>
+    <button
+      type="button"
+      data-scroll-next
+      aria-label={nextLabel}
+      class="grid h-10 w-10 place-items-center rounded-full border border-charcoal/20 text-charcoal transition-colors duration-200 hover:bg-charcoal/5 disabled:cursor-not-allowed disabled:opacity-40"
+    >
+      <Icon name="chevron-right" class="h-5 w-5" />
+    </button>
+  </div>
+  <ul
+    role="list"
+    data-scroller
+    tabindex="0"
+    aria-label={label}
+    class="no-scrollbar -mx-1 flex snap-x snap-mandatory scroll-px-1 gap-4 overflow-x-auto px-1 pb-2"
+  >
+    <slot />
+  </ul>
+</div>
+
+<script>
+  for (const row of document.querySelectorAll<HTMLElement>('[data-scroll-row]')) {
+    const scroller = row.querySelector<HTMLElement>('[data-scroller]');
+    const prev = row.querySelector<HTMLButtonElement>('[data-scroll-prev]');
+    const next = row.querySelector<HTMLButtonElement>('[data-scroll-next]');
+    if (!scroller || !prev || !next) continue;
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const update = () => {
+      prev.disabled = scroller.scrollLeft <= 2;
+      next.disabled = scroller.scrollLeft + scroller.clientWidth >= scroller.scrollWidth - 2;
+    };
+    const step = () => Math.max(scroller.clientWidth * 0.8, 240);
+
+    prev.addEventListener('click', () =>
+      scroller.scrollBy({ left: -step(), behavior: reduced.matches ? 'auto' : 'smooth' }),
+    );
+    next.addEventListener('click', () =>
+      scroller.scrollBy({ left: step(), behavior: reduced.matches ? 'auto' : 'smooth' }),
+    );
+    scroller.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    update();
+  }
+</script>

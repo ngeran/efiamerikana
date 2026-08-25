@@ -1,0 +1,31 @@
+{
+  "heading": "Driven by engagement",
+  "intro": "Numbers from the kitchen scoreboard.",
+  "footnote": "All values below are placeholders. Replace them with real data in the CMS (Analytics section).",
+  "metrics": [
+    {
+      "value": "XX",
+      "label": "Monthly reach",
+      "description": "Placeholder — replace with your real monthly reach.",
+      "icon": "globe"
+    },
+    {
+      "value": "XXk",
+      "label": "Community size",
+      "description": "Placeholder — replace with your real audience size.",
+      "icon": "users"
+    },
+    {
+      "value": "X.X%",
+      "label": "Engagement rate",
+      "description": "Placeholder — replace with your real engagement rate.",
+      "icon": "heart"
+    },
+    {
+      "value": "XX",
+      "label": "Videos published",
+      "description": "Placeholder — replace with your real video count.",
+      "icon": "play"
+    }
+  ]
+}

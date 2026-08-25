@@ -1,0 +1,69 @@
+---
+import SectionHeading from '../ui/SectionHeading.astro';
+import Icon, { type IconName } from '../ui/Icon.astro';
+import { translator } from '../../i18n/ui';
+import type { Locale } from '../../i18n/config';
+import { getAnalytics } from '../../utils/content';
+
+interface Props {
+  locale: Locale;
+  label?: string;
+}
+
+const { locale, label } = Astro.props;
+const data = await getAnalytics(locale);
+const t = translator(locale).analytics;
+
+/** Values are server-rendered text — no counters, nothing hidden from AT. */
+---
+
+<section
+  id="analytics"
+  aria-labelledby="analytics-heading"
+  class="relative w-full overflow-hidden bg-brand-black text-white"
+>
+  <div
+    class="pointer-events-none absolute top-1/2 left-0 -translate-y-1/2 font-display text-[18vw] leading-none whitespace-nowrap text-white/[0.04] italic select-none"
+    aria-hidden="true"
+  >
+    {data.heading}
+  </div>
+
+  <div class="shell relative py-16 sm:py-20 lg:py-24">
+    <SectionHeading
+      id="analytics-heading"
+      label={label}
+      heading={data.heading}
+      intro={data.intro}
+      tone="light"
+    />
+
+    <ul role="list" class="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      {
+        data.metrics.map((metric) => (
+          <li class="relative flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/5 p-6">
+            {metric.icon && (
+              <Icon
+                name={metric.icon as IconName}
+                class="absolute top-6 right-6 h-6 w-6 text-brand-pink"
+              />
+            )}
+            <p class="font-display text-4xl leading-none text-brand-yellow sm:text-5xl">
+              {metric.value}
+            </p>
+            <div class="space-y-1.5">
+              <p class="font-label text-sm font-bold tracking-[0.18em] uppercase">{metric.label}</p>
+              {metric.description && (
+                <p class="text-sm leading-relaxed text-white/65">{metric.description}</p>
+              )}
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+
+    <p class="mt-8 max-w-2xl text-sm text-white/50">
+      {data.footnote ?? t.disclosure}
+    </p>
+  </div>
+</section>

@@ -1,0 +1,24 @@
+{
+  "heading": "Ας συνεργαστούμε.",
+  "intro": "Διαθέσιμη για συνεργασίες με brands, ανάπτυξη συνταγών και καμπάνιες UGC.",
+  "ctaLabel": "Πείτε μια χαρά",
+  "methods": [
+    {
+      "icon": "email",
+      "label": "Email",
+      "value": "hello@efiamerikana.example",
+      "href": "mailto:hello@efiamerikana.example"
+    },
+    {
+      "icon": "location",
+      "label": "Βάση",
+      "value": "Η πόλη σας, χώρα (προσωρινό)",
+      "href": null
+    }
+  ],
+  "socials": [
+    { "icon": "tiktok", "label": "TikTok", "href": "https://www.tiktok.com/@your-handle" },
+    { "icon": "instagram", "label": "Instagram", "href": "https://www.instagram.com/your-handle" },
+    { "icon": "facebook", "label": "Facebook", "href": "https://www.facebook.com/your-page" }
+  ]
+}

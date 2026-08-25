@@ -1,0 +1,140 @@
+---
+import Icon from '../ui/Icon.astro';
+import { translator } from '../../i18n/ui';
+import type { Locale } from '../../i18n/config';
+import type { VideoData } from '../../content.config';
+import { resolveImage, resolveVideo } from '../../utils/media';
+
+/**
+ * Portrait short-form video card with a stable 9/16 frame.
+ *
+ * Interaction model (Framer-style):
+ *  - metadata overlay (gradient + title/description/transcript) reveals on
+ *    hover, keyboard focus-within, or the +/× toggle button (touch)
+ *  - click/tap anywhere on the media plays/pauses (muted)
+ *  - hover preview only on hover-capable pointers, never the sole control
+ *  - unmute is a separate explicit button — audio never autoplays
+ *  - the section script pauses cards that leave the viewport
+ *
+ * All localized labels are rendered as data-* attributes so the behaviour
+ * script stays mechanical (no strings in JS).
+ */
+interface Props {
+  video: VideoData;
+  locale: Locale;
+  index: number;
+}
+
+const { video, locale, index } = Astro.props;
+const t = translator(locale).video;
+
+const poster = resolveImage(video.poster);
+const src = resolveVideo(video.video);
+const detailsId = `video-details-${index}`;
+
+const playAria = `${t.play} — ${video.title}`;
+const pauseAria = `${t.pause} — ${video.title}`;
+---
+
+<article
+  class="group/card relative overflow-hidden rounded-2xl bg-charcoal text-white shadow-lg ring-1 ring-charcoal/10"
+  data-video-card
+  data-muted="true"
+>
+  <div class="relative aspect-[9/16] w-full">
+    <video
+      class="absolute inset-0 h-full w-full object-cover"
+      src={src}
+      poster={poster.src}
+      preload="none"
+      muted
+      loop
+      playsinline
+      data-video></video>
+
+    <!-- Play / pause control (whole media surface, sits under the toggle) -->
+    <button
+      type="button"
+      class="absolute inset-0 z-10 grid place-items-center outline-offset-[-6px]"
+      data-play-toggle
+      aria-label={playAria}
+      aria-pressed="false"
+      data-label-play={playAria}
+      data-label-pause={pauseAria}
+    >
+      <span
+        class="grid h-14 w-14 place-items-center rounded-full bg-charcoal/60 text-white opacity-90 backdrop-blur-sm transition-transform duration-300 group-hover/card:scale-110 sm:h-16 sm:w-16"
+        data-play-icon
+        aria-hidden="true"
+      >
+        <Icon name="play" class="h-7 w-7 -translate-x-0.5 group-data-[playing=true]/card:hidden" />
+        <Icon name="pause" class="hidden h-7 w-7 group-data-[playing=true]/card:block" />
+      </span>
+    </button>
+
+    <!-- Platform/tag chip -->
+    {
+      video.tag && (
+        <span class="absolute bottom-3 left-3 z-20 rounded-full bg-charcoal/70 px-3 py-1 font-label text-[10px] font-bold tracking-[0.15em] text-white uppercase backdrop-blur-sm">
+          {video.tag}
+        </span>
+      )
+    }
+
+    <!-- Unmute (only rendered visible while playing; never autoplayed) -->
+    <button
+      type="button"
+      class="absolute right-3 bottom-3 z-20 hidden h-9 w-9 place-items-center rounded-full bg-charcoal/70 text-white backdrop-blur-sm transition-colors duration-200 group-data-[playing=true]/card:grid hover:bg-charcoal/85"
+      data-mute-toggle
+      aria-label={t.unmute}
+      data-label-mute={t.mute}
+      data-label-unmute={t.unmute}
+    >
+      <Icon name="volume-on" class="h-4 w-4 group-data-[muted=true]/card:hidden" />
+      <Icon name="volume-off" class="hidden h-4 w-4 group-data-[muted=true]/card:block" />
+    </button>
+
+    <!-- Metadata overlay: reveals on hover / focus-within / + toggle -->
+    <div
+      class="media-overlay-gradient pointer-events-none absolute inset-0 z-10 flex flex-col justify-end gap-1.5 p-4 pb-12 opacity-0 transition-opacity duration-300 group-focus-within/card:opacity-100 group-hover/card:opacity-100 group-data-[open=true]/card:opacity-100"
+      data-overlay
+    >
+      <p
+        class="hidden font-label text-[11px] font-semibold tracking-[0.15em] text-white/80 uppercase lg:block"
+      >
+        {t.previewHint}
+      </p>
+      <h3 class="font-display text-xl leading-tight text-white">{video.title}</h3>
+      <p class="text-sm leading-snug text-white">{video.description}</p>
+      {
+        video.transcript && (
+          <p class="mt-1 max-h-24 overflow-y-auto text-xs leading-relaxed text-white/85">
+            <span class="font-bold tracking-wide uppercase">{t.transcript}: </span>
+            {video.transcript}
+          </p>
+        )
+      }
+      <span id={detailsId} class="sr-only">
+        {video.title}. {video.description}
+        {video.transcript}
+      </span>
+    </div>
+
+    <!-- + / × details toggle (top-right, touch + keyboard friendly) -->
+    <button
+      type="button"
+      class="absolute top-3 right-3 z-20 grid h-10 w-10 place-items-center rounded-full bg-charcoal/60 text-white backdrop-blur-sm transition-all duration-300 hover:bg-charcoal/85"
+      data-details-toggle
+      aria-expanded="false"
+      aria-controls={detailsId}
+      aria-label={t.showDetails}
+      data-label-show={t.showDetails}
+      data-label-hide={t.hideDetails}
+    >
+      <Icon
+        name="plus"
+        class="h-5 w-5 transition-transform duration-300 group-data-[open=true]/card:rotate-45"
+      />
+    </button>
+  </div>
+</article>

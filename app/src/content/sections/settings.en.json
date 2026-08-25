@@ -1,0 +1,13 @@
+{
+  "siteTitle": "efiamerikana · UGC & culinary storytelling",
+  "siteDescription": "Effie Kazantzidis — Greek-American home cook, UGC creator and culinary storyteller. Short-form videos, pictures and collaborations.",
+  "sections": [
+    { "id": "hero", "enabled": true, "navLabel": "Home" },
+    { "id": "videos", "enabled": true, "navLabel": "Videos" },
+    { "id": "pictures", "enabled": true, "navLabel": "Pictures" },
+    { "id": "about", "enabled": true, "navLabel": "About" },
+    { "id": "analytics", "enabled": true, "navLabel": "Analytics" },
+    { "id": "contact", "enabled": true, "navLabel": "Contact" },
+    { "id": "footer", "enabled": true, "navLabel": "Footer" }
+  ]
+}

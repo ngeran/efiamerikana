@@ -1,0 +1,77 @@
+---
+import { Image } from 'astro:assets';
+import { translator } from '../../i18n/ui';
+import type { Locale } from '../../i18n/config';
+import type { PictureData } from '../../content.config';
+import { resolveImage } from '../../utils/media';
+
+/**
+ * Picture card with a fixed 4/5 frame. Black & white by default; transitions
+ * to full colour on hover, on keyboard focus-within, and when opened with
+ * the toggle button (touch devices). The description is always available to
+ * screen readers and revealed visually on open.
+ */
+interface Props {
+  picture: PictureData;
+  locale: Locale;
+  index: number;
+  /** Narrower crops for the scroll rail. */
+  compact?: boolean;
+}
+
+const { picture, locale, index, compact = false } = Astro.props;
+const t = translator(locale).pictures;
+
+const image = resolveImage(picture.image);
+const descId = `picture-desc-${index}`;
+
+const colour = [
+  'grayscale transition-[filter] duration-500',
+  'group-hover/card:grayscale-0 group-focus-within/card:grayscale-0 group-data-[open=true]/card:grayscale-0',
+].join(' ');
+---
+
+<article
+  class="group/card flex h-full flex-col overflow-hidden rounded-2xl bg-white text-charcoal shadow-md ring-1 ring-charcoal/10"
+  data-picture-card
+  data-open="false"
+>
+  <button
+    type="button"
+    class="relative block w-full text-left outline-offset-[-6px]"
+    data-picture-toggle
+    aria-expanded="false"
+    aria-controls={descId}
+    aria-label={`${t.showDescription} — ${picture.title}`}
+    data-label-show={`${t.showDescription} — ${picture.title}`}
+    data-label-hide={`${t.hideDescription} — ${picture.title}`}
+  >
+    <span class="block aspect-[4/5] w-full">
+      <Image
+        src={image}
+        alt={picture.imageAlt}
+        widths={compact ? [360, 540] : [400, 640, 900]}
+        sizes={compact
+          ? '(min-width: 1024px) 32vw, 70vw'
+          : '(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 90vw'}
+        class={`h-full w-full object-cover ${colour}`}
+        loading="lazy"
+        decoding="async"
+      />
+    </span>
+    {
+      picture.tag && (
+        <span class="absolute top-3 left-3 rounded-full bg-charcoal/70 px-3 py-1 font-label text-[10px] font-bold tracking-[0.15em] text-white uppercase backdrop-blur-sm">
+          {picture.tag}
+        </span>
+      )
+    }
+  </button>
+
+  <div class="flex flex-1 flex-col gap-2 p-4">
+    <h3 class="font-display text-lg leading-tight">{picture.title}</h3>
+    <p id={descId} hidden data-picture-desc class="text-sm leading-relaxed text-charcoal/75">
+      {picture.description}
+    </p>
+  </div>
+</article>

@@ -1,0 +1,73 @@
+---
+import { Image } from 'astro:assets';
+import Button from '../ui/Button.astro';
+import type { Locale } from '../../i18n/config';
+import { getHero } from '../../utils/content';
+import { resolveImage } from '../../utils/media';
+
+interface Props {
+  locale: Locale;
+  /** Nav label from CMS settings, shown as the section chip. */
+  label?: string;
+}
+
+const { locale, label } = Astro.props;
+const data = await getHero(locale);
+
+const image = resolveImage(data.image);
+const centered = data.variant === 'center';
+---
+
+<section id="hero" aria-labelledby="hero-heading" class="w-full bg-brand-yellow text-charcoal">
+  <div
+    class:list={[
+      'shell grid items-center gap-10 py-16 sm:py-20 lg:gap-16 lg:py-28',
+      centered ? 'max-w-4xl' : 'lg:grid-cols-[1.05fr_0.95fr]',
+    ]}
+  >
+    <div
+      class:list={[
+        'flex flex-col',
+        centered ? 'items-center text-center' : 'items-start text-left',
+      ]}
+    >
+      {
+        label && (
+          <p class="font-label text-sm font-semibold tracking-[0.22em] text-charcoal uppercase">
+            {data.eyebrow}
+          </p>
+        )
+      }
+      <h1 id="hero-heading" class="mt-4 font-display text-hero leading-[1.03]">
+        {data.heading}
+      </h1>
+      <div class="mt-6 h-1 w-14 bg-brand-red" aria-hidden="true"></div>
+      <p class:list={['mt-6 max-w-xl text-lg leading-relaxed sm:text-xl', centered && 'mx-auto']}>
+        {data.supporting}
+      </p>
+      <div class:list={['mt-9 flex flex-wrap items-center gap-4', centered && 'justify-center']}>
+        <Button href={data.primaryCta.href} variant="dark">{data.primaryCta.label}</Button>
+        {
+          data.secondaryCta && (
+            <Button href={data.secondaryCta.href} variant="outline">
+              {data.secondaryCta.label}
+            </Button>
+          )
+        }
+      </div>
+    </div>
+
+    <div class:list={['mx-auto w-full max-w-sm lg:max-w-none', centered ? 'order-last' : '']}>
+      <Image
+        src={image}
+        alt={data.imageAlt}
+        widths={[480, 800]}
+        sizes={centered ? '(min-width: 640px) 24rem, 90vw' : '(min-width: 1024px) 45vw, 90vw'}
+        class="aspect-[4/5] w-full rounded-[2rem] object-cover shadow-xl ring-1 ring-charcoal/10"
+        loading="eager"
+        fetchpriority="high"
+      />
+    </div>
+  </div>
+  <div class="h-1 w-full bg-brand-red" aria-hidden="true"></div>
+</section>

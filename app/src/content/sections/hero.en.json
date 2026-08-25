@@ -1,0 +1,10 @@
+{
+  "eyebrow": "Greek-American home cook · UGC creator",
+  "heading": "A little bit of cooking, a little bit of humour.",
+  "supporting": "Authentic food, everyday cooking and honest stories from a Greek-American kitchen — short-form videos that make you hungry.",
+  "image": "/media/hero.svg",
+  "imageAlt": "Placeholder artwork for the hero portrait of Effie Kazantzidis — replace via the CMS.",
+  "variant": "split",
+  "primaryCta": { "label": "Watch the videos", "href": "#videos" },
+  "secondaryCta": { "label": "Work with me", "href": "#contact" }
+}

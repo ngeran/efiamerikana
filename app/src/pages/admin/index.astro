@@ -1,0 +1,30 @@
+---
+// Decap CMS shell, served as a real Astro route so /admin/ works
+// identically in `astro dev`, `astro preview` and production (the public-dir
+// copy only resolves at /admin/index.html in dev). config.yml stays in
+// public/admin/ and is served next to this page.
+//
+// Production access requires a Git-provider auth flow — see README "CMS
+// authentication". For local editing run `npm run admin` (decap-server) and
+// set `local_backend: true` in public/admin/config.yml.
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <title>Content Manager · efiamerikana</title>
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23ffde59'/%3E%3Ccircle cx='32' cy='32' r='16' fill='%2317130f'/%3E%3Ccircle cx='32' cy='32' r='7.5' fill='%23ff1fa9'/%3E%3C/svg%3E"
+    />
+  </head>
+  <body>
+    <!-- Decap CMS is loaded from the unpkg CDN (standard setup; the admin
+         bundle is not part of the site build). -->
+    <script is:inline src="https://unpkg.com/decap-cms@^3.6.0/dist/decap-cms.js"></script>
+  </body>
+</html>

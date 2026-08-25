@@ -1,0 +1,82 @@
+---
+import SectionHeading from '../ui/SectionHeading.astro';
+import PictureCard from '../media/PictureCard.astro';
+import MediaScrollRow from '../media/MediaScrollRow.astro';
+import { translator } from '../../i18n/ui';
+import type { Locale } from '../../i18n/config';
+import { getPictureSection, getPictures } from '../../utils/content';
+
+interface Props {
+  locale: Locale;
+  label?: string;
+}
+
+const { locale, label } = Astro.props;
+const data = await getPictureSection(locale);
+const pictures = await getPictures(locale);
+const t = translator(locale).pictures;
+
+const scrollItem = 'w-[68%] shrink-0 snap-start sm:w-[42%] lg:w-[31%]';
+---
+
+<section
+  id="pictures"
+  aria-labelledby="pictures-heading"
+  class="w-full bg-brand-pink text-charcoal"
+>
+  <div class="shell py-16 sm:py-20 lg:py-24">
+    <SectionHeading id="pictures-heading" label={label} heading={data.heading} intro={data.intro} />
+
+    {
+      pictures.length === 0 ? (
+        <p class="mt-10 text-charcoal/60">—</p>
+      ) : data.layout === 'scroll' ? (
+        <div class="mt-10" data-pictures>
+          <MediaScrollRow label={t.railLabel} prevLabel={t.prev} nextLabel={t.next}>
+            {pictures.map((picture, index) => (
+              <li class={scrollItem}>
+                <PictureCard picture={picture} locale={locale} index={index} compact />
+              </li>
+            ))}
+          </MediaScrollRow>
+        </div>
+      ) : (
+        <ul
+          role="list"
+          class="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+          data-pictures
+        >
+          {pictures.map((picture, index) => (
+            <li>
+              <PictureCard picture={picture} locale={locale} index={index} />
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </div>
+</section>
+
+<script>
+  // Toggle picture descriptions: flips card state (colour + description
+  // reveal). Hover and keyboard focus colour the image via CSS; this script
+  // covers touch devices, where hover does not exist.
+  document.addEventListener('click', (event) => {
+    const toggle = (event.target as HTMLElement).closest<HTMLButtonElement>(
+      '[data-picture-toggle]',
+    );
+    if (!toggle) return;
+    const card = toggle.closest<HTMLElement>('[data-picture-card]');
+    const desc = card?.querySelector<HTMLElement>('[data-picture-desc]');
+    if (!card || !desc) return;
+
+    const open = toggle.getAttribute('aria-expanded') !== 'true';
+    toggle.setAttribute('aria-expanded', String(open));
+    toggle.setAttribute(
+      'aria-label',
+      (open ? toggle.dataset.labelHide : toggle.dataset.labelShow) ?? '',
+    );
+    card.dataset.open = String(open);
+    desc.hidden = !open;
+  });
+</script>
