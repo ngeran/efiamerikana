@@ -10,6 +10,9 @@ const en = {
   emailAria: 'Send an email',
   emailLabel: 'Email me',
   wordmark: 'efiamerikana',
+  hero: {
+    tickerLabel: 'Social media',
+  },
   video: {
     play: 'Play video',
     pause: 'Pause video',
@@ -85,6 +88,9 @@ const el: UIStrings = {
   emailAria: 'Στείλτε email',
   emailLabel: 'Στείλτε μου email',
   wordmark: 'efiamerikana',
+  hero: {
+    tickerLabel: 'Κοινωνικά δίκτυα',
+  },
   video: {
     play: 'Αναπαραγωγή βίντεο',
     pause: 'Παύση βίντεο',

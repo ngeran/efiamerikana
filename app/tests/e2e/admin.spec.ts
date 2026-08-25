@@ -1,9 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 test.describe('CMS admin shell', () => {
-  test('serves the Decap CMS at /admin/ (dev and production parity)', async ({
-    page,
-  }) => {
+  test('serves the Decap CMS at /admin/ (dev and production parity)', async ({ page }) => {
     const response = await page.goto('/admin/');
     expect(response?.status()).toBe(200);
     await expect(page.locator('script[src*="decap-cms"]')).toHaveCount(1);

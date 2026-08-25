@@ -5,20 +5,31 @@ test.describe('video section', () => {
     await page.goto('/en/');
   });
 
-  test('renders six cards in the seeded grid layout', async ({ page }) => {
+  test('renders six cards in the seeded scroll layout', async ({ page }) => {
     const section = page.locator('#videos');
     await expect(section.locator('[data-video-card]')).toHaveCount(6);
-    await expect(section.locator('ul.grid')).toHaveCount(1);
-    // Grid target: 3 columns at desktop widths.
+    await expect(section.locator('[data-scroller]')).toHaveCount(1);
+    await expect(section.locator('[data-scroll-next]')).toBeVisible();
+
+    // ~3 cards visible at desktop widths (rail items are ~31% wide).
     await page.setViewportSize({ width: 1280, height: 800 });
-    await expect
-      .poll(async () =>
-        section
-          .locator('[data-video-card]')
-          .first()
-          .evaluate((el) => el.getBoundingClientRect().width),
-      )
-      .toBeLessThan(1280 / 2);
+    const ratio = await section
+      .locator('[data-video-card]')
+      .first()
+      .evaluate((el) => el.getBoundingClientRect().width / window.innerWidth);
+    expect(ratio).toBeGreaterThan(0.25);
+    expect(ratio).toBeLessThan(0.4);
+  });
+
+  test('arrows slide the rail in', async ({ page }) => {
+    const section = page.locator('#videos');
+    const scroller = section.locator('[data-scroller]');
+    const next = section.locator('[data-scroll-next]');
+
+    await expect(next).toBeEnabled();
+    const before = await scroller.evaluate((el) => el.scrollLeft);
+    await next.click();
+    await expect.poll(() => scroller.evaluate((el) => el.scrollLeft)).toBeGreaterThan(before);
   });
 
   test('videos never autoplay', async ({ page }) => {

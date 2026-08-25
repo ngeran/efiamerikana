@@ -8,12 +8,32 @@ test.describe('CMS-managed content', () => {
   test('hero renders CMS fields', async ({ page }) => {
     await page.goto('/en/');
     const hero = page.locator('#hero');
-    await expect(hero.locator('h1')).toContainText('A little bit of cooking');
-    await expect(hero.locator('p').first()).toContainText('Greek-American home cook');
-    await expect(hero.getByRole('link', { name: 'Watch the videos' })).toHaveAttribute(
+
+    // Two-line display heading + accent line
+    await expect(hero.locator('h1')).toContainText('COOKING,');
+    await expect(hero.locator('h1 span')).toHaveText('humor & life');
+    await expect(hero.getByText('traditional Greek flavour')).toBeVisible();
+
+    // WORK WITH ME button anchors to the contact section
+    await expect(hero.getByRole('link', { name: 'WORK WITH ME' })).toHaveAttribute(
       'href',
-      '#videos',
+      '#contact',
     );
+
+    // Social buttons reuse the contact socials (same icons, same links)
+    await expect(hero.getByRole('link', { name: 'TikTok' })).toHaveAttribute(
+      'href',
+      'https://www.tiktok.com/@your-handle',
+    );
+    await expect(hero.getByRole('link', { name: 'Instagram' })).toHaveAttribute(
+      'href',
+      'https://www.instagram.com/your-handle',
+    );
+
+    // Social-proof ticker (visible marquee + screen-reader list)
+    await expect(hero.getByText('TIKTOK 128K').first()).toBeVisible();
+    await expect(hero.getByText('INSTAGRAM 74K').first()).toBeVisible();
+
     await expect(hero.locator('img')).toHaveAttribute(
       'alt',
       /Placeholder artwork for the hero portrait/,

@@ -9,7 +9,7 @@
  */
 interface Props {
   href: string;
-  variant?: 'dark' | 'outline' | 'yellow';
+  variant?: 'dark' | 'solid' | 'outline' | 'yellow';
   class?: string;
 }
 
@@ -17,6 +17,7 @@ const { href, variant = 'dark', class: className = '' } = Astro.props;
 
 const variants: Record<NonNullable<Props['variant']>, string> = {
   dark: 'bg-charcoal text-brand-yellow hover:bg-charcoal/85 active:bg-charcoal',
+  solid: 'bg-charcoal text-white hover:bg-charcoal/85 active:bg-charcoal',
   outline: 'border-2 border-charcoal text-charcoal hover:bg-charcoal/5 active:bg-charcoal/10',
   yellow: 'bg-brand-yellow text-charcoal hover:bg-brand-yellow/85 active:bg-brand-yellow',
 };

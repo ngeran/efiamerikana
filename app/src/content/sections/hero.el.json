@@ -1,10 +1,12 @@
 {
-  "eyebrow": "Ελληνοαμερικανίδα μαγείρισσα · δημιουργός UGC",
-  "heading": "Λίγο μαγείρεμα, λίγο χιούμορ.",
-  "supporting": "Αυθεντικό φαγητό, καθημερινό μαγείρεμα και ειλικρινείς ιστορίες από μια ελληνοαμερικανική κουζίνα — σύντομα βίντεο που ανοίγουν την όρεξη.",
+  "eyebrow": "efiamerikana",
+  "heading": "Εφή Καζαντζίδη",
+  "headingAccent": "Ελληνοαμερικανίδα μαγείρισσα",
+  "tagline": "Μαγειρική • Lifestyle • UGC Content",
+  "supporting": "Πραγματικό φαγητό. Πραγματική ζωή. Πραγματική προσωπικότητα.",
   "image": "/media/hero.svg",
   "imageAlt": "Προσωρινό έργο για το πορτρέτο της Εφής Καζαντζίδη — αντικαταστήστε το μέσω του CMS.",
   "variant": "split",
-  "primaryCta": { "label": "Δείτε τα βίντεο", "href": "#videos" },
-  "secondaryCta": { "label": "Συνεργασίες", "href": "#contact" }
+  "primaryCta": { "label": "ΣΥΝΕΡΓΑΣΙΑ", "href": "#contact" },
+  "secondaryCta": null
 }

@@ -195,8 +195,14 @@ collections:
         label: 🟡 Hero (English)
         file: src/content/sections/hero.en.json
         fields:
-          - { label: Eyebrow, name: eyebrow, widget: string }
+          - { label: Eyebrow (optional), name: eyebrow, widget: string, required: false }
           - { label: Heading, name: heading, widget: string }
+          - {
+              label: 'Heading accent (italic second line)',
+              name: headingAccent,
+              widget: string,
+              required: false,
+            }
           - { label: Supporting text, name: supporting, widget: text }
           - { label: Hero image, name: image, widget: image }
           - { label: Image alt text, name: imageAlt, widget: string }
@@ -220,12 +226,40 @@ collections:
             fields:
               - { label: Label, name: label, widget: string }
               - { label: Link, name: href, widget: string }
+          - label: Social-proof ticker
+            name: ticker
+            label_singular: Ticker item
+            widget: list
+            hint: Infinite marquee at the bottom of the hero. Leave empty to hide.
+            fields:
+              - { label: Label, name: label, widget: string, hint: 'e.g. TIKTOK' }
+              - { label: Value, name: value, widget: string, hint: 'e.g. 128K' }
+              - {
+                  label: Icon,
+                  name: icon,
+                  widget: select,
+                  required: false,
+                  options: [tiktok, instagram, facebook, youtube, x],
+                  default: tiktok,
+                }
       - name: hero-el
         label: 🟡 Πρωτότυπη ενότητα (Ελληνικά)
         file: src/content/sections/hero.el.json
         fields:
-          - { label: Μικρό κείμενο (eyebrow), name: eyebrow, widget: string }
+          - {
+              label: Μικρό κείμενο (eyebrow,
+              προαιρετικό),
+              name: eyebrow,
+              widget: string,
+              required: false,
+            }
           - { label: Τίτλος, name: heading, widget: string }
+          - {
+              label: 'Δεύτερη γραμμή τίτλου (πλάγια)',
+              name: headingAccent,
+              widget: string,
+              required: false,
+            }
           - { label: Κείμενο υποστήριξης, name: supporting, widget: text }
           - { label: Εικόνα, name: image, widget: image }
           - { label: Κείμενο εναλλακτικού (alt), name: imageAlt, widget: string }
@@ -249,6 +283,22 @@ collections:
             fields:
               - { label: Ετικέτα, name: label, widget: string }
               - { label: Σύνδεσμος, name: href, widget: string }
+          - label: Ταινία κοινωνικών δικτύων
+            name: ticker
+            label_singular: Στοιχείο ταινίας
+            widget: list
+            hint: Ατελείωτη κυλιόμενη ταινία στο κάτω μέρος. Αφήστε κενό για απόκρυψη.
+            fields:
+              - { label: Ετικέτα, name: label, widget: string }
+              - { label: Τιμή, name: value, widget: string }
+              - {
+                  label: Εικόνισμα,
+                  name: icon,
+                  widget: select,
+                  required: false,
+                  options: [tiktok, instagram, facebook, youtube, x],
+                  default: tiktok,
+                }
 
       # -- Video section settings ---------------------------------------------
       - name: video-section-en

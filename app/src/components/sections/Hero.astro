@@ -1,63 +1,37 @@
 ---
 import { Image } from 'astro:assets';
 import Button from '../ui/Button.astro';
+import Icon, { type IconName } from '../ui/Icon.astro';
 import type { Locale } from '../../i18n/config';
-import { getHero } from '../../utils/content';
+import { getContact, getHero } from '../../utils/content';
 import { resolveImage } from '../../utils/media';
 
 interface Props {
   locale: Locale;
-  /** Nav label from CMS settings, shown as the section chip. */
   label?: string;
 }
 
-const { locale, label } = Astro.props;
+const { locale } = Astro.props;
 const data = await getHero(locale);
+
+// Social buttons reuse the CONTACT socials list (same icons, same links) —
+// one CMS list drives both places.
+const contact = await getContact(locale);
+const socials = contact.socials;
 
 const image = resolveImage(data.image);
 const centered = data.variant === 'center';
 ---
 
+<!-- Split layout: portrait LEFT, text right (stacks text-first on mobile). -->
 <section id="hero" aria-labelledby="hero-heading" class="w-full bg-brand-yellow text-charcoal">
   <div
     class:list={[
-      'shell grid items-center gap-10 py-16 sm:py-20 lg:gap-16 lg:py-28',
-      centered ? 'max-w-4xl' : 'lg:grid-cols-[1.05fr_0.95fr]',
+      'shell grid items-center gap-10 py-14 sm:py-16 lg:grid-cols-[0.95fr_1.05fr] lg:gap-14 lg:py-20',
+      centered ? 'max-w-4xl' : '',
     ]}
   >
-    <div
-      class:list={[
-        'flex flex-col',
-        centered ? 'items-center text-center' : 'items-start text-left',
-      ]}
-    >
-      {
-        label && (
-          <p class="font-label text-sm font-semibold tracking-[0.22em] text-charcoal uppercase">
-            {data.eyebrow}
-          </p>
-        )
-      }
-      <h1 id="hero-heading" class="mt-4 font-display text-hero leading-[1.03]">
-        {data.heading}
-      </h1>
-      <div class="mt-6 h-1 w-14 bg-brand-red" aria-hidden="true"></div>
-      <p class:list={['mt-6 max-w-xl text-lg leading-relaxed sm:text-xl', centered && 'mx-auto']}>
-        {data.supporting}
-      </p>
-      <div class:list={['mt-9 flex flex-wrap items-center gap-4', centered && 'justify-center']}>
-        <Button href={data.primaryCta.href} variant="dark">{data.primaryCta.label}</Button>
-        {
-          data.secondaryCta && (
-            <Button href={data.secondaryCta.href} variant="outline">
-              {data.secondaryCta.label}
-            </Button>
-          )
-        }
-      </div>
-    </div>
-
-    <div class:list={['mx-auto w-full max-w-sm lg:max-w-none', centered ? 'order-last' : '']}>
+    <div class:list={['mx-auto w-full max-w-sm lg:max-w-none', centered ? 'order-last' : 'lg:order-first']}>
       <Image
         src={image}
         alt={data.imageAlt}
@@ -68,6 +42,60 @@ const centered = data.variant === 'center';
         fetchpriority="high"
       />
     </div>
+
+    <div class:list={['flex flex-col', centered ? 'items-center text-center' : 'items-start']}>
+      {
+        data.eyebrow && (
+          <p class="font-display text-2xl font-bold tracking-tight lowercase sm:text-3xl">
+            {data.eyebrow}
+          </p>
+        )
+      }
+      <h1 id="hero-heading" class="mt-3 font-display text-hero leading-[0.98] tracking-tight">
+        {data.heading}
+        {data.headingAccent && <span class="block italic">{data.headingAccent}</span>}
+      </h1>
+      <div
+        class:list={['mt-6 h-1 w-14 bg-brand-red', centered && 'mx-auto']}
+        aria-hidden="true"
+      >
+      </div>
+      {
+        data.tagline && (
+          <p class="mt-6 font-label text-sm font-bold tracking-[0.22em] uppercase">
+            {data.tagline}
+          </p>
+        )
+      }
+      <p class:list={['mt-3 max-w-xl text-lg leading-relaxed sm:text-xl', centered && 'mx-auto']}>
+        {data.supporting}
+      </p>
+
+      <div class:list={['mt-9 flex flex-wrap items-center gap-4', centered && 'justify-center']}>
+        <Button href={data.primaryCta.href} variant="solid">{data.primaryCta.label}</Button>
+        {
+          data.secondaryCta && (
+            <Button href={data.secondaryCta.href} variant="outline">
+              {data.secondaryCta.label}
+            </Button>
+          )
+        }
+        {
+          socials.map((social) => (
+            <a
+              href={social.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={social.label}
+              class="grid h-12 w-12 place-items-center rounded-full bg-charcoal text-brand-yellow transition-transform duration-200 hover:scale-110"
+            >
+              <Icon name={social.icon as IconName} class="h-5 w-5" />
+            </a>
+          ))
+        }
+      </div>
+    </div>
   </div>
+
   <div class="h-1 w-full bg-brand-red" aria-hidden="true"></div>
 </section>

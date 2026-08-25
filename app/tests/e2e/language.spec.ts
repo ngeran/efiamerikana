@@ -8,11 +8,11 @@ test.describe('language switching', () => {
     await page.getByRole('link', { name: 'Αλλαγή στα Ελληνικά' }).first().click();
     await expect(page).toHaveURL(/\/el\/?$/);
     await expect(page.locator('html')).toHaveAttribute('lang', 'el');
-    await expect(page.locator('#hero h1')).toContainText('Λίγο μαγείρεμα');
+    await expect(page.locator('#hero h1')).toContainText('ΜΑΓΕΙΡΕΜΑ');
 
     await page.getByRole('link', { name: 'Switch to English' }).first().click();
     await expect(page).toHaveURL(/\/en\/?$/);
-    await expect(page.locator('#hero h1')).toContainText('cooking');
+    await expect(page.locator('#hero h1')).toContainText('COOKING');
   });
 
   test('help page switching preserves the equivalent page', async ({ page }) => {

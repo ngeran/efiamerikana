@@ -201,7 +201,7 @@ or secrets are committed.
 | Types | `npm run check` | `astro check` (strict TS) — 0 errors |
 | Unit | `npm run test` | 31 tests: locale path helpers, entry locale/ordering/draft filtering, media resolver (incl. failure modes), EN/EL dictionary parity |
 | Component | `npm run test` | AstroContainer renders of footer (EN+EL) and video card (9/16 frame, `preload="none"`, `playsinline`, labels) |
-| E2E | `npm run test:e2e` | 102 checks (desktop + mobile Chromium): navigation & scroll-spy, `EN | ΕΛ` switching preserves the page, mobile menu (ARIA, focus trap, Escape, focus restore), video playback + dimensional stability + offscreen pause + `+` overlay, picture grayscale→colour (hover/focus/tap) + scroll rail arrows, CMS content rendering, no-overflow sweep at 320/375/768/1024/1920/2560/3840 × both locales |
+| E2E | `npm run test:e2e` | 108 checks (desktop + mobile Chromium): navigation & scroll-spy, `EN | ΕΛ` switching preserves the page, mobile menu (ARIA, focus trap, Escape, focus restore), video playback + dimensional stability + offscreen pause + `+` overlay + rail arrows, picture grayscale→colour (hover/focus/tap) + scroll rail arrows, CMS content rendering, admin shell, no-overflow sweep at 320/375/768/1024/1920/2560/3840 × both locales |
 | A11y | inside e2e | axe-core (wcag2a/2aa/21a/21aa/22aa) on all four pages × both projects — **0 serious/critical violations**; skip-link + heading-order checks |
 
 ---
@@ -266,7 +266,7 @@ Container runs as UID 1000, read-only rootfs, all caps dropped (see
 | Email icon visible at every viewport | ✅ e2e at 320 px |
 | Keyboard/touch/pointer navigation | ✅ focus trap, Escape, hover/focus/tap e2e |
 | Hero/Pictures/Analytics colours exact (`#ffde59`/`#ff1fa9`/`#000000`) | ✅ theme tokens, used verbatim |
-| Grid ↔ scroll layouts via CMS | ✅ select field; videos seeded grid, pictures seeded scroll (both e2e-tested) |
+| Grid ↔ scroll layouts via CMS | ✅ select field; both sections seeded as 3-visible scroll rails (grid mode switchable via CMS) |
 | Video cards dimensionally stable during playback | ✅ bounding-box e2e assertion |
 | Pictures grayscale → colour on hover/focus | ✅ computed-filter e2e assertions |
 | Full CMS CRUD + reorder + media + metadata | ✅ Decap collections (manual admin flow) |

@@ -145,4 +145,13 @@
       transform: translateY(0);
     }
   }
+
+  /* Hero social-proof ticker: the track holds two identical groups, so
+     translating -50% loops seamlessly. Reduced-motion stops it globally. */
+  --animate-marquee: marquee 28s linear infinite;
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
 }

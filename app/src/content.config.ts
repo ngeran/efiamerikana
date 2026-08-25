@@ -69,8 +69,12 @@ const settingsSchema = z.object({
 });
 
 const heroSchema = z.object({
-  eyebrow: z.string().min(1),
+  eyebrow: z.string().nullish(),
   heading: z.string().min(1),
+  /** Italic accent line rendered as a second heading line. */
+  headingAccent: z.string().nullish(),
+  /** Uppercase category line, e.g. "Food • Lifestyle • UGC Content". */
+  tagline: z.string().nullish(),
   supporting: z.string().min(1),
   image: mediaRef,
   imageAlt: z.string().min(1),
