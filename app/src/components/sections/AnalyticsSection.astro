@@ -1,5 +1,4 @@
 ---
-import SectionHeading from '../ui/SectionHeading.astro';
 import Icon, { type IconName } from '../ui/Icon.astro';
 import { translator } from '../../i18n/ui';
 import type { Locale } from '../../i18n/config';
@@ -14,6 +13,25 @@ const { locale, label } = Astro.props;
 const data = await getAnalytics(locale);
 const t = translator(locale).analytics;
 
+/**
+ * `headline`, `trend`, `ratios`, and `velocity` are optional CMS fields this
+ * redesign introduces (not present in the original schema). Everything
+ * degrades gracefully if they're missing — add them to getAnalytics()'s
+ * return type when you're ready to populate real numbers.
+ *
+ * headline: { value: string; label: string }   e.g. { value: '5.8M', label: 'Views' }
+ * trend:    string                              e.g. '+14.2% vs previous period'
+ * ratios:   { label: string; value: string; percent: number }[]
+ * velocity: number[] (0–100, one per bar, decorative sparkline)
+ */
+const headline = data.headline ?? {
+  value: data.metrics[0]?.value ?? '—',
+  label: data.metrics[0]?.label ?? '',
+};
+const restMetrics = data.headline ? data.metrics : data.metrics.slice(1);
+const ratios = data.ratios ?? [];
+const velocity = data.velocity ?? [];
+
 /** Values are server-rendered text — no counters, nothing hidden from AT. */
 ---
 
@@ -22,45 +40,121 @@ const t = translator(locale).analytics;
   aria-labelledby="analytics-heading"
   class="relative w-full overflow-hidden bg-brand-black text-white"
 >
-  <div
-    class="pointer-events-none absolute top-1/2 left-0 -translate-y-1/2 font-display text-[18vw] leading-none whitespace-nowrap text-white/[0.04] italic select-none"
-    aria-hidden="true"
-  >
-    {data.heading}
-  </div>
-
   <div class="shell relative py-16 sm:py-20 lg:py-24">
-    <SectionHeading
-      id="analytics-heading"
-      label={label}
-      heading={data.heading}
-      intro={data.intro}
-      tone="light"
-    />
+    <!-- Glow accent behind the headline, purely decorative -->
+    <div
+      class="pointer-events-none absolute top-40 left-1/2 h-[28rem] w-[28rem] -translate-x-1/2 rounded-full bg-brand-yellow/10 blur-[120px]"
+      aria-hidden="true"
+    >
+    </div>
 
-    <ul role="list" class="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="relative flex flex-col items-center text-center">
       {
-        data.metrics.map((metric) => (
-          <li class="relative flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/5 p-6">
+        label && (
+          <span class="font-label text-xs font-bold tracking-[0.3em] text-white/50 uppercase sm:text-sm">
+            {label}
+          </span>
+        )
+      }
+
+      <h1
+        id="analytics-heading"
+        class="mt-6 flex flex-col items-baseline justify-center gap-2 font-display leading-[0.85] font-extrabold tracking-tight text-white sm:flex-row sm:gap-6"
+        style="font-size: clamp(3.5rem, 2rem + 10vw, 12rem);"
+      >
+        {headline.value}
+        <span
+          class="font-label text-3xl font-normal tracking-normal text-brand-yellow sm:text-5xl"
+        >
+          {headline.label}
+        </span>
+      </h1>
+
+      {
+        data.trend && (
+          <div class="mt-10 inline-flex items-center gap-2 border border-brand-yellow/30 px-4 py-2 font-label text-xs font-bold tracking-[0.15em] text-brand-yellow uppercase shadow-[0_0_15px_rgba(255,222,89,0.15)] sm:text-sm">
+            <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 17l6-6 4 4 8-8" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M15 7h6v6" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            {data.trend}
+          </div>
+        )
+      }
+
+      {data.intro && <p class="mt-6 max-w-xl text-sm text-white/60 sm:text-base">{data.intro}</p>}
+    </div>
+
+    <!-- Bordered stat grid -->
+    <div class="relative mt-16 grid grid-cols-1 border-t border-l border-white/10 sm:grid-cols-3">
+      {
+        restMetrics.map((metric) => (
+          <div class="group relative border-r border-b border-white/10 p-8">
+            <div class="pointer-events-none absolute top-0 right-0 h-32 w-32 bg-brand-yellow/0 transition-colors duration-500 group-hover:bg-brand-yellow/5" />
             {metric.icon && (
               <Icon
                 name={metric.icon as IconName}
-                class="absolute top-6 right-6 h-6 w-6 text-brand-pink"
+                class="mb-6 block h-6 w-6 text-brand-yellow drop-shadow-[0_0_8px_rgba(255,222,89,0.5)]"
               />
             )}
-            <p class="font-display text-4xl leading-none text-brand-yellow sm:text-5xl">
+            <div class="font-display text-4xl leading-none tracking-tight text-white sm:text-5xl">
               {metric.value}
-            </p>
-            <div class="space-y-1.5">
-              <p class="font-label text-sm font-bold tracking-[0.18em] uppercase">{metric.label}</p>
-              {metric.description && (
-                <p class="text-sm leading-relaxed text-white/65">{metric.description}</p>
-              )}
             </div>
-          </li>
+            <div class="mt-3 font-label text-xs font-bold tracking-[0.2em] text-white/50 uppercase">
+              {metric.label}
+            </div>
+            {metric.description && (
+              <p class="mt-2 text-sm leading-relaxed text-white/50">{metric.description}</p>
+            )}
+          </div>
         ))
       }
-    </ul>
+
+      {
+        ratios.length > 0 && (
+          <div class="border-r border-b border-white/10 p-8 sm:col-span-1">
+            <h3 class="mb-8 font-label text-xs font-bold tracking-[0.2em] text-white/50 uppercase">
+              {t.ratiosTitle ?? 'Performance ratios'}
+            </h3>
+            <div class="space-y-8">
+              {ratios.map((ratio) => (
+                <div>
+                  <div class="mb-2 flex items-end justify-between">
+                    <span class="text-sm text-white/70">{ratio.label}</span>
+                    <span class="font-display text-2xl text-white">{ratio.value}</span>
+                  </div>
+                  <div class="h-[2px] w-full overflow-hidden bg-white/10">
+                    <div
+                      class="h-full bg-brand-yellow shadow-[0_0_8px_rgba(255,222,89,0.8)]"
+                      style={`width: ${Math.min(ratio.percent, 100)}%`}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      }
+
+      {
+        velocity.length > 0 && (
+          <div class="group relative flex h-64 flex-col justify-end overflow-hidden border-r border-b border-white/10 p-8 sm:col-span-3">
+            <div class="pointer-events-none absolute top-8 left-8 font-label text-xs font-bold tracking-[0.2em] text-white/50 uppercase">
+              {t.velocityTitle ?? 'Audience velocity'}
+            </div>
+            <div class="relative z-10 flex h-32 w-full items-end gap-[3px] opacity-90" aria-hidden="true">
+              {velocity.map((v) => (
+                <div
+                  class="w-full bg-white/10 transition-colors group-hover:bg-white/20"
+                  class:list={[v > 70 && 'bg-brand-yellow shadow-[0_0_15px_rgba(255,222,89,0.6)] group-hover:bg-brand-yellow']}
+                  style={`height: ${Math.max(v, 4)}%`}
+                />
+              ))}
+            </div>
+          </div>
+        )
+      }
+    </div>
 
     <p class="mt-8 max-w-2xl text-sm text-white/50">
       {data.footnote ?? t.disclosure}

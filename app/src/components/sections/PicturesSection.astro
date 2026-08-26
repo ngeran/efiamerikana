@@ -1,10 +1,10 @@
 ---
 import SectionHeading from '../ui/SectionHeading.astro';
-import PictureCard from '../media/PictureCard.astro';
-import MediaScrollRow from '../media/MediaScrollRow.astro';
+import { Image } from 'astro:assets';
 import { translator } from '../../i18n/ui';
 import type { Locale } from '../../i18n/config';
 import { getPictureSection, getPictures } from '../../utils/content';
+import { resolveImage } from '../../utils/media';
 
 interface Props {
   locale: Locale;
@@ -15,68 +15,131 @@ const { locale, label } = Astro.props;
 const data = await getPictureSection(locale);
 const pictures = await getPictures(locale);
 const t = translator(locale).pictures;
-
-const scrollItem = 'w-[68%] shrink-0 snap-start sm:w-[42%] lg:w-[31%]';
 ---
 
-<section
-  id="pictures"
-  aria-labelledby="pictures-heading"
-  class="w-full bg-brand-pink text-charcoal"
->
-  <div class="shell py-16 sm:py-20 lg:py-24">
+<section id="pictures" aria-labelledby="pictures-heading" class="w-full bg-brand-pink text-charcoal overflow-x-hidden">
+  <div class="shell pt-16 sm:pt-20 lg:pt-24">
     <SectionHeading id="pictures-heading" label={label} heading={data.heading} intro={data.intro} />
+  </div>
 
+  <div class="w-full pb-16 sm:pb-20 lg:pb-24">
     {
       pictures.length === 0 ? (
-        <p class="mt-10 text-charcoal/60">—</p>
-      ) : data.layout === 'scroll' ? (
-        <div class="mt-10" data-pictures>
-          <MediaScrollRow label={t.railLabel} prevLabel={t.prev} nextLabel={t.next}>
-            {pictures.map((picture, index) => (
-              <li class={scrollItem}>
-                <PictureCard picture={picture} locale={locale} index={index} compact />
-              </li>
-            ))}
-          </MediaScrollRow>
-        </div>
-      ) : (
+        <div class="shell"><p class="mt-10 text-charcoal/60">—</p></div>
+      ) : data.layout === 'grid' ? (
         <ul
           role="list"
-          class="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+          /* 
+             Grid Fix: Added more columns (up to 6) for large screens 
+             to prevent items from stretching too wide.
+          */
+          class="mt-10 grid grid-cols-1 gap-4 px-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 sm:px-6 lg:px-8"
           data-pictures
         >
-          {pictures.map((picture, index) => (
-            <li>
-              <PictureCard picture={picture} locale={locale} index={index} />
-            </li>
-          ))}
+          {pictures.map((picture) => {
+            const image = resolveImage(picture.image);
+            return (
+              <li
+                class="group relative aspect-[4/5.5] w-full max-w-[450px] mx-auto overflow-hidden rounded-[18px] bg-black shadow-xl"
+                data-picture-card
+                data-open="false"
+              >
+                <Image
+                  src={image}
+                  alt={picture.imageAlt}
+                  widths={[400, 800]}
+                  sizes="(min-width: 1280px) 20vw, (min-width: 1024px) 25vw, (min-width: 768px) 33vw, 100vw"
+                  loading="lazy"
+                  class="h-full w-full object-cover grayscale transition-all duration-500 group-hover:scale-105 group-hover:grayscale-0 group-data-[open=true]:grayscale-0"
+                />
+                <!-- UI Buttons -->
+                <button type="button" data-picture-toggle class="absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-black transition-transform duration-300 group-data-[open=true]:rotate-45">
+                  <svg viewBox="0 0 24 24" class="h-[22px] w-[22px]" fill="none" stroke="white" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                </button>
+                <div class="media-overlay-gradient pointer-events-none absolute inset-0 flex translate-y-3 flex-col justify-end p-6 opacity-0 transition-all duration-300 group-data-[open=true]:translate-y-0 group-data-[open=true]:opacity-100">
+                  <h3 class="font-display text-lg text-white">{picture.title}</h3>
+                  {picture.description && <p class="mt-1 text-sm text-white/70">{picture.description}</p>}
+                </div>
+              </li>
+            );
+          })}
         </ul>
+      ) : (
+        <div class="relative mt-10 w-full" data-picture-rail-wrap>
+          <!-- Nav Buttons -->
+          <button type="button" data-rail-scroll="-1" class="absolute top-1/2 left-4 z-20 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-charcoal/20 bg-white/80 text-charcoal backdrop-blur-md transition-colors hover:bg-black hover:text-white sm:flex">
+            <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6" /></svg>
+          </button>
+          <button type="button" data-rail-scroll="1" class="absolute top-1/2 right-4 z-20 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-charcoal/20 bg-white/80 text-charcoal backdrop-blur-md transition-colors hover:bg-black hover:text-white sm:flex">
+            <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6" /></svg>
+          </button>
+
+          <ul
+            role="list"
+            data-pictures
+            data-rail
+            class="no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 sm:px-8 pb-2"
+          >
+            {pictures.map((picture) => {
+              const image = resolveImage(picture.image);
+              return (
+                <li
+                  /* 
+                     Rail Fix: Added lg:max-w-[320px] and xl:max-w-[380px] 
+                     This prevents the images from growing infinitely on big screens.
+                  */
+                  class="group relative aspect-[4/5.5] w-[80vw] sm:w-[40vw] lg:w-[22vw] lg:max-w-[320px] xl:max-w-[380px] shrink-0 snap-start overflow-hidden rounded-[18px] bg-black shadow-xl"
+                  data-picture-card
+                  data-open="false"
+                >
+                  <Image
+                    src={image}
+                    alt={picture.imageAlt}
+                    widths={[400, 800]}
+                    sizes="(min-width: 1024px) 350px, (min-width: 640px) 45vw, 80vw"
+                    loading="lazy"
+                    class="h-full w-full object-cover grayscale transition-all duration-500 group-hover:scale-105 group-hover:grayscale-0 group-data-[open=true]:grayscale-0"
+                  />
+                  <button type="button" data-picture-toggle class="absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-black transition-transform duration-300 group-data-[open=true]:rotate-45">
+                    <svg viewBox="0 0 24 24" class="h-[22px] w-[22px]" fill="none" stroke="white" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                  </button>
+                  <div class="media-overlay-gradient pointer-events-none absolute inset-0 flex translate-y-3 flex-col justify-end p-6 opacity-0 transition-all duration-300 group-data-[open=true]:translate-y-0 group-data-[open=true]:opacity-100">
+                    <h3 class="font-display text-lg text-white">{picture.title}</h3>
+                    {picture.description && <p class="mt-1 text-sm text-white/70">{picture.description}</p>}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
       )
     }
   </div>
 </section>
 
 <script>
-  // Toggle picture descriptions: flips card state (colour + description
-  // reveal). Hover and keyboard focus colour the image via CSS; this script
-  // covers touch devices, where hover does not exist.
+  // Logic remains the same
   document.addEventListener('click', (event) => {
-    const toggle = (event.target as HTMLElement).closest<HTMLButtonElement>(
-      '[data-picture-toggle]',
-    );
+    const toggle = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-picture-toggle]');
     if (!toggle) return;
     const card = toggle.closest<HTMLElement>('[data-picture-card]');
-    const desc = card?.querySelector<HTMLElement>('[data-picture-desc]');
-    if (!card || !desc) return;
-
+    if (!card) return;
     const open = toggle.getAttribute('aria-expanded') !== 'true';
     toggle.setAttribute('aria-expanded', String(open));
-    toggle.setAttribute(
-      'aria-label',
-      (open ? toggle.dataset.labelHide : toggle.dataset.labelShow) ?? '',
-    );
     card.dataset.open = String(open);
-    desc.hidden = !open;
   });
+
+  for (const wrap of document.querySelectorAll<HTMLElement>('[data-picture-rail-wrap]')) {
+    const rail = wrap.querySelector<HTMLElement>('[data-rail]');
+    if (!rail) continue;
+    for (const btn of wrap.querySelectorAll<HTMLButtonElement>('[data-rail-scroll]')) {
+      btn.addEventListener('click', () => {
+        const dir = Number(btn.dataset.railScroll ?? '1');
+        // On desktop, scroll by one card width exactly for better control
+        const card = rail.querySelector<HTMLElement>('[data-picture-card]');
+        const step = card ? (card.clientWidth + 16) * dir : (rail.clientWidth * 0.6) * dir;
+        rail.scrollBy({ left: step, behavior: 'smooth' });
+      });
+    }
+  }
 </script>

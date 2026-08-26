@@ -1,7 +1,5 @@
 ---
 import SectionHeading from '../ui/SectionHeading.astro';
-import VideoCard from '../media/VideoCard.astro';
-import MediaScrollRow from '../media/MediaScrollRow.astro';
 import { translator } from '../../i18n/ui';
 import type { Locale } from '../../i18n/config';
 import { getVideoSection, getVideos } from '../../utils/content';
@@ -15,54 +13,125 @@ const { locale, label } = Astro.props;
 const data = await getVideoSection(locale);
 const videos = await getVideos(locale);
 const t = translator(locale).video;
-
-const scrollItem = 'w-[68%] shrink-0 snap-start sm:w-[42%] lg:w-[31%]';
 ---
 
-<section id="videos" aria-labelledby="videos-heading" class="w-full bg-cream text-charcoal">
-  <div class="shell py-16 sm:py-20 lg:py-24">
-    <SectionHeading id="videos-heading" label={label} heading={data.heading} intro={data.intro} />
+<section id="videos" aria-labelledby="videos-heading" class="w-full bg-brand-black text-white overflow-x-hidden">
+  <div class="shell pt-16 sm:pt-20 lg:pt-24">
+    <SectionHeading
+      id="videos-heading"
+      label={label}
+      heading={data.heading}
+      intro={data.intro}
+      tone="light"
+    />
+  </div>
 
+  <div class="w-full pb-16 sm:pb-20 lg:pb-24">
     {
       videos.length === 0 ? (
-        <p class="mt-10 text-charcoal/60">—</p>
-      ) : data.layout === 'scroll' ? (
-        <div class="mt-10" data-videos>
-          <MediaScrollRow label={t.railLabel} prevLabel={t.prev} nextLabel={t.next}>
-            {videos.map((video, index) => (
-              <li class={scrollItem}>
-                <VideoCard video={video} locale={locale} index={index} />
-              </li>
-            ))}
-          </MediaScrollRow>
-        </div>
-      ) : (
+        <div class="shell"><p class="mt-10 text-white/50">—</p></div>
+      ) : data.layout === 'grid' ? (
         <ul
           role="list"
-          class="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+          /* GRID: Added more columns for large screens and adjusted gaps */
+          class="mt-10 grid grid-cols-2 gap-3 px-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 sm:px-6 lg:px-8 lg:gap-6"
           data-videos
         >
-          {videos.map((video, index) => (
-            <li>
-              <VideoCard video={video} locale={locale} index={index} />
+          {videos.map((video) => (
+            <li
+              /* 
+                 GRID FIX: max-w-[380px] prevents vertical videos 
+                 from becoming taller than the screen on 4K monitors.
+              */
+              class="group relative aspect-[9/16] w-full max-w-[380px] mx-auto overflow-hidden rounded-[18px] bg-black shadow-xl"
+              data-video-card
+              data-playing="false"
+              data-muted="true"
+              data-open="false"
+            >
+              <video
+                data-video
+                src={video.src}
+                poster={video.poster}
+                loop
+                muted
+                playsinline
+                preload="metadata"
+                class="h-full w-full object-cover" 
+              />
+              <button type="button" data-play-toggle class="absolute inset-0 z-0 h-full w-full cursor-pointer" />
+              
+              <button type="button" data-mute-toggle class="absolute top-3 left-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/10 backdrop-blur-md sm:h-9 sm:w-9">
+                <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 5L6 9H2v6h4l5 4V5z" />
+                  <line data-mute-line x1="23" y1="9" x2="17" y2="15" />
+                  <line data-mute-line x1="17" y1="9" x2="23" y2="15" />
+                </svg>
+              </button>
+              
+              <button type="button" data-details-toggle class="absolute top-3 right-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black sm:h-9 sm:w-9 transition-transform duration-300 group-data-[open=true]:rotate-45">
+                <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="white" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+              </button>
+
+              <div class="media-overlay-gradient pointer-events-none absolute inset-0 flex flex-col justify-end p-5 opacity-0 transition-opacity duration-300 group-data-[open=true]:opacity-100">
+                <h3 class="font-display text-base text-white">{video.title}</h3>
+                {video.description && <p class="mt-1 text-xs leading-relaxed text-white/70">{video.description}</p>}
+              </div>
             </li>
           ))}
         </ul>
+      ) : (
+        <div class="relative mt-10 w-full" data-video-rail-wrap>
+          <button type="button" data-rail-scroll="-1" class="absolute top-1/2 left-4 z-20 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/20 text-white backdrop-blur-md sm:flex">
+            <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6" /></svg>
+          </button>
+          <button type="button" data-rail-scroll="1" class="absolute top-1/2 right-4 z-20 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/20 text-white backdrop-blur-md sm:flex">
+            <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6" /></svg>
+          </button>
+
+          <ul
+            role="list"
+            data-videos
+            data-rail
+            class="no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 sm:px-8 pb-2"
+          >
+            {videos.map((video) => (
+              <li
+                /* 
+                   RAIL FIX: lg:max-w-[280px] and xl:max-w-[320px] 
+                   This keeps the videos at a professional size on wide screens.
+                */
+                class="group relative aspect-[9/16] w-[70vw] sm:w-[35vw] lg:w-[20vw] lg:max-w-[280px] xl:max-w-[320px] shrink-0 snap-start overflow-hidden rounded-[18px] bg-black shadow-xl"
+                data-video-card
+                data-playing="false"
+                data-muted="true"
+                data-open="false"
+              >
+                <video data-video src={video.src} poster={video.poster} loop muted playsinline preload="metadata" class="h-full w-full object-cover" />
+                <button type="button" data-play-toggle class="absolute inset-0 z-0 h-full w-full cursor-pointer" />
+                
+                <button type="button" data-mute-toggle class="absolute top-3 left-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/10 backdrop-blur-md">
+                    <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z" /><line data-mute-line x1="23" y1="9" x2="17" y2="15" /><line data-mute-line x1="17" y1="9" x2="23" y2="15" /></svg>
+                </button>
+                <button type="button" data-details-toggle class="absolute top-3 right-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black transition-transform duration-300 group-data-[open=true]:rotate-45">
+                    <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="white" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                </button>
+                
+                <div class="media-overlay-gradient pointer-events-none absolute inset-0 flex flex-col justify-end p-5 opacity-0 transition-opacity duration-300 group-data-[open=true]:opacity-100">
+                  <h3 class="font-display text-base text-white">{video.title}</h3>
+                  {video.description && <p class="mt-1 text-xs leading-relaxed text-white/70">{video.description}</p>}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
       )
     }
   </div>
 </section>
 
 <script>
-  // ------------------------------------------------------------------
-  // Video card behaviour (delegated per [data-videos] section):
-  //  - click/tap the media surface → play (muted) / pause
-  //  - explicit unmute button (audio never autoplays)
-  //  - hover preview, ONLY on hover-capable pointers, muted
-  //  - + / × toggles the metadata overlay (touch + keyboard)
-  //  - cards leaving the viewport are paused
-  // All labels come from data-* attributes rendered server-side.
-  // ------------------------------------------------------------------
+  // Script logic remains the same for performance and behavior
   const canHover = window.matchMedia('(hover: hover) and (pointer: fine)');
 
   for (const root of document.querySelectorAll<HTMLElement>('[data-videos]')) {
@@ -71,83 +140,63 @@ const scrollItem = 'w-[68%] shrink-0 snap-start sm:w-[42%] lg:w-[31%]';
       const playBtn = card.querySelector<HTMLButtonElement>('[data-play-toggle]');
       const muteBtn = card.querySelector<HTMLButtonElement>('[data-mute-toggle]');
       const detailsBtn = card.querySelector<HTMLButtonElement>('[data-details-toggle]');
+      const muteLines = card.querySelectorAll<SVGLineElement>('[data-mute-line]');
       if (!video || !playBtn) continue;
 
-      const play = () => void video.play().catch(() => {});
-      const pause = () => video.pause();
-
-      // Reflect playback state onto the card (drives CSS icon swaps).
       const sync = () => {
         const playing = !video.paused && !video.ended;
         card.dataset.playing = String(playing);
-        card.dataset.muted = String(video.muted);
-        playBtn.setAttribute('aria-pressed', String(playing));
-        playBtn.setAttribute(
-          'aria-label',
-          (playing ? playBtn.dataset.labelPause : playBtn.dataset.labelPlay) ?? '',
-        );
+        muteLines.forEach((line) => { line.style.display = video.muted ? 'block' : 'none'; });
       };
+
       video.addEventListener('play', sync);
       video.addEventListener('pause', sync);
 
-      // Explicit click/tap playback — the primary control. Toggles on user
-      // intent (not raw paused state) so a running hover-preview is
-      // "adopted" by the first click instead of paused by it.
       playBtn.addEventListener('click', () => {
-        if (card.dataset.intent === 'play') {
+        if (!video.paused) {
           card.dataset.intent = 'pause';
-          pause();
+          video.pause();
         } else {
           card.dataset.intent = 'play';
-          play();
+          video.play().catch(() => {});
         }
       });
 
-      // Hover preview — enhancement only, never the sole control.
       if (canHover.matches) {
-        card.addEventListener('mouseenter', () => {
-          if (video.paused && card.dataset.intent !== 'pause') play();
-        });
-        card.addEventListener('mouseleave', () => {
-          if (!video.paused && card.dataset.intent !== 'play') pause();
-        });
+        card.addEventListener('mouseenter', () => { if (video.paused && card.dataset.intent !== 'pause') video.play().catch(() => {}); });
+        card.addEventListener('mouseleave', () => { if (!video.paused && card.dataset.intent !== 'play') video.pause(); });
       }
 
-      if (muteBtn) {
-        muteBtn.addEventListener('click', () => {
-          video.muted = !video.muted;
-          muteBtn.setAttribute(
-            'aria-label',
-            (video.muted ? muteBtn.dataset.labelMute : muteBtn.dataset.labelUnmute) ?? '',
-          );
-          sync();
-        });
-      }
+      muteBtn?.addEventListener('click', () => {
+        video.muted = !video.muted;
+        sync();
+      });
 
-      if (detailsBtn) {
-        detailsBtn.addEventListener('click', () => {
-          const open = detailsBtn.getAttribute('aria-expanded') !== 'true';
-          detailsBtn.setAttribute('aria-expanded', String(open));
-          detailsBtn.setAttribute(
-            'aria-label',
-            (open ? detailsBtn.dataset.labelHide : detailsBtn.dataset.labelShow) ?? '',
-          );
-          card.dataset.open = String(open);
-        });
-      }
+      detailsBtn?.addEventListener('click', () => {
+        const open = detailsBtn.getAttribute('aria-expanded') !== 'true';
+        detailsBtn.setAttribute('aria-expanded', String(open));
+        card.dataset.open = String(open);
+      });
 
-      // Pause videos that leave the viewport — always, regardless of how
-      // playback started (spec: pause offscreen media when practical).
       if ('IntersectionObserver' in window) {
-        new IntersectionObserver(
-          (entries) => {
-            for (const entry of entries) {
-              if (!entry.isIntersecting) pause();
-            }
-          },
-          { threshold: 0.15 },
-        ).observe(card);
+        new IntersectionObserver((entries) => {
+          for (const entry of entries) { if (!entry.isIntersecting) video.pause(); }
+        }, { threshold: 0.1 }).observe(card);
       }
+    }
+  }
+
+  for (const wrap of document.querySelectorAll<HTMLElement>('[data-video-rail-wrap]')) {
+    const rail = wrap.querySelector<HTMLElement>('[data-rail]');
+    if (!rail) continue;
+    for (const btn of wrap.querySelectorAll<HTMLButtonElement>('[data-rail-scroll]')) {
+      btn.addEventListener('click', () => {
+        const dir = Number(btn.dataset.railScroll ?? '1');
+        const card = rail.querySelector<HTMLElement>('[data-video-card]');
+        // Scroll by card width + gap for better precise control on large screens
+        const step = card ? (card.clientWidth + 16) * dir : (rail.clientWidth * 0.7) * dir;
+        rail.scrollBy({ left: step, behavior: 'smooth' });
+      });
     }
   }
 </script>
