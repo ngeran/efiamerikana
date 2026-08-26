@@ -58,6 +58,84 @@ collections:
         field: draft
         pattern: true
     fields:
+      - { label: Title, name: title, widget: string, i18n: true }
+      - { label: Description, name: description, widget: text, i18n: true }
+      - {
+          label: Order,
+          name: order,
+          widget: number,
+          default: 100,
+          hint: Lower numbers appear first,
+          i18n: duplicate,
+        }
+      - {
+          label: Video file,
+          name: video,
+          widget: file,
+          hint: 'Portrait (9:16) MP4/WebM',
+          choose_url: false,
+          i18n: duplicate,
+        }
+      - { label: Poster image, name: poster, widget: image, required: true, i18n: duplicate }
+      - { label: Poster alt text, name: posterAlt, widget: string, i18n: true }
+      - {
+          label: Transcript / captions,
+          name: transcript,
+          widget: text,
+          required: false,
+          i18n: true,
+        }
+      - {
+          label: Tag,
+          name: tag,
+          widget: string,
+          required: false,
+          hint: Platform or category chip (e.g. TikTok,
+          Dessert),
+          i18n: true,
+        }
+      - { label: Draft, name: draft, widget: boolean, default: false, i18n: duplicate }
+
+  # ── Pictures (folder collection, bilingual, reorderable) ─────────────────────
+  - name: pictures
+    label: Pictures
+    label_singular: Picture
+    folder: src/content/pictures
+    path: '{{locale}}/{{slug}}'
+    create: true
+    sortable_fields: [order, title]
+    summary: '{{title}} · {{order}}'
+    editor:
+      preview: false
+    i18n: true
+    view_filters:
+      - label: Drafts
+        field: draft
+        pattern: true
+    fields:
+      - { label: Title, name: title, widget: string, i18n: true }
+      - { label: Description, name: description, widget: text, required: false, i18n: true }
+      - {
+          label: Order,
+          name: order,
+          widget: number,
+          default: 100,
+          hint: Lower numbers appear first,
+          i18n: duplicate,
+        }
+      - { label: Image, name: image, widget: image, required: true, i18n: duplicate }
+      - { label: Image alt text, name: imageAlt, widget: string, i18n: true }
+      - {
+          label: Tag,
+          name: tag,
+          widget: string,
+          required: false,
+          hint: Category chip (e.g. Lifestyle,
+          Editorial),
+          i18n: true,
+        }
+      - { label: Draft, name: draft, widget: boolean, default: false, i18n: duplicate }
+
   # ── Settings ────────────────────────────────────────────────────────────────
   - name: settings
     label: Settings
@@ -466,98 +544,3 @@ collections:
               widget: string,
             }
           - { label: Σημείωση (προαιρετικό), name: note, widget: string, required: false }
-
-  # ── Videos (folder collection, bilingual, reorderable) ──────────────────────
-  - name: videos
-    label: Videos
-    label_singular: Video
-    folder: src/content/videos
-    path: '{{locale}}/{{slug}}'
-    create: true
-    sortable_fields: [order, title]
-    summary: '{{title}} · {{order}}'
-    editor:
-      preview: false
-    i18n: true
-    view_filters:
-      - label: Drafts
-        field: draft
-        pattern: true
-    fields:
-      - { label: Title, name: title, widget: string, i18n: true }
-      - { label: Description, name: description, widget: text, i18n: true }
-      - {
-          label: Order,
-          name: order,
-          widget: number,
-          default: 100,
-          hint: Lower numbers appear first,
-          i18n: duplicate,
-        }
-      - {
-          label: Video file,
-          name: video,
-          widget: file,
-          hint: 'Portrait (9:16) MP4/WebM',
-          choose_url: false,
-          i18n: duplicate,
-        }
-      - { label: Poster image, name: poster, widget: image, required: true, i18n: duplicate }
-      - { label: Poster alt text, name: posterAlt, widget: string, i18n: true }
-      - {
-          label: Transcript / captions,
-          name: transcript,
-          widget: text,
-          required: false,
-          i18n: true,
-        }
-      - {
-          label: Tag,
-          name: tag,
-          widget: string,
-          required: false,
-          hint: Platform or category chip (e.g. TikTok,
-          Dessert),
-          i18n: true,
-        }
-      - { label: Draft, name: draft, widget: boolean, default: false, i18n: duplicate }
-
-  # ── Pictures (folder collection, bilingual, reorderable) ─────────────────────
-  - name: pictures
-    label: Pictures
-    label_singular: Picture
-    folder: src/content/pictures
-    path: '{{locale}}/{{slug}}'
-    create: true
-    sortable_fields: [order, title]
-    summary: '{{title}} · {{order}}'
-    editor:
-      preview: false
-    i18n: true
-    view_filters:
-      - label: Drafts
-        field: draft
-        pattern: true
-    fields:
-      - { label: Title, name: title, widget: string, i18n: true }
-      - { label: Description, name: description, widget: text, required: false, i18n: true }
-      - {
-          label: Order,
-          name: order,
-          widget: number,
-          default: 100,
-          hint: Lower numbers appear first,
-          i18n: duplicate,
-        }
-      - { label: Image, name: image, widget: image, required: true, i18n: duplicate }
-      - { label: Image alt text, name: imageAlt, widget: string, i18n: true }
-      - {
-          label: Tag,
-          name: tag,
-          widget: string,
-          required: false,
-          hint: Category chip (e.g. Lifestyle,
-          Editorial),
-          i18n: true,
-        }
-      - { label: Draft, name: draft, widget: boolean, default: false, i18n: duplicate }

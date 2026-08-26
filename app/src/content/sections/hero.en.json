@@ -11,5 +11,8 @@
   "tagline": "Food • Lifestyle • UGC Content",
   "supporting": "Real food. Real life. Real personality.",
   "image": "/media/efi-hero.jpg",
-  "secondaryCta": null
+  "secondaryCta": {
+    "label": "sd",
+    "href": "sd"
+  }
 }

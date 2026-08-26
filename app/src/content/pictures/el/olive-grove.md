@@ -1,9 +1,9 @@
 ---
-title: 'Ελαιώνας'
-description: 'Εκεί που ξεκινά το καλό λάδι.'
+title: Ελαιώνας
+description: Εκεί που ξεκινά το καλό λάδι.
 order: 5
-image: '/media/gallery/olive-grove.svg'
-imageAlt: 'Προσωρινή εικόνα: ελαιώνας σε πλαγιά.'
-tag: 'Τοπίο'
+image: gemini_generated_image_ctx2jpctx2jpctx2.jpeg
+imageAlt: "Προσωρινή εικόνα: ελαιώνες σε πλαγιά."
+tag: Τοπίο
 draft: false
 ---
