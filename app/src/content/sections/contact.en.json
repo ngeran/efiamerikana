@@ -1,23 +1,29 @@
 {
-  "heading": "Let's collaborate.",
+  "heading": "LET'S WORK TOGETHER",
   "intro": "Available for brand partnerships, recipe development and UGC campaigns.",
-  "ctaLabel": "Say hello",
+  "ctaLabel": "Get in touch",
   "methods": [
     {
       "icon": "email",
       "label": "Email",
-      "value": "hello@efiamerikana.example",
-      "href": "mailto:hello@efiamerikana.example"
+      "value": "effaki7@gmail.com",
+      "href": "mailto:effaki7@gmail.com"
     },
     {
-      "icon": "location",
-      "label": "Based in",
-      "value": "Your city, country (placeholder)",
-      "href": null
+      "icon": "phone",
+      "label": "Phone",
+      "value": "+484-340-8784",
+      "href": "tel:+4843408784"
+    },
+    {
+      "icon": "phone",
+      "label": "Phone",
+      "value": "+306977208612",
+      "href": "tel:+306977208612"
     }
   ],
   "socials": [
-    { "icon": "tiktok", "label": "TikTok", "href": "https://www.tiktok.com/@your-handle" },
-    { "icon": "instagram", "label": "Instagram", "href": "https://www.instagram.com/your-handle" }
+    { "icon": "tiktok", "label": "TikTok", "href": "https://www.tiktok.com/@efiamerikana" },
+    { "icon": "instagram", "label": "Instagram", "href": "https://www.instagram.com/efi.amerikana" }
   ]
 }

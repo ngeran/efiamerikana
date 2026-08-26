@@ -63,24 +63,23 @@ const sidebarWidth = 'max(340px, calc((100vw - 80rem) / 2 + 2.5rem))';
       <!-- TEXT CONTENT -->
       <div class="flex flex-col items-start text-charcoal">
         <!-- Username/Handle -->
-        <p class="font-display text-2xl tracking-tight sm:text-3xl">
+        <p class="font-display text-xl tracking-tight sm:text-2xl">
           {data.eyebrow}
         </p>
 
         <!-- Display Name (Pink) -->
         <h1
           id="hero-heading"
-          class="mt-1 font-display text-hero leading-[0.92] tracking-tight text-brand-pink"
+          class="mt-1 font-display text-4xl leading-[1.2] tracking-tight text-brand-pink whitespace-nowrap lg:text-5xl"
         >
           {data.heading}
-          {data.headingAccent && <span class="block">{data.headingAccent}</span>}
         </h1>
 
         <!-- Divider -->
-        <div class="mt-8 h-[3px] w-24 bg-charcoal/20" aria-hidden="true"></div>
+        <div class="mt-6 h-[2px] w-20 bg-charcoal/20" aria-hidden="true"></div>
 
         <!-- Roles -->
-        <div class="mt-8 space-y-1 font-ui text-xl font-bold tracking-tight sm:text-2xl">
+        <div class="mt-6 space-y-1 font-ui text-base font-bold tracking-tight sm:text-lg">
           <p>Greek-American Home Cook</p>
           <p>Food • Lifestyle • UGC Content</p>
         </div>
@@ -88,24 +87,34 @@ const sidebarWidth = 'max(340px, calc((100vw - 80rem) / 2 + 2.5rem))';
         <!-- Tagline (Italic) -->
         {
           data.supporting && (
-            <p class="mt-12 font-sans text-lg italic opacity-80 sm:text-xl">{data.supporting}</p>
+            <p class="mt-8 font-sans text-sm italic opacity-80 sm:text-base">{data.supporting}</p>
           )
         }
 
-        <!-- Social Icons (Black Circles) -->
+        <!-- Social Icons with Brand Colors -->
         <div class="mt-10 flex gap-4">
           {
-            socials.map((social) => (
-              <a
-                href={social.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={social.label}
-                class="flex h-12 w-12 items-center justify-center rounded-full bg-black transition-transform hover:scale-110"
-              >
-                <Icon name={social.icon as IconName} class="h-6 w-6 fill-white text-white" />
-              </a>
-            ))
+            socials.map((social) => {
+              // TikTok: black-to-pink gradient, Instagram: purple-pink-orange gradient
+              let iconBg = 'bg-black';
+              if (social.icon === 'tiktok') {
+                iconBg = 'bg-gradient-to-br from-black to-pink-500';
+              } else if (social.icon === 'instagram') {
+                iconBg = 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400';
+              }
+
+              return (
+                <a
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={social.label}
+                  class={`flex h-12 w-12 items-center justify-center rounded-full transition-transform hover:scale-110 shadow-lg ${iconBg}`}
+                >
+                  <Icon name={social.icon as IconName} class="h-6 w-6 fill-white text-white" />
+                </a>
+              );
+            })
           }
         </div>
       </div>
@@ -131,19 +140,19 @@ const sidebarWidth = 'max(340px, calc((100vw - 80rem) / 2 + 2.5rem))';
     <!-- Pink Sidebar: fills whatever remains of the computed width -->
     <div class="flex flex-1 flex-col items-center justify-center bg-brand-pink">
       <a
-        href="#portfolio"
+        href="#videos"
         class="group flex flex-col items-center gap-8 no-underline transition-transform hover:scale-105"
       >
         <span class="font-display text-xl leading-tight text-charcoal text-center">
           view my<br />portfolio
         </span>
 
-        <!-- 3D Style Play Button -->
+        <!-- Enhanced 3D Style Play Button -->
         <div
-          class="relative flex h-16 w-16 items-center justify-center rounded-full bg-black shadow-xl ring-6 ring-black/10"
+          class="relative flex h-20 w-20 items-center justify-center rounded-full bg-black shadow-2xl ring-8 ring-brand-yellow/20 hover:ring-brand-yellow/40 transition-all duration-300"
         >
           <div
-            class="ml-1 h-0 w-0 border-t-[10px] border-b-[10px] border-l-[16px] border-t-transparent border-b-transparent border-l-white"
+            class="ml-2 h-0 w-0 border-t-[12px] border-b-[12px] border-l-[20px] border-t-transparent border-b-transparent border-l-brand-yellow"
           >
           </div>
         </div>
@@ -154,10 +163,10 @@ const sidebarWidth = 'max(340px, calc((100vw - 80rem) / 2 + 2.5rem))';
 
 <!-- Mobile Portfolio Call-to-Action (Stays visible on scroll/mobile) -->
 <div class="flex w-full items-center justify-between border-t border-black/5 bg-brand-pink p-5 lg:hidden">
-  <span class="font-display text-xl text-charcoal">view my portfolio</span>
-  <div class="flex h-10 w-10 items-center justify-center rounded-full bg-black">
+  <span class="font-display text-lg text-charcoal">view my portfolio</span>
+  <div class="flex h-12 w-12 items-center justify-center rounded-full bg-black shadow-lg ring-4 ring-brand-yellow/10">
     <div
-      class="ml-1 h-0 w-0 border-t-[6px] border-b-[6px] border-l-[10px] border-t-transparent border-b-transparent border-l-white"
+      class="ml-1 h-0 w-0 border-t-[8px] border-b-[8px] border-l-[14px] border-t-transparent border-b-transparent border-l-brand-yellow"
     >
     </div>
   </div>

@@ -11,13 +11,11 @@
 # optimizes images and content-hashes videos. The editor-facing URL prefix
 # is /media.
 #
-# Bilingual content strategy (hybrid, deliberate):
+# Bilingual content strategy:
 #   - Repeated content (Videos, Pictures) uses Decap i18n with
 #     multiple_folders → src/content/<collection>/<locale>/<slug>.md, edited
 #     through the locale switcher in the editor UI.
-#   - Singleton sections are listed as explicit per-language entries
-#     (… (English) / … (Ελληνικά)) — deterministic file targeting, one JSON
-#     file per locale, matching Astro's content collections 1:1.
+#   - Singleton sections are separate collections matching Astro's setup
 # =============================================================================
 
 backend:
@@ -25,7 +23,7 @@ backend:
   repo: ngeran/efiamerikana
   branch: main
 
-# local_backend: true   # uncomment while running `npm run admin` locally
+local_backend: true   # uncomment while running `npm run admin` locally
 
 site_url: https://efiamerikana.com
 display_url: https://efiamerikana.com
@@ -43,7 +41,7 @@ i18n:
   default_locale: en
 
 collections:
-  # ── Videos (folder collection, bilingual, reorderable) ──────────────────
+  # ── Videos (folder collection, bilingual, reorderable) ──────────────────────
   - name: videos
     label: Videos
     label_singular: Video
@@ -60,91 +58,12 @@ collections:
         field: draft
         pattern: true
     fields:
-      - { label: Title, name: title, widget: string, i18n: true }
-      - { label: Description, name: description, widget: text, i18n: true }
-      - {
-          label: Order,
-          name: order,
-          widget: number,
-          default: 100,
-          hint: Lower numbers appear first,
-          i18n: duplicate,
-        }
-      - {
-          label: Video file,
-          name: video,
-          widget: file,
-          hint: 'Portrait (9:16) MP4/WebM',
-          choose_url: false,
-          i18n: duplicate,
-        }
-      - { label: Poster image, name: poster, widget: image, required: true, i18n: duplicate }
-      - { label: Poster alt text, name: posterAlt, widget: string, i18n: true }
-      - {
-          label: Transcript / captions,
-          name: transcript,
-          widget: text,
-          required: false,
-          i18n: true,
-        }
-      - {
-          label: Tag,
-          name: tag,
-          widget: string,
-          required: false,
-          hint: Platform or category chip (e.g. TikTok,
-          Dessert),
-          i18n: true,
-        }
-      - { label: Draft, name: draft, widget: boolean, default: false, i18n: duplicate }
-
-  # ── Pictures (folder collection, bilingual, reorderable) ─────────────────
-  - name: pictures
-    label: Pictures
-    label_singular: Picture
-    folder: src/content/pictures
-    path: '{{locale}}/{{slug}}'
-    create: true
-    sortable_fields: [order, title]
-    summary: '{{title}} · {{order}}'
-    editor:
-      preview: false
-    i18n: true
-    view_filters:
-      - label: Drafts
-        field: draft
-        pattern: true
-    fields:
-      - { label: Title, name: title, widget: string, i18n: true }
-      - { label: Description, name: description, widget: text, required: false, i18n: true }
-      - {
-          label: Order,
-          name: order,
-          widget: number,
-          default: 100,
-          hint: Lower numbers appear first,
-          i18n: duplicate,
-        }
-      - { label: Image, name: image, widget: image, required: true, i18n: duplicate }
-      - { label: Image alt text, name: imageAlt, widget: string, i18n: true }
-      - {
-          label: Tag,
-          name: tag,
-          widget: string,
-          required: false,
-          hint: Category chip (e.g. Lifestyle,
-          Editorial),
-          i18n: true,
-        }
-      - { label: Draft, name: draft, widget: boolean, default: false, i18n: duplicate }
-
-  # ── Sections & settings (explicit per-language files) ────────────────────
-  - name: sections
-    label: Sections
+  # ── Settings ────────────────────────────────────────────────────────────────
+  - name: settings
+    label: Settings
     editor:
       preview: false
     files:
-      # -- Site settings & section order ------------------------------------
       - name: settings-en
         label: ⚙️ Site settings & section order (English)
         file: src/content/sections/settings.en.json
@@ -190,7 +109,12 @@ collections:
               - { label: Ενεργή, name: enabled, widget: boolean, default: true }
               - { label: Ετικέτα πλοήγησης, name: navLabel, widget: string }
 
-      # -- Hero ---------------------------------------------------------------
+  # ── Hero ───────────────────────────────────────────────────────────────────
+  - name: hero
+    label: Hero Section
+    editor:
+      preview: false
+    files:
       - name: hero-en
         label: 🟡 Hero (English)
         file: src/content/sections/hero.en.json
@@ -226,22 +150,6 @@ collections:
             fields:
               - { label: Label, name: label, widget: string }
               - { label: Link, name: href, widget: string }
-          - label: Social-proof ticker
-            name: ticker
-            label_singular: Ticker item
-            widget: list
-            hint: Infinite marquee at the bottom of the hero. Leave empty to hide.
-            fields:
-              - { label: Label, name: label, widget: string, hint: 'e.g. TIKTOK' }
-              - { label: Value, name: value, widget: string, hint: 'e.g. 128K' }
-              - {
-                  label: Icon,
-                  name: icon,
-                  widget: select,
-                  required: false,
-                  options: [tiktok, instagram, facebook, youtube, x],
-                  default: tiktok,
-                }
       - name: hero-el
         label: 🟡 Πρωτότυπη ενότητα (Ελληνικά)
         file: src/content/sections/hero.el.json
@@ -283,24 +191,13 @@ collections:
             fields:
               - { label: Ετικέτα, name: label, widget: string }
               - { label: Σύνδεσμος, name: href, widget: string }
-          - label: Ταινία κοινωνικών δικτύων
-            name: ticker
-            label_singular: Στοιχείο ταινίας
-            widget: list
-            hint: Ατελείωτη κυλιόμενη ταινία στο κάτω μέρος. Αφήστε κενό για απόκρυψη.
-            fields:
-              - { label: Ετικέτα, name: label, widget: string }
-              - { label: Τιμή, name: value, widget: string }
-              - {
-                  label: Εικόνισμα,
-                  name: icon,
-                  widget: select,
-                  required: false,
-                  options: [tiktok, instagram, facebook, youtube, x],
-                  default: tiktok,
-                }
 
-      # -- Video section settings ---------------------------------------------
+  # ── Video Section Settings ───────────────────────────────────────────────────
+  - name: videoSection
+    label: Video Section Settings
+    editor:
+      preview: false
+    files:
       - name: video-section-en
         label: 🎬 Video section settings (English)
         file: src/content/sections/video-section.en.json
@@ -323,7 +220,12 @@ collections:
           - { label: Εισαγωγή, name: intro, widget: text, required: false }
           - { label: Διάταξη, name: layout, widget: select, options: [grid, scroll], default: grid }
 
-      # -- Picture section settings -------------------------------------------
+  # ── Picture Section Settings ───────────────────────────────────────────────────
+  - name: pictureSection
+    label: Picture Section Settings
+    editor:
+      preview: false
+    files:
       - name: picture-section-en
         label: 🖼️ Picture section settings (English)
         file: src/content/sections/picture-section.en.json
@@ -346,7 +248,12 @@ collections:
           - { label: Εισαγωγή, name: intro, widget: text, required: false }
           - { label: Διάταξη, name: layout, widget: select, options: [grid, scroll], default: grid }
 
-      # -- About ----------------------------------------------------------------
+  # ── About ───────────────────────────────────────────────────────────────────
+  - name: about
+    label: About Section
+    editor:
+      preview: false
+    files:
       - name: about-en
         label: 📖 About (English)
         file: src/content/sections/about.en.json
@@ -386,7 +293,12 @@ collections:
               - { label: Ετικέτα, name: label, widget: string }
               - { label: Σύνδεσμος, name: href, widget: string }
 
-      # -- Analytics --------------------------------------------------------------
+  # ── Analytics ────────────────────────────────────────────────────────────────
+  - name: analytics
+    label: Analytics Section
+    editor:
+      preview: false
+    files:
       - name: analytics-en
         label: 📊 Analytics (English)
         file: src/content/sections/analytics.en.json
@@ -446,7 +358,12 @@ collections:
                   default: sparkle,
                 }
 
-      # -- Contact -----------------------------------------------------------------
+  # ── Contact ───────────────────────────────────────────────────────────────────
+  - name: contact
+    label: Contact Section
+    editor:
+      preview: false
+    files:
       - name: contact-en
         label: ✉️ Contact (English)
         file: src/content/sections/contact.en.json
@@ -527,7 +444,12 @@ collections:
               - { label: Ετικέτα, name: label, widget: string }
               - { label: URL, name: href, widget: string }
 
-      # -- Footer -------------------------------------------------------------------
+  # ── Footer ───────────────────────────────────────────────────────────────────
+  - name: footer
+    label: Footer Section
+    editor:
+      preview: false
+    files:
       - name: footer-en
         label: 🦶 Footer (English)
         file: src/content/sections/footer.en.json
@@ -544,3 +466,98 @@ collections:
               widget: string,
             }
           - { label: Σημείωση (προαιρετικό), name: note, widget: string, required: false }
+
+  # ── Videos (folder collection, bilingual, reorderable) ──────────────────────
+  - name: videos
+    label: Videos
+    label_singular: Video
+    folder: src/content/videos
+    path: '{{locale}}/{{slug}}'
+    create: true
+    sortable_fields: [order, title]
+    summary: '{{title}} · {{order}}'
+    editor:
+      preview: false
+    i18n: true
+    view_filters:
+      - label: Drafts
+        field: draft
+        pattern: true
+    fields:
+      - { label: Title, name: title, widget: string, i18n: true }
+      - { label: Description, name: description, widget: text, i18n: true }
+      - {
+          label: Order,
+          name: order,
+          widget: number,
+          default: 100,
+          hint: Lower numbers appear first,
+          i18n: duplicate,
+        }
+      - {
+          label: Video file,
+          name: video,
+          widget: file,
+          hint: 'Portrait (9:16) MP4/WebM',
+          choose_url: false,
+          i18n: duplicate,
+        }
+      - { label: Poster image, name: poster, widget: image, required: true, i18n: duplicate }
+      - { label: Poster alt text, name: posterAlt, widget: string, i18n: true }
+      - {
+          label: Transcript / captions,
+          name: transcript,
+          widget: text,
+          required: false,
+          i18n: true,
+        }
+      - {
+          label: Tag,
+          name: tag,
+          widget: string,
+          required: false,
+          hint: Platform or category chip (e.g. TikTok,
+          Dessert),
+          i18n: true,
+        }
+      - { label: Draft, name: draft, widget: boolean, default: false, i18n: duplicate }
+
+  # ── Pictures (folder collection, bilingual, reorderable) ─────────────────────
+  - name: pictures
+    label: Pictures
+    label_singular: Picture
+    folder: src/content/pictures
+    path: '{{locale}}/{{slug}}'
+    create: true
+    sortable_fields: [order, title]
+    summary: '{{title}} · {{order}}'
+    editor:
+      preview: false
+    i18n: true
+    view_filters:
+      - label: Drafts
+        field: draft
+        pattern: true
+    fields:
+      - { label: Title, name: title, widget: string, i18n: true }
+      - { label: Description, name: description, widget: text, required: false, i18n: true }
+      - {
+          label: Order,
+          name: order,
+          widget: number,
+          default: 100,
+          hint: Lower numbers appear first,
+          i18n: duplicate,
+        }
+      - { label: Image, name: image, widget: image, required: true, i18n: duplicate }
+      - { label: Image alt text, name: imageAlt, widget: string, i18n: true }
+      - {
+          label: Tag,
+          name: tag,
+          widget: string,
+          required: false,
+          hint: Category chip (e.g. Lifestyle,
+          Editorial),
+          i18n: true,
+        }
+      - { label: Draft, name: draft, widget: boolean, default: false, i18n: duplicate }

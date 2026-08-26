@@ -206,37 +206,277 @@ or secrets are committed.
 
 ---
 
-## 6. Deployment
+## 6. Deployment & CMS Usage Guide
 
-Two lanes, same reproducible bytes (the Nix-built `packages.site`):
+### Quick Start: Cloudflare Pages Deployment
+
+For detailed step-by-step instructions, see [CLOUDFLARE_DEPLOYMENT.md](./CLOUDFLARE_DEPLOYMENT.md).
+
+**One-time setup:**
 
 ```bash
-# k3s (local cluster + registry on :5000)
-sudo systemctl start k3s
-just build && just push && just deploy     # image: localhost:5000/astro-app:latest
+# Install and authenticate wrangler
+npm install -g wrangler
+wrangler login
 
-just forward                               # svc :80 → localhost:8080
-
-# Cloudflare Pages (public URL)
-wrangler login                             # once
-just cf                                    # direct upload of the Nix build
+# Create your Cloudflare Pages project
+wrangler pages project create astro-app --production-branch main
 ```
 
-Dependencies changed? `cd app && npm install && cd .. && just relock && just build`
-(remember: Nix evaluates the **git index** — `git add -A` before building).
+**Deploy your site:**
 
-### Security headers
+```bash
+# Build and deploy to production
+just cf
 
-The nginx config baked into the image sets, on every response:
+# Or for preview deployments (branch-specific)
+CF_BRANCH=feature-name just cf-preview
+```
 
-- `Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; font-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'; form-action 'none'` (`unsafe-inline` styles: Tailwind emits a small inline critical block)
-- `X-Content-Type-Options: nosniff`
-- `Referrer-Policy: strict-origin-when-cross-origin`
-- `X-Frame-Options: SAMEORIGIN`
+Your site will be available at: `https://astro-app.pages.dev`
 
-Container runs as UID 1000, read-only rootfs, all caps dropped (see
-`manifests/deployment.yaml`). For Cloudflare Pages set the same CSP via
-`_headers` if you deploy there.
+### Complete Deployment Options
+
+**Option 1: Cloudflare Pages (Recommended for public hosting)**
+
+```bash
+# Prerequisites: wrangler login + project created
+just cf                                    # Production deployment
+CF_BRANCH=my-feature just cf-preview      # Preview deployment
+```
+
+**Option 2: k3s (Local cluster + container registry)**
+
+```bash
+# Start k3s and local registry
+sudo systemctl start k3s
+
+# Build, push, and deploy
+just build && just push && just deploy    # image: localhost:5000/astro-app:latest
+
+# Access locally
+just forward                               # svc :80 → localhost:8080
+```
+
+### Dependencies Management
+
+When npm dependencies change:
+
+```bash
+cd app && npm install && cd ..           # Update lockfile
+just relock                               # Update npmDepsHash in flake.nix
+just build                                # Rebuild with new deps
+```
+
+**Important:** Nix evaluates the **git index** — always run `git add -A` before building after dependency changes.
+
+### CMS (Decap CMS) Setup and Usage
+
+#### Accessing the CMS
+
+The CMS is available at `/admin/` on your deployed site.
+
+**Local Development:**
+
+```bash
+cd app
+
+# Terminal 1: Start Decap CMS backend
+npm run admin                            # Runs on localhost:8080
+
+# Terminal 2: Start Astro dev server
+npm run dev                              # Runs on localhost:4321
+
+# Visit http://localhost:4321/admin/
+```
+
+**Note:** Ensure `local_backend: true` is uncommented in `public/admin/config.yml` for local development.
+
+#### Production CMS Authentication
+
+The CMS requires authentication for production use. Choose one option:
+
+**Option A: Netlify Identity (Simplest)**
+
+1. Create a Netlify account and site
+2. Enable Netlify Identity + Git Gateway
+3. Update `public/admin/config.yml`:
+
+```yaml
+backend:
+  name: git-gateway
+  repo: ngeran/efiamerikana
+  branch: main
+```
+
+**Option B: GitHub OAuth (Recommended)**
+
+1. Create GitHub OAuth App (github.com/settings/developers)
+2. Set Authorization callback URL: `https://your-domain.com/admin/`
+3. Update `public/admin/config.yml`:
+
+```yaml
+backend:
+  name: github
+  repo: ngeran/efiamerikana
+  branch: main
+```
+
+#### CMS Content Editing Guide
+
+**1. Site Settings & Navigation**
+
+- Path: Settings → ⚙️ Site settings & section order
+- Edit site title, description
+- Enable/disable sections
+- Change section order (drag to reorder)
+- Update navigation labels
+
+**2. Hero Section**
+
+- Path: Sections → 🟡 Hero (English) or (Ελληνικά)
+- Edit eyebrow text, heading, accent line
+- Update supporting text
+- Change hero image
+- Modify call-to-action buttons
+- Add social-proof ticker items
+
+**3. Video/Picture Sections**
+
+- Layout mode: Switch between Grid ↔ Scroll layouts
+- Edit section headings and intro text
+- Manage individual videos/pictures in their respective collections
+
+**4. Managing Videos**
+
+- Path: Collections → Videos
+- Add new video: Click "New video" button
+- Fill in:
+  - Title and description
+  - Order number (lower = appears first)
+  - Upload video file (MP4/WebM, portrait 9:16 recommended)
+  - Upload poster image
+  - Add transcript/captions (optional)
+  - Add tag/category (optional)
+  - Draft status (uncheck to publish)
+- Toggle EN/ΕΛ switcher for translated content
+
+**5. Managing Pictures**
+
+- Path: Collections → Pictures
+- Add new picture: Click "New picture" button
+- Fill in:
+  - Title and description
+  - Order number
+  - Upload image
+  - Add alt text for accessibility
+  - Add tag/category (optional)
+  - Draft status
+- Toggle EN/ΕΛ switcher for translated content
+
+**6. About Section**
+
+- Edit heading and paragraph list
+- Update pull quote
+- Change featured image
+- Modify call-to-action button
+
+**7. Analytics Section**
+
+- Update metric values (e.g., "5.8M", "14.2%")
+- Change metric labels and descriptions
+- Select icons for each metric
+- Edit footnote disclaimer
+
+**8. Contact Section**
+
+- Update heading and intro text
+- Modify contact methods (email, phone, location, links)
+- Manage social media links
+- Change CTA button label
+
+**9. Footer**
+
+- Update "How to use" link label
+- Add optional note text
+
+#### Media Upload Guidelines
+
+**Image Requirements:**
+- Upload via CMS media library (button in image fields)
+- Optimized automatically by Astro's asset pipeline
+- Recommended: High-resolution PNG/JPG/WebP
+- For hero: Portrait orientation works well
+- For picture gallery: 4:5.5 aspect ratio recommended
+
+**Video Requirements:**
+- Format: MP4 or WebM
+- Recommended: Portrait (9:16) for optimal layout
+- Duration: Under 60 seconds recommended
+- File size: Under 10MB for faster loading
+- Include poster image for loading state
+
+**Media Location:**
+- All uploads go to `src/assets/media/`
+- This ensures proper optimization and content hashing
+- Do NOT place media in `public/` directory
+
+#### Publishing Workflow
+
+**Simple Mode (Default):**
+1. Edit content in CMS
+2. Click "Save" → Directly commits to git
+3. Deploy automatically updates
+
+**Editorial Workflow (Optional):**
+1. Change `publish_mode: editorial_workflow` in config.yml
+2. Edit content → "Save draft"
+3. Review in "Drafts" filter
+4. "Publish" when ready
+
+#### CMS Troubleshooting
+
+**CMS won't load:**
+- Ensure `public/admin/index.html` exists
+- Check browser console for errors
+- Verify backend authentication is configured
+
+**Can't save changes:**
+- Check git repository permissions
+- Verify OAuth app credentials (GitHub mode)
+- Ensure branch name matches in config.yml
+
+**Media uploads fail:**
+- Check `src/assets/media` directory permissions
+- Verify file size limits
+- Ensure proper file formats
+
+**Images don't appear on site:**
+- Images must be in `src/assets/media` (NOT `public/`)
+- Rebuild and redeploy after adding images
+- Check image alt text is provided
+
+**Changes not appearing:**
+- Clear browser cache
+- Check deploy logs for errors
+- Verify build completed successfully
+- Wait for CDN propagation (Cloudflare: ~30 seconds)
+
+### Security Headers
+
+For k3s deployment, the nginx config sets these headers automatically.
+
+For Cloudflare Pages, create a `public/_headers` file:
+
+```
+/*
+  X-Frame-Options: SAMEORIGIN
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; font-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'; form-action: none
+```
+
+The Content Security Policy includes `unsafe-inline` for styles because Tailwind emits a small inline critical block for performance.
 
 ---
 

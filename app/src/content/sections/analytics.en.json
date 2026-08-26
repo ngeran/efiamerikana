@@ -1,31 +1,43 @@
 {
-  "heading": "Driven by engagement",
-  "intro": "Numbers from the kitchen scoreboard.",
-  "footnote": "All values below are placeholders. Replace them with real data in the CMS (Analytics section).",
+  "heading": "Analytics 60 days!",
+  "intro": "Real performance numbers from my content.",
+  "footnote": "Data reflects 60-day period across all platforms.",
   "metrics": [
     {
-      "value": "XX",
-      "label": "Monthly reach",
-      "description": "Placeholder — replace with your real monthly reach.",
-      "icon": "globe"
+      "value": "5.8M",
+      "label": "Views",
+      "description": "Total video views across all platforms",
+      "icon": "play"
     },
     {
-      "value": "XXk",
-      "label": "Community size",
-      "description": "Placeholder — replace with your real audience size.",
-      "icon": "users"
-    },
-    {
-      "value": "X.X%",
-      "label": "Engagement rate",
-      "description": "Placeholder — replace with your real engagement rate.",
+      "value": "266.4K",
+      "label": "Likes",
+      "description": "Total likes on all content",
       "icon": "heart"
     },
     {
-      "value": "XX",
-      "label": "Videos published",
-      "description": "Placeholder — replace with your real video count.",
-      "icon": "play"
+      "value": "42.4",
+      "label": "Shares",
+      "description": "Total content shares",
+      "icon": "globe"
+    },
+    {
+      "value": "22.2K",
+      "label": "Followers",
+      "description": "Total community across platforms",
+      "icon": "users"
+    },
+    {
+      "value": "5.40%",
+      "label": "Engagement by views",
+      "description": "Engagement rate relative to views",
+      "icon": "chart"
+    },
+    {
+      "value": "1,423.64%",
+      "label": "Engagement by followers",
+      "description": "Engagement rate relative to followers",
+      "icon": "sparkle"
     }
   ]
 }

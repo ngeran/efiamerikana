@@ -1,12 +1,15 @@
 {
-  "eyebrow": "efiamerikana",
   "heading": "Effie Kazantzidis",
-  "headingAccent": "Greek-American Home Cook",
+  "variant": "split",
+  "eyebrow": "efiamerikana",
+  "headingAccent": null,
+  "primaryCta": {
+    "label": "WORK WITH ME",
+    "href": "#contact"
+  },
+  "imageAlt": "Placeholder artwork for the hero portrait of Effie Kazantzidis — replace via the CMS.",
   "tagline": "Food • Lifestyle • UGC Content",
   "supporting": "Real food. Real life. Real personality.",
-  "image": "/media/hero.svg",
-  "imageAlt": "Placeholder artwork for the hero portrait of Effie Kazantzidis — replace via the CMS.",
-  "variant": "split",
-  "primaryCta": { "label": "WORK WITH ME", "href": "#contact" },
+  "image": "/media/efi-hero.jpg",
   "secondaryCta": null
 }

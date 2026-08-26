@@ -1,11 +1,13 @@
 {
   "heading": "Authenticity is the main ingredient.",
   "paragraphs": [
-    "The best meals aren't found in five-star restaurants, but in the noisy, flour-dusted kitchens of our grandmothers. My journey as a Greek-American home cook is a love letter to those traditions — updated for the way we live today.",
-    "Born from a heritage that spans the Aegean Sea and the American East Coast, my cooking is about more than recipes. It's about the kefi — the spirit of joy that turns a simple dish into a celebration."
+    "I'm not a chef. I'm a home cook.\nI create authentic food and lifestyle content from my kitchens\nin Greece and the United States.\nI love discovering new recipes, testing everyday kitchen\nproducts, and showing people what actually works in a real\nhome kitchen.\nMy food isn't styled for perfection. Sometimes I cook in my\npajamas. Sometimes my recipes fail and I share those too.\nBecause that's real life.\nWhat matters most to me is creating content that feels\nnatural, relatable and trustworthy, not like an advertisement.\n\nReal meals, real kitchens, real ingredients, real me"
   ],
   "pullQuote": "No fuss, no pretension — just bold flavours and honest ingredients.",
-  "image": "/media/about.svg",
+  "image": "/media/gemini_generated_image_2lxggz2lxggz2lxg.jpeg",
   "imageAlt": "Placeholder artwork for the about portrait of Effie Kazantzidis — replace via the CMS.",
-  "cta": { "label": "Let's collaborate", "href": "#contact" }
+  "cta": {
+    "label": "Let's collaborate",
+    "href": "#contact"
+  }
 }
