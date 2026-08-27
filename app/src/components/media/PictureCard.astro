@@ -70,7 +70,7 @@ const hideLabel = `${t.hideDescription} — ${picture.title}`;
 >
   <Image
     src={image}
-    alt={picture.imageAlt}
+    alt={picture.imageAlt ?? null}
     widths={[400, 800]}
     sizes={sizes}
     loading="lazy"

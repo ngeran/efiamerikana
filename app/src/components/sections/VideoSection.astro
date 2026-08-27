@@ -49,13 +49,13 @@ const RAIL_CARD =
   </div>
 
   <div class="w-full pb-16 sm:pb-20 lg:pb-24">
+    <!-- GRID layout: more columns on large screens; scroll layout below. -->
     {
       videos.length === 0 ? (
         <div class="shell"><p class="mt-10 text-white/50">—</p></div>
       ) : data.layout === 'grid' ? (
         <ul
           role="list"
-          /* GRID: Added more columns for large screens and adjusted gaps */
           class="mt-10 grid grid-cols-2 gap-3 px-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 sm:px-6 lg:px-8 lg:gap-6"
           data-videos
         >

@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { byLocale, ordered, published } from '../../src/utils/entries';
 
-const entry = (id: string, order?: number, draft = false) => ({
+const entry = (
+  id: string,
+  order?: number,
+  draft = false,
+): { id: string; data: { order?: number; draft: boolean; title: string } } => ({
   id,
   data: { order, draft, title: id },
 });

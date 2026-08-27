@@ -1,4 +1,5 @@
-import { defineCollection, z } from 'astro:content';
+import { defineCollection } from 'astro:content';
+import { z } from 'astro/zod';
 import { glob } from 'astro/loaders';
 
 /**
@@ -90,12 +91,13 @@ const videoSectionSchema = z.object({
 });
 
 const videoSchema = z.object({
-  title: z.string().min(1),
-  description: z.string().min(1),
+  title: z.string().nullish(),
+  description: z.string().nullish(),
   order: z.number().int().default(100),
+  language: z.enum(['en', 'el']).default('en'),
   video: mediaRef,
-  poster: mediaRef,
-  posterAlt: z.string().min(1),
+  poster: mediaRef.nullish(),
+  posterAlt: z.string().nullish(),
   transcript: z.string().nullish(),
   tag: z.string().nullish(),
   draft: z.boolean().default(false),
@@ -127,11 +129,12 @@ const pictureSectionSchema = z.object({
 });
 
 const pictureSchema = z.object({
-  title: z.string().min(1),
+  title: z.string().nullish(),
   description: z.string().nullish(),
   order: z.number().int().default(100),
+  language: z.enum(['en', 'el']).default('en'),
   image: mediaRef,
-  imageAlt: z.string().min(1),
+  imageAlt: z.string().nullish(),
   tag: z.string().nullish(),
   draft: z.boolean().default(false),
 });
@@ -207,7 +210,7 @@ const contactSchema = z.object({
     z.object({
       icon: socialIconSchema,
       label: z.string().min(1),
-      href: z.string().url(),
+      href: z.url(),
     }),
   ),
 });
@@ -218,7 +221,7 @@ const footerSchema = z.object({
 });
 
 /* ---------------------------------------------------------------- */
-/* Collections                                                       */
+/* Collections - Simplified with manual language selection              */
 /* ---------------------------------------------------------------- */
 
 const sectionsBase = 'src/content/sections';

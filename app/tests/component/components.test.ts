@@ -40,6 +40,7 @@ describe('<VideoCard>', () => {
     title: 'Lemon Potatoes',
     description: 'Crispy, glossy, aggressively lemony.',
     order: 1,
+    language: 'en',
     video: '/media/videos/lemon-potatoes.mp4',
     poster: '/media/posters/lemon-potatoes.svg',
     posterAlt: 'Placeholder poster: lemon potatoes.',

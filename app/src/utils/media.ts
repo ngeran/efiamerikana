@@ -1,4 +1,6 @@
 import type { ImageMetadata } from 'astro';
+import { closeSync, openSync, readSync, statSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 // Committed seed asset — statically imported so the fallback always resolves.
 import placeholderImage from '../assets/media/gallery/fig-harvest.svg';
 
@@ -78,6 +80,38 @@ export function resolveImage(input: string): ImageMetadata {
   return found;
 }
 
+/**
+ * HEVC (hvc1/hev1) uploads pass through the CMS silently but Chrome/Firefox
+ * refuse to decode them — the card renders as a black box that never plays.
+ * TikTok/Instagram downloads are the usual source. We sniff both ends of the
+ * file (faststart puts moov up front; un-faststarted files append it) and
+ * warn loudly, because from the editor's chair "saved successfully" and
+ * "plays in the browser" look identical until publish.
+ *
+ * `npm run media:transcode` fixes flagged files in place.
+ */
+function isHevc(globKey: string): boolean {
+  try {
+    const fileUrl = new URL(globKey.replace(/^\//, ''), new URL('../../', import.meta.url));
+    const path = fileURLToPath(fileUrl);
+    const { size } = statSync(path);
+    const window = Math.min(512 * 1024, size);
+    const fd = openSync(path, 'r');
+    try {
+      const head = Buffer.alloc(window);
+      readSync(fd, head, 0, window, 0);
+      const tail = Buffer.alloc(window);
+      readSync(fd, tail, 0, window, Math.max(0, size - window));
+      const s = head.toString('latin1') + tail.toString('latin1');
+      return s.includes('hvc1') || s.includes('hev1');
+    } finally {
+      closeSync(fd);
+    }
+  } catch {
+    return false;
+  }
+}
+
 /** Resolve a CMS video reference to a bundled, content-hashed URL. */
 export function resolveVideo(input: string): string {
   const relative = normalizeMediaPath(input);
@@ -88,6 +122,14 @@ export function resolveVideo(input: string): string {
         `rendering the poster only. Re-upload it via the CMS media library or fix the entry.`,
     );
     return '';
+  }
+  const key =
+    Object.keys(videoUrls).find((k) => videoUrls[k] === found) ?? `/src/assets/media/${relative}`;
+  if (isHevc(key)) {
+    console.warn(
+      `[media] video "${input}" is HEVC — Chrome/Firefox will not play it. ` +
+        `Run \`npm run media:transcode\` to re-encode it to H.264.`,
+    );
   }
   return found;
 }

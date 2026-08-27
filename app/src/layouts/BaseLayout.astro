@@ -2,7 +2,7 @@
 import '../styles/global.css';
 import SiteHeader from '../components/navigation/SiteHeader.astro';
 import SiteFooter from '../components/sections/SiteFooter.astro';
-import { locales, type Locale } from '../i18n/config';
+import { enabledLocales as locales, type Locale } from '../i18n/config';
 import { localize, stripLocale } from '../i18n/utils';
 import { translator } from '../i18n/ui';
 import { contactEmail, getContact, getFooter, getSettings, navItemsFrom } from '../utils/content';

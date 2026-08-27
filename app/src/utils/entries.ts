@@ -14,17 +14,31 @@ export function entryLocale(id: string): Locale | null {
 }
 
 /**
+ * Manual `language` frontmatter field, when the entry carries one. Videos and
+ * pictures select language per entry in the CMS; the guard keeps this working
+ * for callers whose entry type has no `data.language` at all.
+ */
+function entryLanguage<E extends { id: string }>(e: E): Locale | null {
+  const data = (e as { data?: { language?: unknown } }).data;
+  return isLocale(data?.language) ? data.language : null;
+}
+
+/**
  * Entries for a locale; falls back to `fallback` only when the locale has no
  * entries at all (a half-translated collection shows something, never gaps).
+ *
+ * The locale comes from the entry's `language` field (manual selection in
+ * the CMS) when present, else from the id (`en/foo` folder layout).
  */
 export function byLocale<E extends { id: string }>(
   entries: E[],
   locale: Locale,
   fallback: Locale = defaultLocale,
 ): E[] {
-  const primary = entries.filter((e) => entryLocale(e.id) === locale);
+  const localeOf = (e: E): Locale | null => entryLanguage(e) ?? entryLocale(e.id);
+  const primary = entries.filter((e) => localeOf(e) === locale);
   if (primary.length > 0) return primary;
-  return entries.filter((e) => entryLocale(e.id) === fallback);
+  return entries.filter((e) => localeOf(e) === fallback);
 }
 
 /** Exclude draft entries (Decap publish workflow writes `draft: true`). */

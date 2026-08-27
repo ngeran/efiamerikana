@@ -26,6 +26,7 @@ export default tseslint.config(
     files: ['scripts/**/*.mjs', 'astro.config.mjs', '*.config.{js,ts}'],
     languageOptions: {
       globals: {
+        Buffer: 'readonly',
         console: 'readonly',
         process: 'readonly',
         URL: 'readonly',

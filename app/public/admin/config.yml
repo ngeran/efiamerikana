@@ -38,38 +38,38 @@ locale: en
 
 publish_mode: simple
 
-i18n:
-  structure: multiple_folders
-  locales: [en, el]
-  default_locale: en
+# Removed global i18n - using manual language selection per entry
+# i18n:
+#   structure: multiple_folders
+#   locales: [en, el]
+#   default_locale: en
 
 collections:
-  # ── Videos (folder collection, bilingual, reorderable) ──────────────────────
+  # ── Videos (simplified, manual language selection) ───────────────────────────────
   - name: videos
     label: Videos
     label_singular: Video
     folder: src/content/videos
-    path: '{{locale}}/{{slug}}'
+    path: '{{slug}}'
     create: true
     sortable_fields: [order, title]
-    summary: '{{title}} · {{order}}'
+    summary: '{{title}} · {{language}}'
     editor:
       preview: false
-    i18n: true
     view_filters:
       - label: Drafts
         field: draft
         pattern: true
     fields:
-      - { label: Title, name: title, widget: string, i18n: true }
-      - { label: Description, name: description, widget: text, i18n: true }
+      - { label: Language, name: language, widget: select, options: [en, el], default: 'en' }
+      - { label: Title, name: title, widget: string, required: false }
+      - { label: Description, name: description, widget: text, required: false }
       - {
           label: Order,
           name: order,
           widget: number,
           default: 100,
           hint: Lower numbers appear first,
-          i18n: duplicate,
         }
       - {
           label: Video file,
@@ -77,16 +77,14 @@ collections:
           widget: file,
           hint: 'Portrait (9:16) MP4/WebM',
           choose_url: false,
-          i18n: duplicate,
         }
-      - { label: Poster image, name: poster, widget: image, required: true, i18n: duplicate }
-      - { label: Poster alt text, name: posterAlt, widget: string, i18n: true }
+      - { label: Poster image, name: poster, widget: image, required: false }
+      - { label: Poster alt text, name: posterAlt, widget: string, required: false }
       - {
           label: Transcript / captions,
           name: transcript,
           widget: text,
           required: false,
-          i18n: true,
         }
       - {
           label: Tag,
@@ -95,39 +93,43 @@ collections:
           required: false,
           hint: Platform or category chip (e.g. TikTok,
           Dessert),
-          i18n: true,
         }
-      - { label: Draft, name: draft, widget: boolean, default: false, i18n: duplicate }
+      - { label: Draft, name: draft, widget: boolean, default: false }
 
-  # ── Pictures (folder collection, bilingual, reorderable) ─────────────────────
+  # ── Pictures (simplified, manual language selection) ─────────────────────────────
   - name: pictures
     label: Pictures
     label_singular: Picture
     folder: src/content/pictures
-    path: '{{locale}}/{{slug}}'
+    path: '{{slug}}'
     create: true
     sortable_fields: [order, title]
-    summary: '{{title}} · {{order}}'
+    summary: '{{title}} · {{language}}'
     editor:
       preview: false
-    i18n: true
     view_filters:
       - label: Drafts
         field: draft
         pattern: true
     fields:
-      - { label: Title, name: title, widget: string, i18n: true }
-      - { label: Description, name: description, widget: text, required: false, i18n: true }
+      - { label: Language, name: language, widget: select, options: [en, el], default: 'en' }
+      - { label: Title, name: title, widget: string, required: false }
+      - { label: Description, name: description, widget: text, required: false }
       - {
           label: Order,
           name: order,
           widget: number,
           default: 100,
           hint: Lower numbers appear first,
-          i18n: duplicate,
         }
-      - { label: Image, name: image, widget: image, required: true, i18n: duplicate }
-      - { label: Image alt text, name: imageAlt, widget: string, i18n: true }
+      - {
+          label: Image,
+          name: image,
+          widget: image,
+          choose_url: false,
+          hint: Upload or select from media library,
+        }
+      - { label: Alt text, name: imageAlt, widget: string, required: false }
       - {
           label: Tag,
           name: tag,
@@ -135,9 +137,8 @@ collections:
           required: false,
           hint: Category chip (e.g. Lifestyle,
           Editorial),
-          i18n: true,
         }
-      - { label: Draft, name: draft, widget: boolean, default: false, i18n: duplicate }
+      - { label: Draft, name: draft, widget: boolean, default: false }
 
   # ── Settings ────────────────────────────────────────────────────────────────
   - name: settings
@@ -549,7 +550,7 @@ collections:
         file: src/content/sections/footer.el.json
         fields:
           - {
-              label: Ετικέτα συνδέσμου «Πώς να χρησιμοποιήσετε»',
+              label: 'Ετικέτα συνδέσμου «Πώς να χρησιμοποιήσετε»',
               name: howToUseLabel,
               widget: string,
             }

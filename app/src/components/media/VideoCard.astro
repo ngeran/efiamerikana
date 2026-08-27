@@ -45,12 +45,15 @@ const missing = src === '';
  *
  * 760px = 2x the widest card (380px grid cell) for retina. SVG posters are
  * passed through untouched: rasterizing vector art only makes it heavier.
+ *
+ * If no poster is provided, the video will show a black background.
  */
-const posterImage = resolveImage(video.poster);
-const posterSrc =
-  posterImage.format === 'svg'
+const posterImage = video.poster ? resolveImage(video.poster) : null;
+const posterSrc = posterImage
+  ? posterImage.format === 'svg'
     ? posterImage.src
-    : (await getImage({ src: posterImage, width: 760, format: 'webp' })).src;
+    : (await getImage({ src: posterImage, width: 760, format: 'webp' })).src
+  : undefined;
 const detailsId = `video-details-${cardId}`;
 
 const playLabel = `${t.play} — ${video.title}`;
@@ -74,7 +77,7 @@ const pauseLabel = `${t.pause} — ${video.title}`;
     data-video
     src={missing ? undefined : src}
     poster={posterSrc}
-    aria-label={video.posterAlt}
+    aria-label={video.posterAlt || video.title}
     width="1080"
     height="1920"
     loop
