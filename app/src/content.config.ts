@@ -105,6 +105,25 @@ const pictureSectionSchema = z.object({
   heading: z.string().min(1),
   intro: z.string().nullish(),
   layout: z.enum(layoutModes).default('grid'),
+  /**
+   * Show the visible "+" toggle on each card. When false the metadata still
+   * reveals on hover/focus and the whole card becomes the toggle, so touch and
+   * keyboard users keep a way in. Defaults true so an entry that omits the key
+   * renders exactly as before.
+   */
+  showDetailsButton: z.boolean().default(false),
+  /**
+   * Enable hover preview of metadata. When false, metadata only shows when
+   * explicitly toggled via the button/interaction. Defaults false for cleaner
+   * visual experience.
+   */
+  enableHoverPreview: z.boolean().default(false),
+  /**
+   * Enable click-to-reveal metadata. When false, clicking/tapping on the card
+   * does nothing and metadata remains hidden. When true, clicking reveals the
+   * metadata overlay. Defaults false.
+   */
+  enableClickToReveal: z.boolean().default(false),
 });
 
 const pictureSchema = z.object({
@@ -140,6 +159,34 @@ const analyticsSchema = z.object({
       }),
     )
     .min(1),
+  /**
+   * The one number worth setting in type larger than everything else. Omit it
+   * and the section promotes metrics[0] instead, so an entry that never sets
+   * this still gets a headline figure.
+   */
+  headline: z
+    .object({
+      value: z.string().min(1),
+      label: z.string().min(1),
+    })
+    .nullish(),
+  /** Free text beside the headline, e.g. "+14.2% vs previous period". */
+  trend: z.string().nullish(),
+  /**
+   * `percent` drives a bar width, so it is clamped here rather than trusted:
+   * a CMS typo of 850 would otherwise render a bar overflowing its track.
+   */
+  ratios: z
+    .array(
+      z.object({
+        label: z.string().min(1),
+        value: z.string().min(1),
+        percent: z.number().min(0).max(100),
+      }),
+    )
+    .nullish(),
+  /** Decorative sparkline, one 0–100 value per bar. Clamped for the same reason. */
+  velocity: z.array(z.number().min(0).max(100)).nullish(),
 });
 
 const contactSchema = z.object({

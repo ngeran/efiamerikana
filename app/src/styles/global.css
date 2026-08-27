@@ -1,19 +1,15 @@
 @import 'tailwindcss';
-@import '@fontsource/belleza';
-@import '@fontsource/cantarell/400.css';
-@import '@fontsource/cantarell/400-italic.css';
-@import '@fontsource/cantarell/700.css';
-@import '@fontsource-variable/smooch-sans';
-@import '@fontsource/stack-sans-text/400.css';
-@import '@fontsource/stack-sans-text/500.css';
-@import '@fontsource/stack-sans-text/700.css';
-/* Greek-capable fallbacks: the brand fonts above are Latin-only, so Greek
-   text falls through to these per-glyph. Subsets are unicode-range scoped,
-   so EN pages never download them. */
-@import '@fontsource/didact-gothic/400.css';
-@import '@fontsource/open-sans/400.css';
-@import '@fontsource/open-sans/700.css';
-@import '@fontsource/open-sans/400-italic.css';
+/* Only weights with a real consumer are imported. Greek text falls through to
+   system-ui per-glyph, which covers Greek on every current OS — importing a
+   second webfont family purely to sit behind the first was ~4 files of payload
+   for glyphs the platform already has. */
+@import '@fontsource/belleza'; /* --font-display, 400 only */
+@import '@fontsource-variable/smooch-sans'; /* --font-label */
+@import '@fontsource/cantarell/400.css'; /* --font-sans, body default */
+@import '@fontsource/cantarell/400-italic.css'; /* Hero supporting line */
+@import '@fontsource/cantarell/700.css'; /* bold spans that inherit --font-sans */
+@import '@fontsource/stack-sans-text/400.css'; /* --font-ui */
+@import '@fontsource/stack-sans-text/700.css'; /* --font-ui buttons/labels */
 
 /* ------------------------------------------------------------------ */
 /* Brand theme (Tailwind v4 — tokens live here, no tailwind.config.js) */
@@ -28,14 +24,29 @@
   --color-cream: #f7f2e7; /* videos */
   --color-charcoal: #17130f; /* about / dark text */
 
-  /* Type roles (Greek fallbacks before the generic system stack) */
-  --font-display: 'Belleza', 'Didact Gothic', system-ui, sans-serif;
-  --font-sans: 'Cantarell', 'Open Sans', system-ui, sans-serif;
-  --font-label: 'Smooch Sans Variable', 'Didact Gothic', system-ui, sans-serif;
-  --font-ui: 'Stack Sans Text', 'Open Sans', system-ui, sans-serif;
+  /* Type roles. The brand faces are Latin-only, so Greek falls through to
+     system-ui per-glyph — no second webfont family in the stack. */
+  --font-display: 'Belleza', system-ui, sans-serif;
+  --font-sans: 'Cantarell', system-ui, sans-serif;
+  --font-label: 'Smooch Sans Variable', system-ui, sans-serif;
+  --font-ui: 'Stack Sans Text', system-ui, sans-serif;
+
+  /* Shared portrait ratio for the Hero and About photos — the brief requires
+     them to read as the same size, so both consume this one token. */
+  --portrait: 4 / 5;
+
+  /* Decelerating curve for media reveals. Shared by the video and picture
+     cards so the two can't drift apart. */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
 
   /* Fluid display sizes */
   --text-hero: clamp(2.75rem, 1.6rem + 4.5vw, 5.25rem);
+  /* Hero name. Distinct from --text-hero because its 2.75rem floor is too
+     large here: "Kazantzidis" is one unbreakable 11-character word and at
+     44px it exceeds a 320px phone's 280px content box. 2rem is the largest
+     floor that fits, and the 3.75rem cap keeps it from dwarfing the portrait
+     beside it on wide screens. */
+  --text-hero-name: clamp(2rem, 1.15rem + 3.5vw, 3.75rem);
   --text-section: clamp(2rem, 1.2rem + 2.6vw, 3.5rem);
   --text-contact: clamp(2.5rem, 1.5rem + 4vw, 5rem);
 }
@@ -110,6 +121,64 @@
     }
   }
 
+  /* Portrait photo (Hero + About). Height derives from width via the
+     shared ratio, so the element is fluid at every resolution and needs
+     no breakpoint list. `height: auto` is required to override the
+     intrinsic `height` attribute that <Image> emits for CLS. */
+  .portrait-media {
+    aspect-ratio: var(--portrait);
+    height: auto;
+    width: 100%;
+    object-fit: cover;
+  }
+
+  /* ----------------------------------------------------------------- */
+  /* Hero rail geometry                                                */
+  /*                                                                   */
+  /* The rail's left edge must land on the left edge of the "E" in the  */
+  /* header's EMAIL ME and never cross it. That distance from the       */
+  /* viewport's right edge is:                                         */
+  /*   gutter + shell padding + label width + the label link's padding  */
+  /* The label width is not knowable in CSS — it depends on font        */
+  /* metrics and on the locale ('Email me' vs 'Στείλτε μου email',      */
+  /* roughly double). So Hero.astro measures the real glyph position    */
+  /* and overwrites --rail-w.                                          */
+  /*                                                                   */
+  /* The value below is only the pre-measurement fallback. It uses      */
+  /* 100% (the padding box, scrollbar already excluded) rather than     */
+  /* 100vw, which includes the scrollbar and would shift the rail       */
+  /* ~15px right of the header on Windows/Linux. It deliberately errs   */
+  /* NARROW: overshooting the "E" is the visible defect.               */
+  /* ----------------------------------------------------------------- */
+  .hero {
+    /* Red stripe is fixed; every extra pixel goes to the pink column. */
+    --rail-red-w: 80px;
+    /* 2.5rem = .shell's xl+ padding · 4rem ≈ the shortest label ("Email me")
+       plus the link's px-2, rounded DOWN so the fallback never overshoots. */
+    --rail-w: calc(max(0px, (100% - 80rem) / 2) + 2.5rem + 4rem);
+  }
+
+  .hero-rail {
+    /* Never let the rail eat the content area, however wide the screen. */
+    width: min(var(--rail-w), 45%);
+  }
+
+  /* Reserve space so text never slides under the rail.
+     NOT the full rail width — the rail's outer part sits in the gutter,
+     outside the capped shell. Only the amount by which it crosses the
+     shell's edge needs reserving: rail-w minus the gutter. On a 4K screen
+     that is ~105px, whereas reserving the full ~1385px rail would collapse
+     the 1280px shell's content box to zero. */
+  @media (min-width: 1536px) {
+    .hero-content {
+      padding-right: clamp(
+        2.5rem,
+        calc(var(--rail-w) - max(0px, (100% - 80rem) / 2)),
+        45%
+      );
+    }
+  }
+
   /* Hide scrollbars on horizontal media rails (scroll + arrows remain). */
   .no-scrollbar {
     scrollbar-width: none;
@@ -117,6 +186,20 @@
   }
   .no-scrollbar::-webkit-scrollbar {
     display: none;
+  }
+
+  /* Skip layout and paint for a section until it nears the viewport.
+     `contain-intrinsic-size` is not optional here: without a placeholder height
+     the skipped section measures 0, so the scrollbar jumps as each one is
+     realised on approach. 900px is a deliberate over-estimate of the shortest
+     below-fold section — guessing too tall only costs a small scrollbar
+     correction, whereas guessing short causes visible content shift.
+
+     Only for BELOW-fold sections. Never the hero or videos: deferring the
+     layout of what the visitor sees first is a straight regression. */
+  .defer-paint {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 900px;
   }
 
   /* Framer-style media overlay gradient (video card metadata reveal). */
@@ -127,31 +210,5 @@
       rgba(23, 19, 15, 0.55) 70%,
       rgba(23, 19, 15, 0.92) 100%
     );
-  }
-}
-
-/* ------------------------------------------------------------------ */
-/* Keyframes (subtle, reduced-motion safe via the base override above) */
-/* ------------------------------------------------------------------ */
-@theme {
-  --animate-rise: rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
-  @keyframes rise {
-    from {
-      opacity: 0;
-      transform: translateY(1rem);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  /* Hero social-proof ticker: the track holds two identical groups, so
-     translating -50% loops seamlessly. Reduced-motion stops it globally. */
-  --animate-marquee: marquee 28s linear infinite;
-  @keyframes marquee {
-    to {
-      transform: translateX(-50%);
-    }
   }
 }

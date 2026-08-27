@@ -14,15 +14,12 @@ const data = await getAnalytics(locale);
 const t = translator(locale).analytics;
 
 /**
- * `headline`, `trend`, `ratios`, and `velocity` are optional CMS fields this
- * redesign introduces (not present in the original schema). Everything
- * degrades gracefully if they're missing — add them to getAnalytics()'s
- * return type when you're ready to populate real numbers.
+ * `headline`, `trend`, `ratios` and `velocity` are all nullish in the schema —
+ * the live entries omit them, so every block below is written to disappear
+ * rather than render empty.
  *
- * headline: { value: string; label: string }   e.g. { value: '5.8M', label: 'Views' }
- * trend:    string                              e.g. '+14.2% vs previous period'
- * ratios:   { label: string; value: string; percent: number }[]
- * velocity: number[] (0–100, one per bar, decorative sparkline)
+ * When no `headline` is authored the first metric is promoted into the display
+ * figure and dropped from the grid, so it is never shown twice.
  */
 const headline = data.headline ?? {
   value: data.metrics[0]?.value ?? '—',
@@ -38,7 +35,7 @@ const velocity = data.velocity ?? [];
 <section
   id="analytics"
   aria-labelledby="analytics-heading"
-  class="relative w-full overflow-hidden bg-brand-black text-white"
+  class="relative w-full overflow-hidden bg-brand-black text-white defer-paint"
 >
   <div class="shell relative py-16 sm:py-20 lg:py-24">
     <!-- Glow accent behind the headline, purely decorative -->
@@ -57,9 +54,16 @@ const velocity = data.velocity ?? [];
         )
       }
 
-      <h1
-        id="analytics-heading"
-        class="mt-6 flex flex-col items-baseline justify-center gap-2 font-display leading-[0.85] font-extrabold tracking-tight text-white sm:flex-row sm:gap-6"
+      <h2 id="analytics-heading" class="mt-6 font-display text-section leading-[1.05] text-white">
+        {data.heading}
+      </h2>
+
+      <!--
+        The display figure. Not a heading: it is a value, and making it one gave
+        the section the accessible name "5.8M Views" instead of its real title.
+      -->
+      <p
+        class="mt-8 flex flex-col items-baseline justify-center gap-2 font-display leading-[0.85] font-extrabold tracking-tight text-white sm:flex-row sm:gap-6"
         style="font-size: clamp(3.5rem, 2rem + 10vw, 12rem);"
       >
         {headline.value}
@@ -68,7 +72,7 @@ const velocity = data.velocity ?? [];
         >
           {headline.label}
         </span>
-      </h1>
+      </p>
 
       {
         data.trend && (
@@ -89,7 +93,7 @@ const velocity = data.velocity ?? [];
     <div class="relative mt-16 grid grid-cols-1 border-t border-l border-white/10 sm:grid-cols-3">
       {
         restMetrics.map((metric) => (
-          <div class="group relative border-r border-b border-white/10 p-8">
+          <div class="group relative flex flex-col items-center border-r border-b border-white/10 p-8 text-center sm:items-start sm:text-left">
             <div class="pointer-events-none absolute top-0 right-0 h-32 w-32 bg-brand-yellow/0 transition-colors duration-500 group-hover:bg-brand-yellow/5" />
             {metric.icon && (
               <Icon
@@ -112,11 +116,11 @@ const velocity = data.velocity ?? [];
 
       {
         ratios.length > 0 && (
-          <div class="border-r border-b border-white/10 p-8 sm:col-span-1">
+          <div class="flex flex-col items-center border-r border-b border-white/10 p-8 text-center sm:col-span-1 sm:items-start sm:text-left">
             <h3 class="mb-8 font-label text-xs font-bold tracking-[0.2em] text-white/50 uppercase">
-              {t.ratiosTitle ?? 'Performance ratios'}
+              {t.ratiosTitle}
             </h3>
-            <div class="space-y-8">
+            <div class="w-full space-y-8">
               {ratios.map((ratio) => (
                 <div>
                   <div class="mb-2 flex items-end justify-between">
@@ -138,9 +142,9 @@ const velocity = data.velocity ?? [];
 
       {
         velocity.length > 0 && (
-          <div class="group relative flex h-64 flex-col justify-end overflow-hidden border-r border-b border-white/10 p-8 sm:col-span-3">
+          <div class="group relative flex h-64 flex-col items-center justify-end overflow-hidden border-r border-b border-white/10 p-8 text-center sm:col-span-3 sm:items-start sm:text-left">
             <div class="pointer-events-none absolute top-8 left-8 font-label text-xs font-bold tracking-[0.2em] text-white/50 uppercase">
-              {t.velocityTitle ?? 'Audience velocity'}
+              {t.velocityTitle}
             </div>
             <div class="relative z-10 flex h-32 w-full items-end gap-[3px] opacity-90" aria-hidden="true">
               {velocity.map((v) => (

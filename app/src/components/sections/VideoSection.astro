@@ -1,5 +1,6 @@
 ---
 import SectionHeading from '../ui/SectionHeading.astro';
+import VideoCard from '../media/VideoCard.astro';
 import { translator } from '../../i18n/ui';
 import type { Locale } from '../../i18n/config';
 import { getVideoSection, getVideos } from '../../utils/content';
@@ -13,6 +14,27 @@ const { locale, label } = Astro.props;
 const data = await getVideoSection(locale);
 const videos = await getVideos(locale);
 const t = translator(locale).video;
+
+/**
+ * Layout differs only in how each card is sized: a capped grid cell, or a
+ * viewport-relative rail slide. VideoCard owns everything else.
+ *
+ * RAIL_CARD widths are computed, not approximated: each breakpoint fixes how
+ * many cards are visible at once and the width formula
+ * `calc((100% - (n-1)*gap) / n)` divides the rail's content box evenly across
+ * exactly that many cards, so they tile edge-to-edge with no partial card
+ * peeking in — matching gap-4 (1rem) on the <ul> below.
+ *
+ * Below `sm` only one card is visible, and unlike the tiled breakpoints it's
+ * deliberately narrower than the full row (`calc(100%-4rem)`) so it sits
+ * centered with clear space on either side, rather than flush against the
+ * container edges — that's what `justify-center` + `snap-center` on the
+ * <ul> below are for. From `sm` up the row reverts to `justify-start` +
+ * `snap-start` since cards there tile exactly to fill the width.
+ */
+const GRID_CARD = 'aspect-[9/16] w-full max-w-[380px] mx-auto';
+const RAIL_CARD =
+  'aspect-[9/16] w-[calc(100%-4rem)] snap-center sm:w-[calc((100%-1rem)/2)] sm:snap-start lg:w-[calc((100%-2rem)/3)] xl:w-[calc((100%-3rem)/4)] 2xl:w-[calc((100%-4rem)/5)] shrink-0';
 ---
 
 <section id="videos" aria-labelledby="videos-heading" class="w-full bg-brand-black text-white overflow-x-hidden">
@@ -37,92 +59,51 @@ const t = translator(locale).video;
           class="mt-10 grid grid-cols-2 gap-3 px-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 sm:px-6 lg:px-8 lg:gap-6"
           data-videos
         >
-          {videos.map((video) => (
-            <li
-              /* 
-                 GRID FIX: max-w-[380px] prevents vertical videos 
-                 from becoming taller than the screen on 4K monitors.
-              */
-              class="group relative aspect-[9/16] w-full max-w-[380px] mx-auto overflow-hidden rounded-[18px] bg-black shadow-xl"
-              data-video-card
-              data-playing="false"
-              data-muted="true"
-              data-open="false"
-            >
-              <video
-                data-video
-                src={video.src}
-                poster={video.poster}
-                loop
-                muted
-                playsinline
-                preload="metadata"
-                class="h-full w-full object-cover" 
+          {
+            videos.map((video, index) => (
+              <VideoCard
+                video={video}
+                locale={locale}
+                cardId={`grid-${index}`}
+                class={GRID_CARD}
               />
-              <button type="button" data-play-toggle class="absolute inset-0 z-0 h-full w-full cursor-pointer" />
-              
-              <button type="button" data-mute-toggle class="absolute top-3 left-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/10 backdrop-blur-md sm:h-9 sm:w-9">
-                <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M11 5L6 9H2v6h4l5 4V5z" />
-                  <line data-mute-line x1="23" y1="9" x2="17" y2="15" />
-                  <line data-mute-line x1="17" y1="9" x2="23" y2="15" />
-                </svg>
-              </button>
-              
-              <button type="button" data-details-toggle class="absolute top-3 right-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black sm:h-9 sm:w-9 transition-transform duration-300 group-data-[open=true]:rotate-45">
-                <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="white" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
-              </button>
-
-              <div class="media-overlay-gradient pointer-events-none absolute inset-0 flex flex-col justify-end p-5 opacity-0 transition-opacity duration-300 group-data-[open=true]:opacity-100">
-                <h3 class="font-display text-base text-white">{video.title}</h3>
-                {video.description && <p class="mt-1 text-xs leading-relaxed text-white/70">{video.description}</p>}
-              </div>
-            </li>
-          ))}
+            ))
+          }
         </ul>
       ) : (
         <div class="relative mt-10 w-full" data-video-rail-wrap>
-          <button type="button" data-rail-scroll="-1" class="absolute top-1/2 left-4 z-20 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/20 text-white backdrop-blur-md sm:flex">
-            <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6" /></svg>
+          <!--
+            Always visible (including mobile) since the carousel now loops
+            endlessly instead of stopping at either end — there's never a
+            "dead" direction to hide. Pinned near the true screen edges
+            (left-2/right-2, widening at sm/lg) rather than the shell's
+            padding, per the "buttons on each side of the screen" brief.
+          -->
+          <button type="button" data-rail-scroll="-1" aria-label={t.prev} class="absolute top-1/2 left-2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/40 backdrop-blur-md transition-all duration-300 hover:scale-110 hover:bg-black/60 sm:left-4 sm:h-12 sm:w-12 lg:left-6">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-6 w-6" fill="transparent" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" aria-hidden="true"><path d="M17.5 12.5 25 20l-7.5 7.5"/></svg>
           </button>
-          <button type="button" data-rail-scroll="1" class="absolute top-1/2 right-4 z-20 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/20 text-white backdrop-blur-md sm:flex">
-            <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6" /></svg>
+          <button type="button" data-rail-scroll="1" aria-label={t.next} class="absolute top-1/2 right-2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/40 backdrop-blur-md transition-all duration-300 hover:scale-110 hover:bg-black/60 sm:right-4 sm:h-12 sm:w-12 lg:right-6">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-6 w-6" fill="transparent" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" aria-hidden="true"><path d="M6.5 11.5 25 25l7.5-7.5"/></svg>
           </button>
 
           <ul
             role="list"
             data-videos
             data-rail
-            class="no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 sm:px-8 pb-2"
+            tabindex="0"
+            aria-label={t.railLabel}
+            class="no-scrollbar flex snap-x snap-mandatory justify-center gap-4 overflow-x-auto scroll-smooth px-4 pb-2 sm:justify-start sm:px-8"
           >
-            {videos.map((video) => (
-              <li
-                /* 
-                   RAIL FIX: lg:max-w-[280px] and xl:max-w-[320px] 
-                   This keeps the videos at a professional size on wide screens.
-                */
-                class="group relative aspect-[9/16] w-[70vw] sm:w-[35vw] lg:w-[20vw] lg:max-w-[280px] xl:max-w-[320px] shrink-0 snap-start overflow-hidden rounded-[18px] bg-black shadow-xl"
-                data-video-card
-                data-playing="false"
-                data-muted="true"
-                data-open="false"
-              >
-                <video data-video src={video.src} poster={video.poster} loop muted playsinline preload="metadata" class="h-full w-full object-cover" />
-                <button type="button" data-play-toggle class="absolute inset-0 z-0 h-full w-full cursor-pointer" />
-                
-                <button type="button" data-mute-toggle class="absolute top-3 left-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/10 backdrop-blur-md">
-                    <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z" /><line data-mute-line x1="23" y1="9" x2="17" y2="15" /><line data-mute-line x1="17" y1="9" x2="23" y2="15" /></svg>
-                </button>
-                <button type="button" data-details-toggle class="absolute top-3 right-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black transition-transform duration-300 group-data-[open=true]:rotate-45">
-                    <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="white" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
-                </button>
-                
-                <div class="media-overlay-gradient pointer-events-none absolute inset-0 flex flex-col justify-end p-5 opacity-0 transition-opacity duration-300 group-data-[open=true]:opacity-100">
-                  <h3 class="font-display text-base text-white">{video.title}</h3>
-                  {video.description && <p class="mt-1 text-xs leading-relaxed text-white/70">{video.description}</p>}
-                </div>
-              </li>
-            ))}
+            {
+              videos.map((video, index) => (
+                <VideoCard
+                  video={video}
+                  locale={locale}
+                  cardId={`rail-${index}`}
+                  class={RAIL_CARD}
+                />
+              ))
+            }
           </ul>
         </div>
       )
@@ -131,7 +112,6 @@ const t = translator(locale).video;
 </section>
 
 <script>
-  // Script logic remains the same for performance and behavior
   const canHover = window.matchMedia('(hover: hover) and (pointer: fine)');
 
   for (const root of document.querySelectorAll<HTMLElement>('[data-videos]')) {
@@ -143,10 +123,20 @@ const t = translator(locale).video;
       const muteLines = card.querySelectorAll<SVGLineElement>('[data-mute-line]');
       if (!video || !playBtn) continue;
 
+      // Keeps the DOM state and the accessible names in step. Labels come from
+      // data-* attributes so this script stays free of user-facing strings.
       const sync = () => {
         const playing = !video.paused && !video.ended;
         card.dataset.playing = String(playing);
         muteLines.forEach((line) => { line.style.display = video.muted ? 'block' : 'none'; });
+
+        const playLabel = playBtn.dataset[playing ? 'labelPause' : 'labelPlay'];
+        if (playLabel) playBtn.setAttribute('aria-label', playLabel);
+
+        if (muteBtn) {
+          const muteLabel = muteBtn.dataset[video.muted ? 'labelUnmute' : 'labelMute'];
+          if (muteLabel) muteBtn.setAttribute('aria-label', muteLabel);
+        }
       };
 
       video.addEventListener('play', sync);
@@ -176,7 +166,11 @@ const t = translator(locale).video;
         const open = detailsBtn.getAttribute('aria-expanded') !== 'true';
         detailsBtn.setAttribute('aria-expanded', String(open));
         card.dataset.open = String(open);
+        const label = detailsBtn.dataset[open ? 'labelHide' : 'labelShow'];
+        if (label) detailsBtn.setAttribute('aria-label', label);
       });
+
+      sync();
 
       if ('IntersectionObserver' in window) {
         new IntersectionObserver((entries) => {
@@ -186,16 +180,70 @@ const t = translator(locale).video;
     }
   }
 
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  // ------------------------------------------------------------------
+  // Endless rail navigation: index-based rather than raw pixel scrollBy,
+  // so "next" past the last card wraps to the first (and vice versa)
+  // instead of stopping — the arrows are always active, never disabled.
+  // ------------------------------------------------------------------
   for (const wrap of document.querySelectorAll<HTMLElement>('[data-video-rail-wrap]')) {
     const rail = wrap.querySelector<HTMLElement>('[data-rail]');
     if (!rail) continue;
+
+    const cards = () => Array.from(rail.querySelectorAll<HTMLElement>('[data-video-card]'));
+
+    // Which card the rail is currently parked closest to, used as the base
+    // for the next/prev step so a manual swipe stays in sync with the arrows.
+    const currentIndex = () => {
+      const list = cards();
+      if (list.length === 0) return 0;
+      let closest = 0;
+      let closestDist = Infinity;
+      list.forEach((card, i) => {
+        const dist = Math.abs(card.offsetLeft - rail.offsetLeft - rail.scrollLeft);
+        if (dist < closestDist) {
+          closestDist = dist;
+          closest = i;
+        }
+      });
+      return closest;
+    };
+
+    // Below `sm` the visible card is center-snapped with margin either side
+    // (see RAIL_CARD); from `sm` up, cards tile flush against the row start.
+    // The scroll target math has to match whichever mode is active, or the
+    // programmatic scroll lands short/long of where CSS snap actually settles.
+    const centered = window.matchMedia('(max-width: 639.98px)');
+
+    const scrollToIndex = (index: number) => {
+      const list = cards();
+      if (list.length === 0) return;
+      const wrapped = ((index % list.length) + list.length) % list.length;
+      const target = list[wrapped];
+      const left = centered.matches
+        ? (() => {
+            const railRect = rail.getBoundingClientRect();
+            const targetRect = target.getBoundingClientRect();
+            const targetCenter = targetRect.left - railRect.left + rail.scrollLeft + targetRect.width / 2;
+            return targetCenter - rail.clientWidth / 2;
+          })()
+        : target.offsetLeft - rail.offsetLeft;
+      // The global reduced-motion CSS rule can't reach a JS scroll behaviour.
+      rail.scrollTo({ left, behavior: reducedMotion.matches ? 'auto' : 'smooth' });
+    };
+
     for (const btn of wrap.querySelectorAll<HTMLButtonElement>('[data-rail-scroll]')) {
       btn.addEventListener('click', () => {
         const dir = Number(btn.dataset.railScroll ?? '1');
-        const card = rail.querySelector<HTMLElement>('[data-video-card]');
-        // Scroll by card width + gap for better precise control on large screens
-        const step = card ? (card.clientWidth + 16) * dir : (rail.clientWidth * 0.7) * dir;
-        rail.scrollBy({ left: step, behavior: 'smooth' });
+        const list = cards();
+        if (list.length === 0) return;
+        const gap = Number.parseFloat(getComputedStyle(rail).columnGap) || 0;
+        // Step by however many cards are fully visible at once, so one click
+        // advances a full "screen" rather than nudging by a single card.
+        const cardSpan = list[0].getBoundingClientRect().width + gap;
+        const visible = Math.max(1, Math.round(rail.clientWidth / cardSpan));
+        scrollToIndex(currentIndex() + dir * visible);
       });
     }
   }

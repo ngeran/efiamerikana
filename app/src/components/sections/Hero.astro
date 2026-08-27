@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets';
 import Icon, { type IconName } from '../ui/Icon.astro';
 import type { Locale } from '../../i18n/config';
+import { translator } from '../../i18n/ui';
 import { getContact, getHero } from '../../utils/content';
 import { resolveImage } from '../../utils/media';
 
@@ -14,88 +15,67 @@ const data = await getHero(locale);
 const contact = await getContact(locale);
 const socials = contact.socials;
 const image = resolveImage(data.image);
-
-/**
- * Sidebar sizing, explained:
- * --shell-max:   80rem  — must match .shell's max-width in global.css
- * --shell-pad:   2.5rem — must match .shell's xl+ inline padding
- * --sidebar-min: 340px  — red stripe (80px) + pink column's comfortable
- *                         minimum (260px), i.e. the narrowest the rail
- *                         ever gets, on laptop-width screens.
- *
- * width = max(sidebar-min, half the leftover space once the shell caps
- * out at 80rem, plus the shell's own edge padding).
- *
- * ASSUMPTION: your header/nav renders "EMAIL ME" inside the same .shell
- * container as every other section. If it uses a different max-width or
- * padding, this won't line up — send over the header component and I'll
- * correct the constants above.
- */
-const sidebarWidth = 'max(340px, calc((100vw - 80rem) / 2 + 2.5rem))';
+const t = translator(locale).hero;
 ---
 
 <section
   id="hero"
-  class="relative flex min-h-[600px] w-full overflow-hidden bg-brand-yellow"
+  class="hero relative flex min-h-[min(600px,100svh)] w-full overflow-hidden bg-brand-yellow"
 >
   <!-- MAIN CONTENT AREA (YELLOW) -->
-  <div class="flex-1 py-12 lg:py-20" style={`--sidebar-w: ${sidebarWidth};`}>
+  <div class="flex-1 py-10 sm:py-12 lg:py-20">
     <div
-      class="shell relative z-10 grid items-center gap-10 lg:grid-cols-[24rem_1fr] lg:gap-14"
-      style="padding-right: max(1.25rem, var(--sidebar-w, 0px));"
+      class="hero-content shell relative z-10 grid items-center gap-10 lg:grid-cols-[24rem_1fr] lg:gap-14"
     >
-      <!-- IMAGE CONTAINER — fixed 384×480, immune to grid track resizing -->
-      <div class="relative z-10 mx-auto shrink-0" style="width: 384px; height: 480px;">
+      <!-- IMAGE CONTAINER -->
+      <div class="relative z-10 mx-auto w-full max-w-[24rem]">
         <Image
           src={image}
           alt={data.imageAlt}
           width={384}
           height={480}
-          widths={[384, 768]}
-          sizes="384px"
-          class="h-[480px] w-[384px] rounded-[2.5rem] object-cover shadow-2xl"
-          style="width: 384px; height: 480px;"
+          widths={[384, 768, 1152]}
+          sizes="(min-width: 1024px) 24rem, min(100vw - 2.5rem, 24rem)"
+          class="portrait-media rounded-[2.5rem] shadow-2xl"
           loading="eager"
           fetchpriority="high"
         />
       </div>
 
       <!-- TEXT CONTENT -->
-      <div class="flex flex-col items-start text-charcoal">
-        <!-- Username/Handle -->
+      <div class="flex flex-col items-center text-center lg:items-start lg:text-left lg:pr-32">
         <p class="font-display text-xl tracking-tight sm:text-2xl">
           {data.eyebrow}
         </p>
 
-        <!-- Display Name (Pink) -->
         <h1
           id="hero-heading"
-          class="mt-1 font-display text-4xl leading-[1.2] tracking-tight text-brand-pink whitespace-nowrap lg:text-5xl"
+          class="mt-1 font-display text-[length:var(--text-hero-name)] leading-[1.1] tracking-tight text-balance text-brand-pink"
         >
           {data.heading}
         </h1>
 
-        <!-- Divider -->
-        <div class="mt-6 h-[2px] w-20 bg-charcoal/20" aria-hidden="true"></div>
+        <div class="mt-6 h-[2px] w-20 bg-charcoal/20 mx-auto lg:mx-0" aria-hidden="true"></div>
 
-        <!-- Roles -->
-        <div class="mt-6 space-y-1 font-ui text-base font-bold tracking-tight sm:text-lg">
-          <p>Greek-American Home Cook</p>
-          <p>Food • Lifestyle • UGC Content</p>
-        </div>
+        {
+          (data.headingAccent || data.tagline) && (
+            <div class="mt-6 space-y-1 font-ui text-base font-bold tracking-tight sm:text-lg">
+              {data.headingAccent && <p>{data.headingAccent}</p>}
+              {data.tagline && <p>{data.tagline}</p>}
+            </div>
+          )
+        }
 
-        <!-- Tagline (Italic) -->
         {
           data.supporting && (
             <p class="mt-8 font-sans text-sm italic opacity-80 sm:text-base">{data.supporting}</p>
           )
         }
 
-        <!-- Social Icons with Brand Colors -->
-        <div class="mt-10 flex gap-4">
+        <!-- Social Icons -->
+        <div class="mt-10 flex justify-center gap-4 lg:justify-start">
           {
             socials.map((social) => {
-              // TikTok: black-to-pink gradient, Instagram: purple-pink-orange gradient
               let iconBg = 'bg-black';
               if (social.icon === 'tiktok') {
                 iconBg = 'bg-gradient-to-br from-black to-pink-500';
@@ -121,34 +101,21 @@ const sidebarWidth = 'max(340px, calc((100vw - 80rem) / 2 + 2.5rem))';
     </div>
   </div>
 
-  <!--
-    SIDEBAR RAIL (Desktop)
-    `absolute` against the <section> above (which is `position: relative`),
-    not `fixed` against the viewport — so it spans exactly the hero's own
-    height and scrolls away with it, never overlapping content in any
-    other section. Left edge aligns to the .shell boundary (see
-    sidebarWidth comment above), and its width grows to fill the gutter
-    that opens up once the shell hits its 80rem cap on large screens.
-  -->
-  <div
-    class="absolute inset-y-0 right-0 z-20 hidden lg:flex"
-    style={`width: ${sidebarWidth};`}
-  >
-    <!-- Red Stripe -->
-    <div class="w-[80px] shrink-0 bg-brand-red"></div>
-
-    <!-- Pink Sidebar: fills whatever remains of the computed width -->
+  <!-- SIDEBAR RAIL -->
+  <div class="hero-rail absolute inset-y-0 right-0 z-20 hidden lg:flex">
+    <div class="w-[var(--rail-red-w)] shrink-0 bg-brand-red"></div>
     <div class="flex flex-1 flex-col items-center justify-center bg-brand-pink">
       <a
         href="#videos"
-        class="group flex flex-col items-center gap-8 no-underline transition-transform hover:scale-105"
+        data-hero-rail-cta
+        class="group flex flex-col items-center gap-8 translate-x-[var(--rail-align-x,0px)] no-underline transition-transform hover:scale-105"
       >
-        <span class="font-display text-xl leading-tight text-charcoal text-center">
-          view my<br />portfolio
+        <span class="max-w-[12ch] text-center font-display text-xl leading-tight text-charcoal">
+          {t.viewPortfolio}
         </span>
 
-        <!-- Enhanced 3D Style Play Button -->
         <div
+          data-hero-rail-button
           class="relative flex h-20 w-20 items-center justify-center rounded-full bg-black shadow-2xl ring-8 ring-brand-yellow/20 hover:ring-brand-yellow/40 transition-all duration-300"
         >
           <div
@@ -161,13 +128,124 @@ const sidebarWidth = 'max(340px, calc((100vw - 80rem) / 2 + 2.5rem))';
   </div>
 </section>
 
-<!-- Mobile Portfolio Call-to-Action (Stays visible on scroll/mobile) -->
-<div class="flex w-full items-center justify-between border-t border-black/5 bg-brand-pink p-5 lg:hidden">
-  <span class="font-display text-lg text-charcoal">view my portfolio</span>
-  <div class="flex h-12 w-12 items-center justify-center rounded-full bg-black shadow-lg ring-4 ring-brand-yellow/10">
-    <div
+<!-- 
+  MOBILE/TABLET BOTTOM BAR 
+  Removed `sm:flex-row` and `sm:justify-between` to ensure it stays a centered vertical stack 
+  on all phones (iPhones) and tablets.
+-->
+<a
+  href="#videos"
+  data-hero-cta
+  class="group flex w-full flex-col items-center justify-center gap-4 border-t border-black/5 bg-brand-pink p-5 text-center no-underline transition-colors hover:bg-brand-pink/90 lg:hidden"
+>
+  <span class="font-display text-lg text-charcoal">{t.viewPortfolio}</span>
+  <span
+    data-hero-cta-button
+    class="flex h-12 w-12 shrink-0 translate-x-[var(--cta-align-x,0px)] items-center justify-center rounded-full bg-black shadow-lg ring-4 ring-brand-yellow/10 transition-transform group-hover:scale-105"
+  >
+    <span
       class="ml-1 h-0 w-0 border-t-[8px] border-b-[8px] border-l-[14px] border-t-transparent border-b-transparent border-l-brand-yellow"
-    >
-    </div>
-  </div>
-</div>
+    ></span>
+  </span>
+</a>
+
+<script>
+  // 1. RAIL WIDTH MEASUREMENT (Controls how far left the red stripe goes)
+  const hero = document.querySelector<HTMLElement>('.hero');
+  const label = document.querySelector<HTMLElement>('[data-email-label]');
+
+  if (hero && label) {
+    const wide = window.matchMedia('(min-width: 1024px)');
+
+    const measure = () => {
+      if (!wide.matches) {
+        hero.style.removeProperty('--rail-w');
+        return;
+      }
+      if (label.offsetParent === null) return;
+      
+      const closerOffset = 200; 
+      const width = (document.documentElement.clientWidth - label.getBoundingClientRect().left) + closerOffset;
+      
+      if (width > 0) hero.style.setProperty('--rail-w', `${Math.round(width)}px`);
+    };
+
+    let queued = false;
+    const remeasure = () => {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(() => {
+        queued = false;
+        measure();
+      });
+    };
+
+    remeasure();
+    window.addEventListener('resize', remeasure, { passive: true });
+    window.addEventListener('orientationchange', remeasure);
+    wide.addEventListener('change', remeasure);
+    document.fonts?.ready.then(remeasure);
+  }
+
+  // 2. BUTTON ALIGNMENT (Positions the play button horizontally)
+  const emailIcon =
+    document.querySelector<HTMLElement>('[data-email-icon]') ??
+    document.querySelector<HTMLElement>('[data-email-label]')?.closest<HTMLElement>('a, button') ??
+    null;
+
+  interface AlignTarget {
+    move: HTMLElement;
+    measure: HTMLElement;
+    cssVar: string;
+    offset: number; // New: allows specific nudging per target
+    disableOnMobile: boolean; // New: prevents mobile centering from breaking
+  }
+
+  const alignTargets: AlignTarget[] = [];
+  const ctaButton = document.querySelector<HTMLElement>('[data-hero-cta-button]');
+  if (ctaButton) alignTargets.push({ move: ctaButton, measure: ctaButton, cssVar: '--cta-align-x', offset: 0, disableOnMobile: true });
+
+  const railCta = document.querySelector<HTMLElement>('[data-hero-rail-cta]');
+  const railButton = document.querySelector<HTMLElement>('[data-hero-rail-button]');
+  if (railCta && railButton) alignTargets.push({ move: railCta, measure: railButton, cssVar: '--rail-align-x', offset: 10, disableOnMobile: false });
+
+  if (emailIcon && alignTargets.length > 0) {
+    const alignAll = () => {
+      const iconRect = emailIcon.getBoundingClientRect();
+      const iconCenter = iconRect.left + iconRect.width / 2;
+      const isMobile = window.innerWidth < 1024;
+
+      for (const { move, measure, cssVar, offset, disableOnMobile } of alignTargets) {
+        if (move.offsetParent === null || (isMobile && disableOnMobile)) {
+          move.style.setProperty(cssVar, '0px'); // Keep it centered on mobile
+          continue;
+        }
+        
+        move.style.setProperty(cssVar, '0px');
+        const measureRect = measure.getBoundingClientRect();
+        
+        /**
+         * Subtracting the offset pushes the button to the left.
+         * rail target has 10px offset here.
+         */
+        const delta = (iconCenter - (measureRect.left + measureRect.width / 2)) - offset;
+        move.style.setProperty(cssVar, `${Math.round(delta)}px`);
+      }
+    };
+
+    let alignQueued = false;
+    const remeasureAlign = () => {
+      if (alignQueued) return;
+      alignQueued = true;
+      requestAnimationFrame(() => {
+        alignQueued = false;
+        alignAll();
+      });
+    };
+
+    remeasureAlign();
+    window.addEventListener('resize', remeasureAlign, { passive: true });
+    window.addEventListener('orientationchange', remeasureAlign);
+    document.fonts?.ready.then(remeasureAlign);
+  }
+</script>

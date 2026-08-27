@@ -72,32 +72,36 @@ const langClasses = (active: boolean) =>
     </nav>
 
     <div class="flex items-center gap-2 sm:gap-3">
-      <!-- Language switcher: EN | ΕΛ -->
-      <nav
-        class="flex items-center gap-1.5 font-label text-xs font-bold tracking-[0.18em] uppercase"
-        aria-label={t.languageSwitch}
-      >
-        {
-          locales.map((l, i) => (
-            <span class="flex items-center gap-1.5">
-              {i > 0 && (
-                <span class="text-charcoal/30" aria-hidden="true">
-                  |
+      <!-- Language switcher: EN | ΕΛ (only shown when multiple locales are available) -->
+      {
+        locales.length > 1 && (
+          <nav
+            class="flex items-center gap-1.5 font-label text-xs font-bold tracking-[0.18em] uppercase"
+            aria-label={t.languageSwitch}
+          >
+            {
+              locales.map((l, i) => (
+                <span class="flex items-center gap-1.5">
+                  {i > 0 && (
+                    <span class="text-charcoal/30" aria-hidden="true">
+                      |
+                    </span>
+                  )}
+                  <a
+                    href={l === locale ? currentPath : switchLocale(currentPath, l)}
+                    hreflang={l}
+                    aria-current={l === locale ? 'page' : undefined}
+                    aria-label={l === locale ? undefined : translator(l).switchToLocale}
+                    class={langClasses(l === locale)}
+                  >
+                    {localeSwitcherLabel(l)}
+                  </a>
                 </span>
-              )}
-              <a
-                href={l === locale ? currentPath : switchLocale(currentPath, l)}
-                hreflang={l}
-                aria-current={l === locale ? 'page' : undefined}
-                aria-label={l === locale ? undefined : translator(l).switchToLocale}
-                class={langClasses(l === locale)}
-              >
-                {localeSwitcherLabel(l)}
-              </a>
-            </span>
-          ))
-        }
-      </nav>
+              ))
+            }
+          </nav>
+        )
+      }
 
       <!-- Email icon: visible at every viewport size (label from md up) -->
       <a
@@ -109,7 +113,10 @@ const langClasses = (active: boolean) =>
           name="mail"
           class="h-5 w-5 shrink-0 text-brand-red transition-transform duration-200 group-hover:scale-110"
         />
+        <!-- data-email-label: the Hero rail measures this glyph's left edge to
+             align itself. See the .hero rules in global.css. -->
         <span
+          data-email-label
           class="hidden border-b-2 border-charcoal/20 font-label text-xs font-bold tracking-[0.18em] whitespace-nowrap uppercase md:inline-block"
         >
           {t.emailLabel}
@@ -154,29 +161,34 @@ const langClasses = (active: boolean) =>
         }
       </ul>
       <div class="flex flex-wrap items-center justify-between gap-4 pt-4">
-        <div
-          class="flex items-center gap-1.5 font-label text-sm font-bold tracking-[0.18em] uppercase"
-        >
-          {
-            locales.map((l, i) => (
-              <span class="flex items-center gap-1.5">
-                {i > 0 && (
-                  <span class="text-charcoal/30" aria-hidden="true">
-                    |
+        <!-- Language switcher (mobile): only shown when multiple locales are available -->
+        {
+          locales.length > 1 && (
+            <div
+              class="flex items-center gap-1.5 font-label text-sm font-bold tracking-[0.18em] uppercase"
+            >
+              {
+                locales.map((l, i) => (
+                  <span class="flex items-center gap-1.5">
+                    {i > 0 && (
+                      <span class="text-charcoal/30" aria-hidden="true">
+                        |
+                      </span>
+                    )}
+                    <a
+                      href={l === locale ? currentPath : switchLocale(currentPath, l)}
+                      hreflang={l}
+                      aria-current={l === locale ? 'page' : undefined}
+                      class={langClasses(l === locale)}
+                    >
+                      {localeSwitcherLabel(l)}
+                    </a>
                   </span>
-                )}
-                <a
-                  href={l === locale ? currentPath : switchLocale(currentPath, l)}
-                  hreflang={l}
-                  aria-current={l === locale ? 'page' : undefined}
-                  class={langClasses(l === locale)}
-                >
-                  {localeSwitcherLabel(l)}
-                </a>
-              </span>
-            ))
-          }
-        </div>
+                ))
+              }
+            </div>
+          )
+        }
         <a
           href={`mailto:${email}`}
           class="mobile-link flex items-center gap-2 font-label text-sm font-bold tracking-[0.18em] uppercase"

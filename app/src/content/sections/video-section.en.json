@@ -1,5 +1,6 @@
 {
   "heading": "Selected works",
   "intro": "Portrait cuts from the kitchen archives — TikToks, Reels and Shorts with the textures of real ingredients.",
-  "layout": "scroll"
+  "layout": "scroll",
+  "showDetailsButton": false
 }

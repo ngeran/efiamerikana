@@ -5,3 +5,7 @@ node_modules/
 dist/
 site-out
 app/.astro/
+
+# macOS junk (AppleDouble files break the media glob + asset pipeline)
+._*
+.DS_Store

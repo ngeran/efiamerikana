@@ -17,9 +17,9 @@ const data = await getAbout(Astro.props.locale);
 const image = resolveImage(data.image);
 ---
 
-<section id="about" aria-labelledby="about-heading" class="w-full bg-charcoal text-cream">
+<section id="about" aria-labelledby="about-heading" class="w-full bg-charcoal text-cream defer-paint">
   <div class="shell grid items-center gap-10 py-16 sm:py-20 lg:grid-cols-2 lg:gap-16 lg:py-28">
-    <div class="flex flex-col items-start">
+    <div class="flex flex-col items-center text-center lg:items-start lg:text-left">
       <SectionHeading id="about-heading" label={label} heading={data.heading} />
       <div class="mt-6 space-y-5">
         {
@@ -30,7 +30,7 @@ const image = resolveImage(data.image);
       </div>
       {
         data.pullQuote && (
-          <blockquote class="mt-8 border-l-4 border-brand-pink pl-5 font-display text-xl leading-snug text-brand-yellow italic sm:text-2xl">
+          <blockquote class="mt-8 max-w-xl border-l-4 border-brand-pink pl-5 text-left font-display text-xl leading-snug text-brand-yellow italic sm:text-2xl">
             {data.pullQuote}
           </blockquote>
         )
@@ -46,13 +46,20 @@ const image = resolveImage(data.image);
       }
     </div>
 
-    <div class="order-last lg:order-first">
+    <!--
+      Same portrait ratio and same max width as the Hero photo (both read from
+      --portrait), so the two match as the brief requires. `mx-auto` keeps it
+      centred once the column is wider than the cap.
+    -->
+    <div class="order-last mx-auto w-full max-w-[24rem] lg:order-first lg:mx-0">
       <Image
         src={image}
         alt={data.imageAlt}
-        widths={[480, 800]}
-        sizes="(min-width: 1024px) 45vw, 90vw"
-        class="aspect-square w-full rounded-[2rem] object-cover shadow-xl ring-4 ring-white/10"
+        width={384}
+        height={480}
+        widths={[384, 768, 1152]}
+        sizes="(min-width: 1024px) 24rem, min(100vw - 2.5rem, 24rem)"
+        class="portrait-media rounded-[2rem] shadow-xl ring-4 ring-white/10"
         loading="lazy"
         decoding="async"
       />

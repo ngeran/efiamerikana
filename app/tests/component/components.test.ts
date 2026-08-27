@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { experimental_AstroContainer as AstroContainer } from 'astro/container';
 import SiteFooter from '../../src/components/sections/SiteFooter.astro';
 import VideoCard from '../../src/components/media/VideoCard.astro';
@@ -51,7 +51,12 @@ describe('<VideoCard>', () => {
   it('renders a stable 9/16 frame with lazy playback attributes', async () => {
     const container = await AstroContainer.create();
     const html = await container.renderToString(VideoCard, {
-      props: { video, locale: 'en', index: 0 },
+      props: {
+        video,
+        locale: 'en',
+        cardId: 'test-0',
+        class: 'aspect-[9/16] w-full',
+      },
     });
 
     expect(html).toContain('aspect-[9/16]');
@@ -63,5 +68,23 @@ describe('<VideoCard>', () => {
     expect(html).toContain('Placeholder transcript.');
     expect(html).toContain('data-details-toggle');
     expect(html).toContain('aria-expanded="false"');
+  });
+
+  it('renders poster-only when the video file is missing', async () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const container = await AstroContainer.create();
+    const html = await container.renderToString(VideoCard, {
+      props: {
+        video: { ...video, video: '/media/videos/never-uploaded.mp4' },
+        locale: 'en',
+        cardId: 'missing-0',
+        class: 'aspect-[9/16] w-full',
+      },
+    });
+
+    expect(html).not.toContain('src="/src/assets/media/videos/never-uploaded.mp4"');
+    expect(html).toContain('poster=');
+    expect(spy).toHaveBeenCalledWith(expect.stringMatching(/not found/));
+    spy.mockRestore();
   });
 });

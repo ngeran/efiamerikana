@@ -28,10 +28,13 @@ local_backend: true   # uncomment while running `npm run admin` locally
 site_url: https://efiamerikana.com
 display_url: https://efiamerikana.com
 logo_url: https://efiamerikana.com/favicon.svg
-locale: en
 
+# Media library configuration
+# For GitHub backend, simplified configuration
 media_folder: src/assets/media
 public_folder: /media
+
+locale: en
 
 publish_mode: simple
 
@@ -290,6 +293,7 @@ collections:
               default: grid,
               hint: 'grid = 3×2 responsive grid · scroll = horizontal rail',
             }
+          - { label: Show details toggle button, name: showDetailsButton, widget: boolean, default: true }
       - name: video-section-el
         label: 🎬 Ρυθμίσεις ενότητας Βίντεο (Ελληνικά)
         file: src/content/sections/video-section.el.json
@@ -318,6 +322,9 @@ collections:
               default: grid,
               hint: 'grid = 3×2 responsive grid · scroll = horizontal rail',
             }
+          - { label: Show details toggle button, name: showDetailsButton, widget: boolean, default: false }
+          - { label: Enable hover preview, name: enableHoverPreview, widget: boolean, default: false }
+          - { label: Enable click-to-reveal metadata, name: enableClickToReveal, widget: boolean, default: false }
       - name: picture-section-el
         label: 🖼️ Ρυθμίσεις ενότητας Φωτογραφίες (Ελληνικά)
         file: src/content/sections/picture-section.el.json
@@ -325,6 +332,9 @@ collections:
           - { label: Τίτλος, name: heading, widget: string }
           - { label: Εισαγωγή, name: intro, widget: text, required: false }
           - { label: Διάταξη, name: layout, widget: select, options: [grid, scroll], default: grid }
+          - { label: Εμφάνηση κουμπι λεπτομερειών, name: showDetailsButton, widget: boolean, default: false }
+          - { label: Ενεργοποίηση προεπισκόπησης κατά την αιώρηση, name: enableHoverPreview, widget: boolean, default: false }
+          - { label: Ενεργοποίηση αποκάλυψε με κλικ, name: enableClickToReveal, widget: boolean, default: false }
 
   # ── About ───────────────────────────────────────────────────────────────────
   - name: about

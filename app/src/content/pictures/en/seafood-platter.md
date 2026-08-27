@@ -1,9 +1,9 @@
 ---
-title: 'Seafood Platter'
-description: 'Straight off the boat energy.'
+title: Seafood Platter
+description: Straight off the boat energy.
 order: 2
-image: '/media/gallery/seafood-platter.svg'
-imageAlt: 'Placeholder image: a seafood platter with ice and lemons.'
-tag: 'Editorial'
+image: gemini_generated_image_ctx2jpctx2jpctx2.jpeg
+imageAlt: Seafood platter with ice and lemons
+tag: Editorial
 draft: false
 ---

@@ -12,6 +12,7 @@ const en = {
   wordmark: 'efiamerikana',
   hero: {
     tickerLabel: 'Social media',
+    viewPortfolio: 'view my portfolio',
   },
   video: {
     play: 'Play video',
@@ -35,6 +36,8 @@ const en = {
   },
   analytics: {
     disclosure: 'Placeholder metrics — replace them with real data in the CMS.',
+    ratiosTitle: 'Performance ratios',
+    velocityTitle: 'Audience velocity',
   },
   contact: {
     methodsTitle: 'Ways to reach me',
@@ -90,6 +93,7 @@ const el: UIStrings = {
   wordmark: 'efiamerikana',
   hero: {
     tickerLabel: 'Κοινωνικά δίκτυα',
+    viewPortfolio: 'δείτε το portfolio μου',
   },
   video: {
     play: 'Αναπαραγωγή βίντεο',
@@ -113,6 +117,8 @@ const el: UIStrings = {
   },
   analytics: {
     disclosure: 'Δείκτες προσωρινοί — αντικαταστήστε τους με πραγματικά δεδομένα στο CMS.',
+    ratiosTitle: 'Δείκτες απόδοσης',
+    velocityTitle: 'Ρυθμός ανάπτυξης κοινού',
   },
   contact: {
     methodsTitle: 'Τρόποι επικοινωνίας',

@@ -6,72 +6,137 @@ import type { PictureData } from '../../content.config';
 import { resolveImage } from '../../utils/media';
 
 /**
- * Picture card with a fixed 4/5 frame. Black & white by default; transitions
- * to full colour on hover, on keyboard focus-within, and when opened with
- * the toggle button (touch devices). The description is always available to
- * screen readers and revealed visually on open.
+ * Gallery picture card — the single source of truth for both the grid and the
+ * rail layout in PicturesSection. The layouts differ only in <li> sizing and
+ * in the responsive `sizes` hint (which must describe the real rendered width
+ * or the browser downloads the wrong candidate), so both are props.
+ *
+ * The description is revealed by the +/x toggle. It stays in the DOM either
+ * way so assistive tech and touch users are never cut off from it.
  */
 interface Props {
   picture: PictureData;
   locale: Locale;
-  index: number;
-  /** Narrower crops for the scroll rail. */
-  compact?: boolean;
+  /** Unique across the page — grid and rail must not collide on DOM ids. */
+  cardId: string;
+  /** Layout-specific <li> sizing (grid cell vs rail slide). */
+  class: string;
+  /** Responsive sizes hint matching this layout's rendered width. */
+  sizes: string;
+  /**
+   * CMS-controlled. When false the visible "+" is replaced by a full-bleed
+   * transparent button covering the card: hover/focus still previews the
+   * metadata on pointer devices, and tap/Enter still toggles it everywhere
+   * else. Hiding the control entirely would strand touch users, since
+   * :hover never fires for them.
+   */
+  showDetailsButton?: boolean;
+  /**
+   * CMS-controlled. When true, metadata preview shows on hover/focus. When
+   * false, metadata only appears when explicitly toggled. Defaults false.
+   */
+  enableHoverPreview?: boolean;
+  /**
+   * CMS-controlled. When false, clicking/tapping the card does nothing and
+   * metadata remains hidden. When true, clicking reveals the metadata overlay.
+   * Defaults false.
+   */
+  enableClickToReveal?: boolean;
 }
 
-const { picture, locale, index, compact = false } = Astro.props;
+const {
+  picture,
+  locale,
+  cardId,
+  class: className,
+  sizes,
+  showDetailsButton = true,
+  enableHoverPreview = false,
+  enableClickToReveal = false,
+} = Astro.props;
 const t = translator(locale).pictures;
 
 const image = resolveImage(picture.image);
-const descId = `picture-desc-${index}`;
+const detailsId = `picture-details-${cardId}`;
 
-const colour = [
-  'grayscale transition-[filter] duration-500',
-  'group-hover/card:grayscale-0 group-focus-within/card:grayscale-0 group-data-[open=true]/card:grayscale-0',
-].join(' ');
+const showLabel = `${t.showDescription} — ${picture.title}`;
+const hideLabel = `${t.hideDescription} — ${picture.title}`;
 ---
 
-<article
-  class="group/card flex h-full flex-col overflow-hidden rounded-2xl bg-white text-charcoal shadow-md ring-1 ring-charcoal/10"
+<li
+  class={`group relative overflow-hidden rounded-[18px] bg-black shadow-xl ${className}`}
   data-picture-card
   data-open="false"
 >
-  <button
-    type="button"
-    class="relative block w-full text-left outline-offset-[-6px]"
-    data-picture-toggle
-    aria-expanded="false"
-    aria-controls={descId}
-    aria-label={`${t.showDescription} — ${picture.title}`}
-    data-label-show={`${t.showDescription} — ${picture.title}`}
-    data-label-hide={`${t.hideDescription} — ${picture.title}`}
-  >
-    <span class="block aspect-[4/5] w-full">
-      <Image
-        src={image}
-        alt={picture.imageAlt}
-        widths={compact ? [360, 540] : [400, 640, 900]}
-        sizes={compact
-          ? '(min-width: 1024px) 32vw, 70vw'
-          : '(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 90vw'}
-        class={`h-full w-full object-cover ${colour}`}
-        loading="lazy"
-        decoding="async"
-      />
-    </span>
-    {
-      picture.tag && (
-        <span class="absolute top-3 left-3 rounded-full bg-charcoal/70 px-3 py-1 font-label text-[10px] font-bold tracking-[0.15em] text-white uppercase backdrop-blur-sm">
-          {picture.tag}
-        </span>
-      )
-    }
-  </button>
+  <Image
+    src={image}
+    alt={picture.imageAlt}
+    widths={[400, 800]}
+    sizes={sizes}
+    loading="lazy"
+    decoding="async"
+    class="h-full w-full object-cover transition-transform duration-[600ms] ease-[var(--ease-out-soft)] group-hover:scale-[1.06] group-focus-within:scale-[1.06] group-data-[open=true]:scale-[1.06]"
+  />
 
-  <div class="flex flex-1 flex-col gap-2 p-4">
-    <h3 class="font-display text-lg leading-tight">{picture.title}</h3>
-    <p id={descId} hidden data-picture-desc class="text-sm leading-relaxed text-charcoal/75">
-      {picture.description}
-    </p>
+  {
+    enableClickToReveal && (
+      showDetailsButton ? (
+        <button
+          type="button"
+          data-picture-toggle
+          class="absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-black transition-transform duration-500 ease-[var(--ease-out-soft)] group-data-[open=true]:rotate-45"
+          aria-expanded="false"
+          aria-controls={detailsId}
+          aria-label={showLabel}
+          data-label-show={showLabel}
+          data-label-hide={hideLabel}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            class="h-[22px] w-[22px]"
+            fill="transparent"
+            stroke="black"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            aria-hidden="true"
+          >
+            <path d="M17.5 12.5 25 20l-7.5 7.5"/>
+          </svg>
+        </button>
+      ) : (
+        /* No visible chrome, but still a real control: the card itself. */
+        <button
+          type="button"
+          data-picture-toggle
+          class="absolute inset-0 z-10 h-full w-full cursor-pointer"
+          aria-expanded="false"
+          aria-controls={detailsId}
+          aria-label={showLabel}
+          data-label-show={showLabel}
+          data-label-hide={hideLabel}
+        />
+      )
+    )
+  }
+
+
+  <!--
+    Revealed by the toggle (data-open) OR by hover/focus-within when enabled.
+    The hover path is a progressive enhancement so the metadata is still
+    discoverable when the "+" is hidden; the toggle path is what makes it
+    reachable by touch.
+  -->
+  <div
+    id={detailsId}
+    class={`media-overlay-gradient pointer-events-none absolute inset-0 flex translate-y-4 flex-col justify-end p-6 opacity-0 transition-[opacity,transform] duration-500 ease-[var(--ease-out-soft)] ${
+      enableHoverPreview
+        ? 'group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100'
+        : ''
+    } group-data-[open=true]:translate-y-0 group-data-[open=true]:opacity-100`}
+  >
+    <h3 class="font-display text-lg text-white">{picture.title}</h3>
+    {picture.description && <p class="mt-1 text-sm text-white/70">{picture.description}</p>}
   </div>
-</article>
+</li>

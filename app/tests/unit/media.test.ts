@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { normalizeMediaPath, resolveImage, resolveVideo, videoUrls } from '../../src/utils/media';
 
 describe('normalizeMediaPath', () => {
@@ -28,8 +28,12 @@ describe('resolveVideo', () => {
     expect(typeof url).toBe('string');
   });
 
-  it('throws a helpful error for missing media', () => {
-    expect(() => resolveVideo('/media/videos/does-not-exist.mp4')).toThrowError(/not found/);
+  it('falls back to an empty src for missing media instead of throwing', () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    expect(() => resolveVideo('/media/videos/does-not-exist.mp4')).not.toThrow();
+    expect(resolveVideo('/media/videos/does-not-exist.mp4')).toBe('');
+    expect(spy).toHaveBeenCalledWith(expect.stringMatching(/not found/));
+    spy.mockRestore();
   });
 
   it('maps every committed seed video', () => {
@@ -44,7 +48,11 @@ describe('resolveImage', () => {
     expect(() => resolveImage('/media/gallery/olive-grove.svg')).not.toThrow();
   });
 
-  it('throws for unknown images', () => {
-    expect(() => resolveImage('/media/nope.svg')).toThrowError(/not found/);
+  it('falls back to the placeholder for unknown images instead of throwing', () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    expect(() => resolveImage('/media/nope.svg')).not.toThrow();
+    expect(resolveImage('/media/nope.svg').format).toBe('svg');
+    expect(spy).toHaveBeenCalledWith(expect.stringMatching(/not found/));
+    spy.mockRestore();
   });
 });

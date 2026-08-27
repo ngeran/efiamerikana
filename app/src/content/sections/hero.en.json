@@ -2,7 +2,7 @@
   "heading": "Effie Kazantzidis",
   "variant": "split",
   "eyebrow": "efiamerikana",
-  "headingAccent": null,
+  "headingAccent": "Greek-American Home Cook",
   "primaryCta": {
     "label": "WORK WITH ME",
     "href": "#contact"
@@ -11,8 +11,5 @@
   "tagline": "Food • Lifestyle • UGC Content",
   "supporting": "Real food. Real life. Real personality.",
   "image": "/media/efi-hero.jpg",
-  "secondaryCta": {
-    "label": "sd",
-    "href": "sd"
-  }
+  "secondaryCta": null
 }

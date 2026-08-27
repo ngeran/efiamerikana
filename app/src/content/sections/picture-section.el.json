@@ -1,5 +1,8 @@
 {
   "heading": "Η γκαλερί",
-  "intro": "Στιγμιότυπα από την κουζίνα και τον δρόμο — περάστε με ποντίκι ή εστίαση για να τα δείτε έγχρωμα.",
-  "layout": "scroll"
+  "intro": "Στιγμιότυπα από την κουζίνα και τον δρόμο — επιλέξτε μια φωτογραφία για την ιστορία της.",
+  "layout": "scroll",
+  "showDetailsButton": false,
+  "enableHoverPreview": false,
+  "enableClickToReveal": false
 }

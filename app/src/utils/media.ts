@@ -1,4 +1,6 @@
 import type { ImageMetadata } from 'astro';
+// Committed seed asset — statically imported so the fallback always resolves.
+import placeholderImage from '../assets/media/gallery/fig-harvest.svg';
 
 /**
  * Media resolution — CMS entries store media-library paths (e.g.
@@ -8,6 +10,12 @@ import type { ImageMetadata } from 'astro';
  * Storing media under `src/` (not `public/`) is deliberate: it is the only
  * location Astro's asset pipeline optimizes (images) and content-hashes
  * (videos get immutable `/_astro/…` URLs).
+ *
+ * Missing files NEVER throw: a CMS upload can silently fail while the entry
+ * still saves with the new path, and one stale reference used to take the
+ * whole page down with a 500. Instead we log loudly on the server and fall
+ * back — the placeholder image for images, an empty src (poster-only card)
+ * for videos — so the rest of the page always renders.
  */
 
 // import.meta.glob requires literal patterns (no template interpolation).
@@ -61,10 +69,11 @@ export function resolveImage(input: string): ImageMetadata {
   const relative = normalizeMediaPath(input);
   const found = suffixMatch(imageImports, relative);
   if (found === undefined) {
-    throw new Error(
+    console.error(
       `[media] image "${input}" (normalized: "${relative}") not found under src/assets/media — ` +
-        `upload it via the CMS media library or fix the entry.`,
+        `showing the placeholder. Re-upload it via the CMS media library or fix the entry.`,
     );
+    return placeholderImage;
   }
   return found;
 }
@@ -74,10 +83,11 @@ export function resolveVideo(input: string): string {
   const relative = normalizeMediaPath(input);
   const found = suffixMatch(videoUrls, relative);
   if (found === undefined) {
-    throw new Error(
+    console.error(
       `[media] video "${input}" (normalized: "${relative}") not found under src/assets/media — ` +
-        `upload it via the CMS media library or fix the entry.`,
+        `rendering the poster only. Re-upload it via the CMS media library or fix the entry.`,
     );
+    return '';
   }
   return found;
 }
