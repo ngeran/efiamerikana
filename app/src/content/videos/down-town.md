@@ -1,8 +1,7 @@
 ---
-title: Down Town
-description: Down town vibes
 language: en
-order: 100
-video: down-town.mp4
+title: 'Down Town'
+order: 1
+video: down-town_web_ready.mp4
 draft: false
 ---

@@ -41,6 +41,17 @@ export const imageImports: Record<string, ImageMetadata> = Object.fromEntries(
 /** File path → bundled URL for video files. */
 export const videoUrls: Record<string, string> = videoModules;
 
+/** Generated first-frame posters (see scripts/generate-posters.mjs). */
+const posterModules = import.meta.glob<{ default: ImageMetadata }>(
+  '/src/assets/media/posters/*.{jpg,jpeg,png,webp}',
+  { eager: true },
+);
+
+/** File path → Astro ImageMetadata for generated posters. */
+const posterImports: Record<string, ImageMetadata> = Object.fromEntries(
+  Object.entries(posterModules).map(([path, mod]) => [path, mod.default]),
+);
+
 /** Prefixes the CMS may write in front of a media-library-relative path. */
 const MEDIA_PREFIXES = ['src/assets/media', 'media'];
 
@@ -78,6 +89,17 @@ export function resolveImage(input: string): ImageMetadata {
     return placeholderImage;
   }
   return found;
+}
+
+/**
+ * Build-time poster for a video with none set in the CMS: the first-frame
+ * still extracted by `npm run media:posters`, when one exists. Without a
+ * poster, `<video preload="none">` renders as a black card until played —
+ * and on touch devices nothing ever hovers to wake it.
+ */
+export function autoPosterFor(videoRef: string): ImageMetadata | null {
+  const base = normalizeMediaPath(videoRef).replace(/\.[^.]+$/, '');
+  return suffixMatch(posterImports, `posters/${base}.jpg`) ?? null;
 }
 
 /**

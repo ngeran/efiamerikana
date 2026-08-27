@@ -70,17 +70,17 @@ const hideLabel = `${t.hideDescription} — ${picture.title}`;
 >
   <Image
     src={image}
-    alt={picture.imageAlt ?? null}
+    alt={picture.imageAlt ?? picture.title ?? ''}
     widths={[400, 800]}
     sizes={sizes}
     loading="lazy"
     decoding="async"
-    class="h-full w-full object-cover transition-transform duration-[600ms] ease-[var(--ease-out-soft)] group-hover:scale-[1.06] group-focus-within:scale-[1.06] group-data-[open=true]:scale-[1.06]"
+    class="h-full w-full object-cover transition-transform duration-[600ms] ease-[var(--ease-out-soft)] group-focus-within:scale-[1.06] group-hover:scale-[1.06] group-data-[open=true]:scale-[1.06]"
   />
 
   {
-    enableClickToReveal && (
-      showDetailsButton ? (
+    enableClickToReveal &&
+      (showDetailsButton ? (
         <button
           type="button"
           data-picture-toggle
@@ -102,7 +102,7 @@ const hideLabel = `${t.hideDescription} — ${picture.title}`;
             stroke-width="2"
             aria-hidden="true"
           >
-            <path d="M17.5 12.5 25 20l-7.5 7.5"/>
+            <path d="M17.5 12.5 25 20l-7.5 7.5" />
           </svg>
         </button>
       ) : (
@@ -117,10 +117,8 @@ const hideLabel = `${t.hideDescription} — ${picture.title}`;
           data-label-show={showLabel}
           data-label-hide={hideLabel}
         />
-      )
-    )
+      ))
   }
-
 
   <!--
     Revealed by the toggle (data-open) OR by hover/focus-within when enabled.

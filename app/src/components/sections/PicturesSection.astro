@@ -26,62 +26,98 @@ const t = translator(locale).pictures;
  * exactly that many cards, matching gap-4 (1rem) on the <ul> below. RAIL_SIZES
  * mirrors the same breakpoints so the browser requests the right image size.
  *
- * Below `sm` only one card is visible, and unlike the tiled breakpoints it's
- * deliberately narrower than the full row (`calc(100%-4rem)`) so it sits
- * centered with clear space on either side, rather than flush against the
- * container edges — that's what `justify-center` + `snap-center` on the
- * <ul> below are for. From `sm` up the row reverts to `justify-start` +
- * `snap-start` since cards there tile exactly to fill the width.
+ * Below `sm` only one card is visible and it must sit centered on screen.
+ * Centering is done with the rail's own `px-8` padding + `snap-center` on the
+ * card — NOT `justify-center`, which on an overflowing flex rail shoves the
+ * first cards past the unreachable left edge (a data-loss alignment bug).
+ * The mobile width is viewport-relative (`100vw-4rem`) so it lands exactly
+ * between the two 2rem gutters; % would resolve against the padded content
+ * box and end up off-center. From `sm` up, cards tile flush with
+ * `justify-start` + `snap-start`.
  */
 const GRID_CARD = 'aspect-[4/5.5] w-full max-w-[450px] mx-auto';
 const GRID_SIZES =
   '(min-width: 1280px) 20vw, (min-width: 1024px) 25vw, (min-width: 768px) 33vw, 100vw';
 const RAIL_CARD =
-  'aspect-[4/5.5] w-[calc(100%-4rem)] snap-center sm:w-[calc((100%-1rem)/2)] sm:snap-start lg:w-[calc((100%-2rem)/3)] xl:w-[calc((100%-3rem)/4)] 2xl:w-[calc((100%-4rem)/5)] shrink-0';
+  'aspect-[4/5.5] w-[calc(100vw-4rem)] snap-center sm:w-[calc((100%-1rem)/2)] sm:snap-start lg:w-[calc((100%-2rem)/3)] xl:w-[calc((100%-3rem)/4)] 2xl:w-[calc((100%-4rem)/5)] shrink-0';
 const RAIL_SIZES =
   '(min-width: 1536px) 20vw, (min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, calc(100vw - 4rem)';
 ---
 
-<section id="pictures" aria-labelledby="pictures-heading" class="w-full bg-brand-pink text-charcoal overflow-x-hidden defer-paint">
+<section
+  id="pictures"
+  aria-labelledby="pictures-heading"
+  class="defer-paint w-full overflow-x-hidden bg-brand-pink text-charcoal"
+>
   <div class="shell pt-16 sm:pt-20 lg:pt-24">
     <SectionHeading id="pictures-heading" label={label} heading={data.heading} intro={data.intro} />
   </div>
 
   <div class="w-full pb-16 sm:pb-20 lg:pb-24">
+    <!--
+      Scroll rail: arrows are sm-and-up only — on phones a finger swipe is
+      the native gesture and the arrows would cover the centered card's
+      gutters.
+    -->
     {
       pictures.length === 0 ? (
-        <div class="shell"><p class="mt-10 text-charcoal/60">—</p></div>
+        <div class="shell">
+          <p class="mt-10 text-charcoal/60">—</p>
+        </div>
       ) : data.layout === 'grid' ? (
         <ul
           role="list"
-          class="mt-10 grid grid-cols-1 gap-4 px-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 sm:px-6 lg:px-8"
+          class="mt-10 grid grid-cols-1 gap-4 px-4 sm:grid-cols-2 sm:px-6 md:grid-cols-3 lg:grid-cols-4 lg:px-8 xl:grid-cols-5 2xl:grid-cols-6"
           data-pictures
         >
-          {
-            pictures.map((picture, index) => (
-              <PictureCard
-                picture={picture}
-                locale={locale}
-                cardId={`grid-${index}`}
-                class={GRID_CARD}
-                sizes={GRID_SIZES}
-                showDetailsButton={data.showDetailsButton}
-                enableHoverPreview={data.enableHoverPreview}
-                enableClickToReveal={data.enableClickToReveal}
-              />
-            ))
-          }
+          {pictures.map((picture, index) => (
+            <PictureCard
+              picture={picture}
+              locale={locale}
+              cardId={`grid-${index}`}
+              class={GRID_CARD}
+              sizes={GRID_SIZES}
+              showDetailsButton={data.showDetailsButton}
+              enableHoverPreview={data.enableHoverPreview}
+              enableClickToReveal={data.enableClickToReveal}
+            />
+          ))}
         </ul>
       ) : (
         <div class="relative mt-10 w-full" data-picture-rail-wrap>
-          <!--
-            Navigation buttons for rail scrolling - restored
-          -->
-          <button type="button" data-rail-scroll="-1" aria-label={t.prev} class="absolute top-1/2 left-2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-charcoal/20 bg-white/80 text-charcoal backdrop-blur-md transition-all duration-300 hover:scale-110 hover:bg-black hover:text-white sm:left-4 sm:h-12 sm:w-12 lg:left-6">
-            <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg>
+          <button
+            type="button"
+            data-rail-scroll="-1"
+            aria-label={t.prev}
+            class="absolute top-1/2 left-2 z-20 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-charcoal/20 bg-white/80 text-charcoal backdrop-blur-md transition-all duration-300 hover:scale-110 hover:bg-black hover:text-white sm:left-4 sm:flex sm:h-12 sm:w-12 lg:left-6"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              class="h-6 w-6"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              aria-hidden="true"
+            >
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
           </button>
-          <button type="button" data-rail-scroll="1" aria-label={t.next} class="absolute top-1/2 right-2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-charcoal/20 bg-white/80 text-charcoal backdrop-blur-md transition-all duration-300 hover:scale-110 hover:bg-black hover:text-white sm:right-4 sm:h-12 sm:w-12 lg:right-6">
-            <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6" /></svg>
+          <button
+            type="button"
+            data-rail-scroll="1"
+            aria-label={t.next}
+            class="absolute top-1/2 right-2 z-20 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-charcoal/20 bg-white/80 text-charcoal backdrop-blur-md transition-all duration-300 hover:scale-110 hover:bg-black hover:text-white sm:right-4 sm:flex sm:h-12 sm:w-12 lg:right-6"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              class="h-6 w-6"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              aria-hidden="true"
+            >
+              <path d="M9 18l6-6-6-6" />
+            </svg>
           </button>
 
           <ul
@@ -90,22 +126,20 @@ const RAIL_SIZES =
             data-rail
             tabindex="0"
             aria-label={t.railLabel}
-            class="no-scrollbar flex snap-x snap-mandatory justify-center gap-4 overflow-x-auto scroll-smooth px-4 pb-2 sm:justify-start sm:px-8"
+            class="no-scrollbar flex snap-x snap-mandatory justify-start gap-4 overflow-x-auto scroll-smooth px-8 pb-2"
           >
-            {
-              pictures.map((picture, index) => (
-                <PictureCard
-                  picture={picture}
-                  locale={locale}
-                  cardId={`rail-${index}`}
-                  class={RAIL_CARD}
-                  sizes={RAIL_SIZES}
-                  showDetailsButton={data.showDetailsButton}
-                  enableHoverPreview={data.enableHoverPreview}
-                  enableClickToReveal={data.enableClickToReveal}
-                />
-              ))
-            }
+            {pictures.map((picture, index) => (
+              <PictureCard
+                picture={picture}
+                locale={locale}
+                cardId={`rail-${index}`}
+                class={RAIL_CARD}
+                sizes={RAIL_SIZES}
+                showDetailsButton={data.showDetailsButton}
+                enableHoverPreview={data.enableHoverPreview}
+                enableClickToReveal={data.enableClickToReveal}
+              />
+            ))}
           </ul>
         </div>
       )
@@ -115,7 +149,9 @@ const RAIL_SIZES =
 
 <script>
   document.addEventListener('click', (event) => {
-    const toggle = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-picture-toggle]');
+    const toggle = (event.target as HTMLElement).closest<HTMLButtonElement>(
+      '[data-picture-toggle]',
+    );
     if (!toggle) return;
     const card = toggle.closest<HTMLElement>('[data-picture-card]');
     if (!card) return;
@@ -172,7 +208,8 @@ const RAIL_SIZES =
         ? (() => {
             const railRect = rail.getBoundingClientRect();
             const targetRect = target.getBoundingClientRect();
-            const targetCenter = targetRect.left - railRect.left + rail.scrollLeft + targetRect.width / 2;
+            const targetCenter =
+              targetRect.left - railRect.left + rail.scrollLeft + targetRect.width / 2;
             return targetCenter - rail.clientWidth / 2;
           })()
         : target.offsetLeft - rail.offsetLeft;

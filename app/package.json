@@ -16,7 +16,8 @@
     "test:e2e": "playwright test",
     "admin": "npx decap-server",
     "media:transcode": "node scripts/transcode-videos.mjs",
-    "media:check": "node scripts/transcode-videos.mjs -n"
+    "media:check": "node scripts/transcode-videos.mjs -n",
+    "media:posters": "node scripts/generate-posters.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.4.0",

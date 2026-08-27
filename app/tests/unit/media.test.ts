@@ -17,27 +17,30 @@ describe('normalizeMediaPath', () => {
 });
 
 describe('resolveVideo', () => {
-  it('resolves a seed video to a bundled URL', () => {
-    const url = resolveVideo('/media/videos/lemon-potatoes.mp4');
+  it('resolves a committed video to a bundled URL', () => {
+    const url = resolveVideo('/media/dunkin.mp4');
     expect(typeof url).toBe('string');
     expect(url.length).toBeGreaterThan(0);
   });
 
   it('resolves nested paths by suffix', () => {
-    const url = resolveVideo('media/videos/tsoureki.mp4');
-    expect(typeof url).toBe('string');
+    // No nested videos are committed anymore (media is flat for CMS
+    // visibility) — this documents that nested lookups resolve, not throw.
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    expect(resolveVideo('media/videos/retired-seed.mp4')).toBe('');
+    spy.mockRestore();
   });
 
   it('falls back to an empty src for missing media instead of throwing', () => {
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    expect(() => resolveVideo('/media/videos/does-not-exist.mp4')).not.toThrow();
-    expect(resolveVideo('/media/videos/does-not-exist.mp4')).toBe('');
+    expect(() => resolveVideo('/media/does-not-exist.mp4')).not.toThrow();
+    expect(resolveVideo('/media/does-not-exist.mp4')).toBe('');
     expect(spy).toHaveBeenCalledWith(expect.stringMatching(/not found/));
     spy.mockRestore();
   });
 
-  it('maps every committed seed video', () => {
-    expect(Object.keys(videoUrls).length).toBeGreaterThanOrEqual(6);
+  it('maps every committed video', () => {
+    expect(Object.keys(videoUrls).length).toBeGreaterThanOrEqual(3);
   });
 });
 

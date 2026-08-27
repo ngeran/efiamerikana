@@ -3,7 +3,7 @@ import { getImage } from 'astro:assets';
 import { translator } from '../../i18n/ui';
 import type { Locale } from '../../i18n/config';
 import type { VideoData } from '../../content.config';
-import { resolveImage, resolveVideo } from '../../utils/media';
+import { autoPosterFor, resolveImage, resolveVideo } from '../../utils/media';
 
 /**
  * Portrait short-form video card — the single source of truth for both the
@@ -46,9 +46,11 @@ const missing = src === '';
  * 760px = 2x the widest card (380px grid cell) for retina. SVG posters are
  * passed through untouched: rasterizing vector art only makes it heavier.
  *
- * If no poster is provided, the video will show a black background.
+ * A poster set in the CMS wins; otherwise we fall back to the generated
+ * first-frame still (autoPosterFor) so the card is never a black box while
+ * paused — critical on touch devices where nothing hovers to start playback.
  */
-const posterImage = video.poster ? resolveImage(video.poster) : null;
+const posterImage = video.poster ? resolveImage(video.poster) : autoPosterFor(video.video);
 const posterSrc = posterImage
   ? posterImage.format === 'svg'
     ? posterImage.src

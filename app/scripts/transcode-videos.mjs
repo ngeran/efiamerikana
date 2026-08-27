@@ -56,12 +56,34 @@ function collectVideos(dir) {
 
 const videos = collectVideos(MEDIA_ROOT);
 const offenders = [];
+const oversized = [];
+
+/**
+ * Cloudflare Pages rejects deployments containing any single asset over
+ * 25 MiB. We flag at 23 MiB to leave headroom — re-encode with a higher
+ * -crf to shrink, or move the file to R2 for anything that must stay huge.
+ */
+const OVERSIZE_LIMIT = 23 * 1024 * 1024;
 
 for (const file of videos) {
   const codecs = sniffCodecs(file);
   const bad = codecs.filter((cc) => BAD_CODECS.includes(cc));
   // av01/vp09 play in modern browsers; only HEVC needs a re-encode.
   if (bad.length > 0) offenders.push({ file, codecs });
+  if (statSync(file).size > OVERSIZE_LIMIT) oversized.push(file);
+}
+
+if (oversized.length > 0) {
+  console.log(
+    `[media:transcode] WARNING: ${oversized.length} file(s) over ${(OVERSIZE_LIMIT / 1048576).toFixed(0)}MB ` +
+      `(Cloudflare Pages deploy limit is 25 MiB per asset):`,
+  );
+  for (const file of oversized) {
+    const size = statSync(file).size;
+    console.log(
+      `  ${file.split('/').pop()} (${(size / 1048576).toFixed(1)}MB) — re-encode with -crf 27 to shrink`,
+    );
+  }
 }
 
 if (offenders.length === 0) {

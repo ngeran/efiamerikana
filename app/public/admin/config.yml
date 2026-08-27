@@ -23,7 +23,7 @@ backend:
   repo: ngeran/efiamerikana
   branch: main
 
-local_backend: true   # uncomment while running `npm run admin` locally
+local_backend: true # uncomment while running `npm run admin` locally
 
 site_url: https://efiamerikana.com
 display_url: https://efiamerikana.com
@@ -46,10 +46,15 @@ publish_mode: simple
 
 collections:
   # ── Videos (simplified, manual language selection) ───────────────────────────────
+  # media_folder MUST be set explicitly: folder collections without it browse
+  # and upload to their own entry folder (src/content/videos), which hides the
+  # shared library in the picker and is how uploads ended up stranded there.
   - name: videos
     label: Videos
     label_singular: Video
     folder: src/content/videos
+    media_folder: /src/assets/media
+    public_folder: /media
     path: '{{slug}}'
     create: true
     sortable_fields: [order, title]
@@ -80,12 +85,7 @@ collections:
         }
       - { label: Poster image, name: poster, widget: image, required: false }
       - { label: Poster alt text, name: posterAlt, widget: string, required: false }
-      - {
-          label: Transcript / captions,
-          name: transcript,
-          widget: text,
-          required: false,
-        }
+      - { label: Transcript / captions, name: transcript, widget: text, required: false }
       - {
           label: Tag,
           name: tag,
@@ -97,10 +97,13 @@ collections:
       - { label: Draft, name: draft, widget: boolean, default: false }
 
   # ── Pictures (simplified, manual language selection) ─────────────────────────────
+  # media_folder set explicitly for the same reason as Videos above.
   - name: pictures
     label: Pictures
     label_singular: Picture
     folder: src/content/pictures
+    media_folder: /src/assets/media
+    public_folder: /media
     path: '{{slug}}'
     create: true
     sortable_fields: [order, title]
@@ -143,6 +146,8 @@ collections:
   # ── Settings ────────────────────────────────────────────────────────────────
   - name: settings
     label: Settings
+    media_folder: /src/assets/media
+    public_folder: /media
     editor:
       preview: false
     files:
@@ -194,6 +199,8 @@ collections:
   # ── Hero ───────────────────────────────────────────────────────────────────
   - name: hero
     label: Hero Section
+    media_folder: /src/assets/media
+    public_folder: /media
     editor:
       preview: false
     files:
@@ -277,6 +284,8 @@ collections:
   # ── Video Section Settings ───────────────────────────────────────────────────
   - name: videoSection
     label: Video Section Settings
+    media_folder: /src/assets/media
+    public_folder: /media
     editor:
       preview: false
     files:
@@ -294,7 +303,12 @@ collections:
               default: grid,
               hint: 'grid = 3×2 responsive grid · scroll = horizontal rail',
             }
-          - { label: Show details toggle button, name: showDetailsButton, widget: boolean, default: true }
+          - {
+              label: Show details toggle button,
+              name: showDetailsButton,
+              widget: boolean,
+              default: true,
+            }
       - name: video-section-el
         label: 🎬 Ρυθμίσεις ενότητας Βίντεο (Ελληνικά)
         file: src/content/sections/video-section.el.json
@@ -306,6 +320,8 @@ collections:
   # ── Picture Section Settings ───────────────────────────────────────────────────
   - name: pictureSection
     label: Picture Section Settings
+    media_folder: /src/assets/media
+    public_folder: /media
     editor:
       preview: false
     files:
@@ -323,9 +339,24 @@ collections:
               default: grid,
               hint: 'grid = 3×2 responsive grid · scroll = horizontal rail',
             }
-          - { label: Show details toggle button, name: showDetailsButton, widget: boolean, default: false }
-          - { label: Enable hover preview, name: enableHoverPreview, widget: boolean, default: false }
-          - { label: Enable click-to-reveal metadata, name: enableClickToReveal, widget: boolean, default: false }
+          - {
+              label: Show details toggle button,
+              name: showDetailsButton,
+              widget: boolean,
+              default: false,
+            }
+          - {
+              label: Enable hover preview,
+              name: enableHoverPreview,
+              widget: boolean,
+              default: false,
+            }
+          - {
+              label: Enable click-to-reveal metadata,
+              name: enableClickToReveal,
+              widget: boolean,
+              default: false,
+            }
       - name: picture-section-el
         label: 🖼️ Ρυθμίσεις ενότητας Φωτογραφίες (Ελληνικά)
         file: src/content/sections/picture-section.el.json
@@ -333,13 +364,30 @@ collections:
           - { label: Τίτλος, name: heading, widget: string }
           - { label: Εισαγωγή, name: intro, widget: text, required: false }
           - { label: Διάταξη, name: layout, widget: select, options: [grid, scroll], default: grid }
-          - { label: Εμφάνηση κουμπι λεπτομερειών, name: showDetailsButton, widget: boolean, default: false }
-          - { label: Ενεργοποίηση προεπισκόπησης κατά την αιώρηση, name: enableHoverPreview, widget: boolean, default: false }
-          - { label: Ενεργοποίηση αποκάλυψε με κλικ, name: enableClickToReveal, widget: boolean, default: false }
+          - {
+              label: Εμφάνηση κουμπι λεπτομερειών,
+              name: showDetailsButton,
+              widget: boolean,
+              default: false,
+            }
+          - {
+              label: Ενεργοποίηση προεπισκόπησης κατά την αιώρηση,
+              name: enableHoverPreview,
+              widget: boolean,
+              default: false,
+            }
+          - {
+              label: Ενεργοποίηση αποκάλυψε με κλικ,
+              name: enableClickToReveal,
+              widget: boolean,
+              default: false,
+            }
 
   # ── About ───────────────────────────────────────────────────────────────────
   - name: about
     label: About Section
+    media_folder: /src/assets/media
+    public_folder: /media
     editor:
       preview: false
     files:
@@ -385,6 +433,8 @@ collections:
   # ── Analytics ────────────────────────────────────────────────────────────────
   - name: analytics
     label: Analytics Section
+    media_folder: /src/assets/media
+    public_folder: /media
     editor:
       preview: false
     files:
@@ -450,6 +500,8 @@ collections:
   # ── Contact ───────────────────────────────────────────────────────────────────
   - name: contact
     label: Contact Section
+    media_folder: /src/assets/media
+    public_folder: /media
     editor:
       preview: false
     files:
@@ -536,6 +588,8 @@ collections:
   # ── Footer ───────────────────────────────────────────────────────────────────
   - name: footer
     label: Footer Section
+    media_folder: /src/assets/media
+    public_folder: /media
     editor:
       preview: false
     files:
