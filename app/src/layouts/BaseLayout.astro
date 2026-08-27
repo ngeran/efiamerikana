@@ -93,6 +93,18 @@ const jsonLdScript = JSON.stringify({
     <!-- eslint-enable astro/no-set-html-directive -->
   </head>
   <body class="bg-charcoal text-charcoal antialiased">
+    <!--
+      Page preloader. The body background is charcoal, so a slow first paint
+      reads as a black screen. This overlay paints instantly (styles are
+      hoisted into <head>, zero assets), matches the hero's brand-yellow so
+      the fade-out lands on the same color underneath, and removes itself on
+      window load — with a 3s hard cap so a stalled asset can never trap the
+      visitor behind a spinner.
+    -->
+    <div id="page-loader" aria-hidden="true">
+      <span class="page-loader-ring"></span>
+    </div>
+
     <a
       href="#main"
       class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:rounded-full focus:bg-charcoal focus:px-5 focus:py-3 focus:font-label focus:text-sm focus:font-bold focus:tracking-widest focus:text-brand-yellow focus:uppercase"
@@ -114,5 +126,66 @@ const jsonLdScript = JSON.stringify({
     </main>
 
     {showFooter && <SiteFooter data={footer} locale={locale} />}
+
+    <script is:inline>
+      (function () {
+        const el = document.getElementById('page-loader');
+        if (!el) return;
+        let done = false;
+        const hide = function () {
+          if (done) return;
+          done = true;
+          el.classList.add('is-done');
+          window.setTimeout(function () {
+            el.remove();
+          }, 600);
+        };
+        if (document.readyState === 'complete') hide();
+        else window.addEventListener('load', hide);
+        // Hard cap: never let one slow request hold the page hostage.
+        window.setTimeout(hide, 3000);
+      })();
+    </script>
+
+    <style>
+      #page-loader {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: grid;
+        place-items: center;
+        background-color: var(--color-brand-yellow);
+        transition:
+          opacity 0.45s var(--ease-out-soft, ease-out),
+          visibility 0.45s;
+      }
+      #page-loader.is-done {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+      .page-loader-ring {
+        width: 34px;
+        height: 34px;
+        border-radius: 9999px;
+        border: 3px solid rgb(23 19 15 / 0.15);
+        border-top-color: var(--color-charcoal);
+        animation: page-loader-spin 0.8s linear infinite;
+      }
+      @keyframes page-loader-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      /* Reduced motion: the global stylesheet kills all animation site-wide
+         (0.01ms !important), so the ring simply renders as a static mark and
+         the fade becomes instant — no override needed, this just documents
+         the intent and keeps the overlay from lingering mid-fade. */
+      @media (prefers-reduced-motion: reduce) {
+        #page-loader {
+          transition-duration: 0.01s;
+        }
+      }
+    </style>
   </body>
 </html>
