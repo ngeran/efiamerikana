@@ -21,21 +21,30 @@ const mailto = emailMethod?.href ?? (emailMethod ? `mailto:${emailMethod.value}`
   <div class="shell flex max-w-3xl flex-col items-center gap-8 py-20 text-center sm:py-24 lg:py-28">
     {
       label && (
-        <p class="rounded-full bg-charcoal px-3 py-1 font-label text-xs font-semibold tracking-[0.18em] text-cream uppercase">
+        <p
+          class="reveal rounded-full bg-charcoal px-3 py-1 font-label text-xs font-semibold tracking-[0.18em] text-cream uppercase"
+        >
           {label}
         </p>
       )
     }
-    <h2 id="contact-heading" class="font-display text-contact leading-[1.05] italic">
+    <h2
+      id="contact-heading"
+      class="reveal font-display text-contact leading-[1.05] italic"
+      style="--reveal-delay: 0.06s"
+    >
       {data.heading}
     </h2>
-    <p class="max-w-xl text-lg leading-relaxed text-white">{data.intro}</p>
+    <p class="reveal max-w-xl text-lg leading-relaxed text-white" style="--reveal-delay: 0.12s">
+      {data.intro}
+    </p>
 
     {
       emailMethod && (
         <a
           href={mailto}
-          class="font-display text-xl leading-tight break-all underline decoration-brand-yellow decoration-2 underline-offset-8 transition-colors duration-200 hover:text-brand-yellow sm:text-3xl"
+          class="reveal font-display text-xl leading-tight break-all underline decoration-brand-yellow decoration-2 underline-offset-8 transition-colors duration-200 hover:text-brand-yellow sm:text-3xl"
+          style="--reveal-delay: 0.18s"
         >
           {emailMethod.value}
         </a>
@@ -44,7 +53,7 @@ const mailto = emailMethod?.href ?? (emailMethod ? `mailto:${emailMethod.value}`
 
     {
       data.methods.filter((m) => m.icon !== 'email').length > 0 && (
-        <div class="w-full space-y-3">
+        <div class="reveal w-full space-y-3" style="--reveal-delay: 0.24s">
           <h3 class="font-label text-xs font-bold tracking-[0.2em] text-white uppercase">
             {t.methodsTitle}
           </h3>
@@ -74,7 +83,7 @@ const mailto = emailMethod?.href ?? (emailMethod ? `mailto:${emailMethod.value}`
 
     {
       data.socials.length > 0 && (
-        <div class="w-full space-y-3">
+        <div class="reveal w-full space-y-3" style="--reveal-delay: 0.3s">
           <h3 class="font-label text-xs font-bold tracking-[0.2em] text-white uppercase">
             {t.socialsTitle}
           </h3>
@@ -99,7 +108,8 @@ const mailto = emailMethod?.href ?? (emailMethod ? `mailto:${emailMethod.value}`
 
     <a
       href={mailto}
-      class="mt-2 inline-flex items-center gap-2 rounded-full bg-brand-yellow px-7 py-3.5 font-ui text-sm font-bold tracking-wider text-charcoal uppercase transition-transform duration-200 hover:scale-[1.03]"
+      class="reveal mt-2 inline-flex items-center gap-2 rounded-full bg-brand-yellow px-7 py-3.5 font-ui text-sm font-bold tracking-wider text-charcoal uppercase transition-transform duration-200 hover:scale-[1.03]"
+      style="--reveal-delay: 0.36s"
     >
       {data.ctaLabel}
       <Icon name="arrow-right" class="h-4 w-4" />

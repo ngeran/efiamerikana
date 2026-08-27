@@ -35,11 +35,19 @@ const t = translator(locale).pictures;
  * box and end up off-center. From `sm` up, cards tile flush with
  * `justify-start` + `snap-start`.
  */
-const GRID_CARD = 'aspect-[4/5.5] w-full max-w-[450px] mx-auto';
+/*
+ * `reveal` rides along on these same layout strings so PictureCard's root
+ * (which merges the incoming `class` prop) picks up the scroll-driven
+ * entrance from global.css without PictureCard needing to know about it.
+ * The per-card stagger delay is applied separately, via nth-child on
+ * [data-pictures] in global.css, since it can't be threaded through a
+ * plain class string.
+ */
+const GRID_CARD = 'reveal aspect-[4/5.5] w-full max-w-[450px] mx-auto';
 const GRID_SIZES =
   '(min-width: 1280px) 20vw, (min-width: 1024px) 25vw, (min-width: 768px) 33vw, 100vw';
 const RAIL_CARD =
-  'aspect-[4/5.5] w-[calc(100vw-4rem)] snap-center sm:w-[calc((100%-1rem)/2)] sm:snap-start lg:w-[calc((100%-2rem)/3)] xl:w-[calc((100%-3rem)/4)] 2xl:w-[calc((100%-4rem)/5)] shrink-0';
+  'reveal aspect-[4/5.5] w-[calc(100vw-4rem)] snap-center sm:w-[calc((100%-1rem)/2)] sm:snap-start lg:w-[calc((100%-2rem)/3)] xl:w-[calc((100%-3rem)/4)] 2xl:w-[calc((100%-4rem)/5)] shrink-0';
 const RAIL_SIZES =
   '(min-width: 1536px) 20vw, (min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, calc(100vw - 4rem)';
 ---
@@ -50,7 +58,9 @@ const RAIL_SIZES =
   class="defer-paint w-full overflow-x-hidden bg-brand-pink text-charcoal"
 >
   <div class="shell pt-16 sm:pt-20 lg:pt-24">
-    <SectionHeading id="pictures-heading" label={label} heading={data.heading} intro={data.intro} />
+    <div class="reveal">
+      <SectionHeading id="pictures-heading" label={label} heading={data.heading} intro={data.intro} />
+    </div>
   </div>
 
   <div class="w-full pb-16 sm:pb-20 lg:pb-24">

@@ -36,7 +36,7 @@ const t = translator(locale).hero;
           height={480}
           widths={[384, 768, 1152]}
           sizes="(min-width: 1024px) 24rem, min(100vw - 2.5rem, 24rem)"
-          class="portrait-media rounded-[2.5rem] shadow-2xl"
+          class="portrait-media parallax-drift rounded-[2.5rem] shadow-2xl"
           loading="eager"
           fetchpriority="high"
         />
@@ -44,13 +44,14 @@ const t = translator(locale).hero;
 
       <!-- TEXT CONTENT -->
       <div class="flex flex-col items-center text-center lg:items-start lg:text-left lg:pr-32">
-        <p class="font-display text-xl tracking-tight sm:text-2xl">
+        <p class="reveal font-display text-xl tracking-tight sm:text-2xl">
           {data.eyebrow}
         </p>
 
         <h1
           id="hero-heading"
-          class="mt-1 font-display text-[length:var(--text-hero-name)] leading-[1.1] tracking-tight text-balance text-brand-pink"
+          class="reveal mt-1 font-display text-[length:var(--text-hero-name)] leading-[1.1] tracking-tight text-balance text-brand-pink"
+          style="--reveal-delay: 0.06s"
         >
           {data.heading}
         </h1>
@@ -59,7 +60,10 @@ const t = translator(locale).hero;
 
         {
           (data.headingAccent || data.tagline) && (
-            <div class="mt-6 space-y-1 font-ui text-base font-bold tracking-tight sm:text-lg">
+            <div
+              class="reveal mt-6 space-y-1 font-ui text-base font-bold tracking-tight sm:text-lg"
+              style="--reveal-delay: 0.12s"
+            >
               {data.headingAccent && <p>{data.headingAccent}</p>}
               {data.tagline && <p>{data.tagline}</p>}
             </div>
@@ -68,12 +72,17 @@ const t = translator(locale).hero;
 
         {
           data.supporting && (
-            <p class="mt-8 font-sans text-sm italic opacity-80 sm:text-base">{data.supporting}</p>
+            <p
+              class="reveal mt-8 font-sans text-sm italic opacity-80 sm:text-base"
+              style="--reveal-delay: 0.16s"
+            >
+              {data.supporting}
+            </p>
           )
         }
 
         <!-- Social Icons -->
-        <div class="mt-10 flex justify-center gap-4 lg:justify-start">
+        <div class="reveal mt-10 flex justify-center gap-4 lg:justify-start" style="--reveal-delay: 0.2s">
           {
             socials.map((social) => {
               let iconBg = 'bg-black';

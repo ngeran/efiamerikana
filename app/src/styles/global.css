@@ -168,8 +168,16 @@
      outside the capped shell. Only the amount by which it crosses the
      shell's edge needs reserving: rail-w minus the gutter. On a 4K screen
      that is ~105px, whereas reserving the full ~1385px rail would collapse
-     the 1280px shell's content box to zero. */
-  @media (min-width: 1536px) {
+     the 1280px shell's content box to zero.
+
+     FIX (1440p overlap bug): this used to gate on `min-width: 1536px` (the
+     `2xl` token), but `.hero-rail` itself appears at `lg:flex` — 1024px.
+     Between 1024px and 1535px (which covers the entire 1440p-class desktop
+     band: 1366, 1440, 1512, 1536-scaled) the rail was visible and painted
+     over the text with zero reserved space. The threshold now matches the
+     rail's own breakpoint so reservation turns on exactly when the rail
+     does, at every width from 1024px up. */
+  @media (min-width: 1024px) {
     .hero-content {
       padding-right: clamp(
         2.5rem,
@@ -210,5 +218,190 @@
       rgba(23, 19, 15, 0.55) 70%,
       rgba(23, 19, 15, 0.92) 100%
     );
+  }
+
+  /* ------------------------------------------------------------------- */
+  /* Motion: scroll-driven reveals                                       */
+  /*                                                                     */
+  /* Native CSS scroll-driven animations (`animation-timeline: view()`)  */
+  /* — no IntersectionObserver, no JS at all, nothing to hydrate or      */
+  /* debounce. The browser scrubs the animation directly against scroll  */
+  /* position, which is what makes the Orchid-style reveals feel glued   */
+  /* to the finger on a trackpad or a phone rather than "playing" a fixed*/
+  /* duration behind it.                                                 */
+  /*                                                                     */
+  /* Progressive enhancement, not a fallback shim: the base `.reveal`    */
+  /* rule is fully visible with no transform. The animated version only  */
+  /* applies inside `@supports (animation-timeline: view())`, so browsers*/
+  /* without support (older Firefox/Safari) simply render static,        */
+  /* already-visible content — never a stuck opacity:0 element.          */
+  /*                                                                     */
+  /* Usage: add `reveal` to an element. For a staggered group (grid or   */
+  /* list), also set `style="--reveal-delay: {n * 0.06}s"` per item from */
+  /* the loop index, capped (e.g. `(index % 6) * 0.06`) so a long list   */
+  /* doesn't leave the last card waiting a full second to appear.        */
+  /* ------------------------------------------------------------------- */
+  .reveal {
+    /* Safe default: visible, static. */
+  }
+
+  @supports (animation-timeline: view()) {
+    .reveal {
+      animation: reveal-in linear both;
+      animation-timeline: view();
+      /* Starts as the element's top enters the viewport, finishes a         */
+      /* quarter of the way through — quick enough to never feel laggy on   */
+      /* a fast flick-scroll, gentle enough to read as "arriving" on a slow */
+      /* one. */
+      animation-range: entry 0% cover 25%;
+      animation-delay: var(--reveal-delay, 0s);
+    }
+  }
+
+  @keyframes reveal-in {
+    from {
+      opacity: 0;
+      transform: translateY(1.75rem) scale(0.98);
+      filter: blur(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      filter: blur(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal {
+      animation: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+      filter: none !important;
+    }
+  }
+
+  /* Continuous parallax drift for hero-scale media — same scroll-driven
+     mechanism, but `cover` across the whole element's transit through the
+     viewport rather than a one-shot entry, so the portrait keeps a subtle
+     independent motion the entire time it's on screen (the cue that reads
+     as "fluid" on the Orchid reference rather than a single fade-in). */
+  @supports (animation-timeline: view()) {
+    .parallax-drift {
+      animation: parallax-drift-kf linear both;
+      animation-timeline: view();
+      animation-range: cover 0% cover 100%;
+    }
+  }
+
+  @keyframes parallax-drift-kf {
+    from {
+      transform: translateY(-1.5rem);
+    }
+    to {
+      transform: translateY(1.5rem);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .parallax-drift {
+      animation: none !important;
+      transform: none !important;
+    }
+  }
+
+  /* Velocity chart bars: grow up from the baseline as the chart scrolls
+     into view. `transform: scaleY()` on a bottom-anchored element, not an
+     animated `height`, so the browser composites it instead of laying out
+     every frame — cheap even with dozens of bars on screen at once. */
+  .bar-grow {
+    /* Safe default: full height, static (see `.reveal` above). */
+  }
+
+  @supports (animation-timeline: view()) {
+    .bar-grow {
+      animation: bar-grow-kf linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 35%;
+      animation-delay: var(--reveal-delay, 0s);
+    }
+  }
+
+  @keyframes bar-grow-kf {
+    from {
+      transform: scaleY(0);
+    }
+    to {
+      transform: scaleY(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bar-grow {
+      animation: none !important;
+      transform: none !important;
+    }
+  }
+
+  /* Grid/rail card wave: PictureCard and VideoCard render their own root
+     element, so the stagger is set here via nth-child on the shared
+     [data-pictures]/[data-videos] list rather than as a per-item inline
+     style — it reaches the card regardless of which component renders it,
+     as long as the layout `class` string below still carries `reveal`
+     (see GRID_CARD/RAIL_CARD in PicturesSection.astro and VideoSection.astro).
+     Six slots repeating is enough to read as a left-to-right wave without
+     ever leaving a card at the end of a long grid waiting a full second. */
+  [data-pictures] > *,
+  [data-videos] > * {
+    --reveal-delay: 0s;
+  }
+  [data-pictures] > *:nth-child(6n + 2),
+  [data-videos] > *:nth-child(6n + 2) {
+    --reveal-delay: 0.06s;
+  }
+  [data-pictures] > *:nth-child(6n + 3),
+  [data-videos] > *:nth-child(6n + 3) {
+    --reveal-delay: 0.12s;
+  }
+  [data-pictures] > *:nth-child(6n + 4),
+  [data-videos] > *:nth-child(6n + 4) {
+    --reveal-delay: 0.18s;
+  }
+  [data-pictures] > *:nth-child(6n + 5),
+  [data-videos] > *:nth-child(6n + 5) {
+    --reveal-delay: 0.24s;
+  }
+  [data-pictures] > *:nth-child(6n + 6),
+  [data-videos] > *:nth-child(6n + 6) {
+    --reveal-delay: 0.3s;
+  }
+
+  /* Sticky header: gains a hairline shadow and a touch more backdrop
+     opacity once the page has actually scrolled, so it reads as "lifted"
+     over content instead of looking pasted on from pixel zero. Driven by
+     `animation-timeline: scroll(root block)` — the document's own scroll
+     position, not the header's — so it needs no scroll listener. This is
+     a background/shadow interpolation, not a translate/motion effect, so
+     it isn't gated behind prefers-reduced-motion. */
+  #site-header {
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+  }
+
+  @supports (animation-timeline: scroll()) {
+    #site-header {
+      animation: header-lift-kf linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0px 240px;
+    }
+  }
+
+  @keyframes header-lift-kf {
+    from {
+      box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+      background-color: rgb(255 222 89 / 0.9);
+    }
+    to {
+      box-shadow: 0 8px 30px -12px rgba(0, 0, 0, 0.35);
+      background-color: rgb(255 222 89 / 0.98);
+    }
   }
 }

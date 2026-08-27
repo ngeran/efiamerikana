@@ -54,17 +54,22 @@ const velocity = data.velocity ?? [];
         )
       }
 
-      <h2 id="analytics-heading" class="mt-6 font-display text-section leading-[1.05] text-white">
+      <h2
+        id="analytics-heading"
+        class="reveal mt-6 font-display text-section leading-[1.05] text-white"
+      >
         {data.heading}
       </h2>
 
       <!--
         The display figure. Not a heading: it is a value, and making it one gave
         the section the accessible name "5.8M Views" instead of its real title.
+        Values stay plain server-rendered text — no JS count-up — per the note
+        above; only the entrance (opacity/transform) is animated.
       -->
       <p
-        class="mt-8 flex flex-col items-baseline justify-center gap-2 font-display leading-[0.85] font-extrabold tracking-tight text-white sm:flex-row sm:gap-6"
-        style="font-size: clamp(3.5rem, 2rem + 10vw, 12rem);"
+        class="reveal mt-8 flex flex-col items-baseline justify-center gap-2 font-display leading-[0.85] font-extrabold tracking-tight text-white sm:flex-row sm:gap-6"
+        style="font-size: clamp(3.5rem, 2rem + 10vw, 12rem); --reveal-delay: 0.08s"
       >
         {headline.value}
         <span
@@ -92,8 +97,11 @@ const velocity = data.velocity ?? [];
     <!-- Bordered stat grid -->
     <div class="relative mt-16 grid grid-cols-1 border-t border-l border-white/10 sm:grid-cols-3">
       {
-        restMetrics.map((metric) => (
-          <div class="group relative flex flex-col items-center border-r border-b border-white/10 p-8 text-center sm:items-start sm:text-left">
+        restMetrics.map((metric, index) => (
+          <div
+            class="reveal group relative flex flex-col items-center border-r border-b border-white/10 p-8 text-center sm:items-start sm:text-left"
+            style={`--reveal-delay: ${(index % 3) * 0.08}s`}
+          >
             <div class="pointer-events-none absolute top-0 right-0 h-32 w-32 bg-brand-yellow/0 transition-colors duration-500 group-hover:bg-brand-yellow/5" />
             {metric.icon && (
               <Icon
@@ -116,7 +124,10 @@ const velocity = data.velocity ?? [];
 
       {
         ratios.length > 0 && (
-          <div class="flex flex-col items-center border-r border-b border-white/10 p-8 text-center sm:col-span-1 sm:items-start sm:text-left">
+          <div
+            class="reveal flex flex-col items-center border-r border-b border-white/10 p-8 text-center sm:col-span-1 sm:items-start sm:text-left"
+            style="--reveal-delay: 0.16s"
+          >
             <h3 class="mb-8 font-label text-xs font-bold tracking-[0.2em] text-white/50 uppercase">
               {t.ratiosTitle}
             </h3>
@@ -142,16 +153,19 @@ const velocity = data.velocity ?? [];
 
       {
         velocity.length > 0 && (
-          <div class="group relative flex h-64 flex-col items-center justify-end overflow-hidden border-r border-b border-white/10 p-8 text-center sm:col-span-3 sm:items-start sm:text-left">
+          <div
+            class="reveal group relative flex h-64 flex-col items-center justify-end overflow-hidden border-r border-b border-white/10 p-8 text-center sm:col-span-3 sm:items-start sm:text-left"
+            style="--reveal-delay: 0.22s"
+          >
             <div class="pointer-events-none absolute top-8 left-8 font-label text-xs font-bold tracking-[0.2em] text-white/50 uppercase">
               {t.velocityTitle}
             </div>
             <div class="relative z-10 flex h-32 w-full items-end gap-[3px] opacity-90" aria-hidden="true">
-              {velocity.map((v) => (
+              {velocity.map((v, index) => (
                 <div
-                  class="w-full bg-white/10 transition-colors group-hover:bg-white/20"
+                  class="bar-grow w-full origin-bottom bg-white/10 transition-colors group-hover:bg-white/20"
                   class:list={[v > 70 && 'bg-brand-yellow shadow-[0_0_15px_rgba(255,222,89,0.6)] group-hover:bg-brand-yellow']}
-                  style={`height: ${Math.max(v, 4)}%`}
+                  style={`height: ${Math.max(v, 4)}%; --reveal-delay: ${0.24 + (index % 24) * 0.012}s`}
                 />
               ))}
             </div>
