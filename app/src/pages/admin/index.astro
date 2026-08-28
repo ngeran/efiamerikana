@@ -21,10 +21,259 @@
       type="image/svg+xml"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23ffde59'/%3E%3Ccircle cx='32' cy='32' r='16' fill='%2317130f'/%3E%3Ccircle cx='32' cy='32' r='7.5' fill='%23ff1fa9'/%3E%3C/svg%3E"
     />
+    <style is:inline>
+      /* =========================================================================
+         Admin theme — efiamerikana brand refresh.
+         Decap renders into #nc-root with emotion-hashed classes; the semantic
+         fragments in those class names (ListCard, AppHeaderButton, …) are
+         stable across 3.x, so we target those fragments. Palette mirrors the
+         site: cream canvas, charcoal ink, brand yellow/pink accents.
+
+         !important throughout: Decap injects its emotion styles at runtime,
+         after this static sheet — equal-specificity rules would lose.
+         ========================================================================= */
+      html,
+      body {
+        background: #f7f2e7 !important;
+      }
+
+      #nc-root {
+        background: #f7f2e7;
+        font-family:
+          system-ui,
+          -apple-system,
+          'Segoe UI',
+          Roboto,
+          'Helvetica Neue',
+          Arial,
+          sans-serif;
+        color: #17130f;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* Collection cards: rounded, soft shadow, hover lift. */
+      #nc-root [class*='ListCard'] {
+        border-radius: 14px !important;
+        overflow: hidden;
+        box-shadow:
+          0 1px 2px rgb(23 19 15 / 0.08),
+          0 6px 16px -8px rgb(23 19 15 / 0.14);
+        transition:
+          transform 0.18s ease,
+          box-shadow 0.18s ease;
+      }
+      #nc-root [class*='ListCard']:hover {
+        transform: translateY(-2px);
+        box-shadow:
+          0 2px 4px rgb(23 19 15 / 0.1),
+          0 14px 28px -10px rgb(23 19 15 / 0.22);
+      }
+
+      /* Headings: tighter, heavier, charcoal. */
+      #nc-root [class*='CollectionTopHeading'] {
+        letter-spacing: -0.02em;
+      }
+
+      /* Header buttons (Contents / Media): pill hover in brand yellow. */
+      #nc-root [class*='AppHeaderButton'] {
+        border-radius: 10px;
+        transition: background-color 0.15s ease;
+      }
+      #nc-root [class*='AppHeaderButton']:hover {
+        background-color: #ffde59 !important;
+      }
+
+      /* Primary action buttons get the brand treatment. */
+      #nc-root [class*='ViewControlsButton'],
+      #nc-root [class*='CollectionTop'] button {
+        border-radius: 10px;
+      }
+
+      /* Form controls: rounder corners throughout the editor. */
+      #nc-root input,
+      #nc-root textarea,
+      #nc-root select {
+        border-radius: 10px !important;
+      }
+
+      /* Focus states: brand-yellow ring instead of the default blue. */
+      #nc-root input:focus,
+      #nc-root textarea:focus,
+      #nc-root select:focus,
+      #nc-root button:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px #ffde5988 !important;
+        border-color: #ffde59 !important;
+      }
+
+      /* The active collection link in the sidebar. */
+      #nc-root [class*='header-link-active'] {
+        background-color: #17130f !important;
+        color: #ffde59 !important;
+      }
+
+      /* Scrollbars: slim and unobtrusive. */
+      #nc-root ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+      }
+      #nc-root ::-webkit-scrollbar-thumb {
+        background: rgb(23 19 15 / 0.18);
+        border-radius: 8px;
+        border: 2px solid #f7f2e7;
+      }
+    </style>
   </head>
   <body>
     <!-- Decap CMS is loaded from the unpkg CDN (standard setup; the admin
          bundle is not part of the site build). -->
     <script is:inline src="https://unpkg.com/decap-cms@^3.6.0/dist/decap-cms.js"></script>
+
+    <script is:inline>
+      // ------------------------------------------------------------------
+      // Live editor previews for the two content collections. Decap exposes
+      // React on window.CMS.React; we use createElement (no build step).
+      // Previews mock the real cards closely enough to judge content: the
+      // 9:16 video frame and the 4:5.5 picture frame, brand gradient
+      // overlay, chip and copy placement. Image previews resolve through
+      // the dev-only /media alias (see astro.config.mjs).
+      // ------------------------------------------------------------------
+      (function () {
+        const CMS = window.CMS;
+        const h = CMS.React.createElement;
+
+        const CARD_FRAME = {
+          position: 'relative',
+          width: 260,
+          borderRadius: 18,
+          overflow: 'hidden',
+          boxShadow: '0 14px 30px -12px rgba(23,19,15,.45)',
+          margin: '24px auto',
+        };
+        const OVERLAY = {
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          bottom: 0,
+          padding: '18px',
+          background: 'linear-gradient(180deg, rgba(23,19,15,0) 30%, rgba(23,19,15,.92) 100%)',
+          color: '#fff',
+        };
+        const HINT = { textAlign: 'center', color: 'rgba(23,19,15,.55)', fontSize: 13 };
+
+        function field(entry, name) {
+          const v = entry.getIn(['data', name]);
+          return v == null ? '' : v;
+        }
+
+        CMS.registerPreviewTemplate('videos', function (props) {
+          const e = props.entry;
+          return h('div', null, [
+            h(
+              'div',
+              {
+                key: 'card',
+                style: Object.assign({}, CARD_FRAME, {
+                  aspectRatio: '9 / 16',
+                  background: '#17130f',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }),
+              },
+              [
+                h(
+                  'div',
+                  { key: 'play', style: { color: '#ffde59', fontSize: 44, lineHeight: 1 } },
+                  '▶',
+                ),
+                h(
+                  'div',
+                  { key: 'meta', style: OVERLAY },
+                  [
+                    field(e, 'tag')
+                      ? h(
+                          'span',
+                          {
+                            key: 'tag',
+                            style: {
+                              display: 'inline-block',
+                              background: 'rgba(23,19,15,.6)',
+                              color: '#fff',
+                              borderRadius: 999,
+                              padding: '3px 10px',
+                              fontSize: 10,
+                              textTransform: 'uppercase',
+                              letterSpacing: '.15em',
+                              marginBottom: 8,
+                            },
+                          },
+                          String(field(e, 'tag')),
+                        )
+                      : null,
+                    h('div', { key: 't', style: { fontWeight: 700 } }, String(field(e, 'title'))),
+                    h(
+                      'div',
+                      { key: 'd', style: { fontSize: 12, opacity: 0.7, marginTop: 4 } },
+                      String(field(e, 'description')),
+                    ),
+                  ].filter(Boolean),
+                ),
+              ],
+            ),
+            h('div', { key: 'hint', style: HINT }, '↑ how this card appears on the site'),
+          ]);
+        });
+
+        CMS.registerPreviewTemplate('pictures', function (props) {
+          const e = props.entry;
+          const img = String(field(e, 'image') || '');
+          return h('div', null, [
+            h(
+              'div',
+              {
+                key: 'card',
+                style: Object.assign({}, CARD_FRAME, {
+                  aspectRatio: '4 / 5.5',
+                  background: '#eee',
+                }),
+              },
+              [
+                img
+                  ? h('img', {
+                      key: 'img',
+                      src: img,
+                      alt: String(field(e, 'imageAlt') || field(e, 'title') || ''),
+                      style: {
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        display: 'block',
+                      },
+                    })
+                  : h(
+                      'div',
+                      { key: 'ph', style: { padding: 24, color: '#999', textAlign: 'center' } },
+                      'Choose an image to see the preview',
+                    ),
+                h(
+                  'div',
+                  { key: 'meta', style: OVERLAY },
+                  [
+                    h('div', { key: 't', style: { fontWeight: 700 } }, String(field(e, 'title'))),
+                    h(
+                      'div',
+                      { key: 'd', style: { fontSize: 12, opacity: 0.7, marginTop: 4 } },
+                      String(field(e, 'description')),
+                    ),
+                  ].filter(Boolean),
+                ),
+              ],
+            ),
+            h('div', { key: 'hint', style: HINT }, '↑ how this card appears on the site'),
+          ]);
+        });
+      })();
+    </script>
   </body>
 </html>

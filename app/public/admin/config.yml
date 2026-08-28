@@ -2,20 +2,19 @@
 # Decap CMS configuration — efiamerikana
 # =============================================================================
 # Backend: GitHub. Production editorial access additionally needs an OAuth
-# gateway in front of GitHub (see README "CMS authentication"):
-#   - Netlify Identity + git-gateway, or
-#   - a small OAuth app (github.com/settings/developers + an oauth bridge).
-# Local development: `npm run admin` (decap-server) + uncomment local_backend.
+# gateway in front of GitHub (see README "CMS authentication").
+# Local development: `npm run admin` (decap-server) + local_backend.
 #
-# Media lives in src/assets/media (NOT public/) so Astro's asset pipeline
-# optimizes images and content-hashes videos. The editor-facing URL prefix
-# is /media.
+# IA notes (keep the sidebar tiny — 3 entries + Media):
+#   - Videos / Pictures: folder collections, one entry per item.
+#   - Page Sections: ONE files-collection holding every editable section of
+#     the landing page, in page order. Greek (el) files are intentionally
+#     absent — the site currently publishes English only; re-add *-el.json
+#     files here when Greek goes live.
 #
-# Bilingual content strategy:
-#   - Repeated content (Videos, Pictures) uses Decap i18n with
-#     multiple_folders → src/content/<collection>/<locale>/<slug>.md, edited
-#     through the locale switcher in the editor UI.
-#   - Singleton sections are separate collections matching Astro's setup
+# media_folder MUST be set on every collection: folder collections without
+# it browse/upload to their own entry folder, hiding the shared library in
+# the picker (that is how uploads once ended up stranded in src/content/).
 # =============================================================================
 
 backend:
@@ -23,14 +22,12 @@ backend:
   repo: ngeran/efiamerikana
   branch: main
 
-local_backend: true # uncomment while running `npm run admin` locally
+local_backend: true # requires `npm run admin` while developing locally
 
 site_url: https://efiamerikana.com
 display_url: https://efiamerikana.com
-logo_url: https://efiamerikana.com/favicon.svg
+logo_url: /favicon.svg
 
-# Media library configuration
-# For GitHub backend, simplified configuration
 media_folder: src/assets/media
 public_folder: /media
 
@@ -38,19 +35,10 @@ locale: en
 
 publish_mode: simple
 
-# Removed global i18n - using manual language selection per entry
-# i18n:
-#   structure: multiple_folders
-#   locales: [en, el]
-#   default_locale: en
-
 collections:
-  # ── Videos (simplified, manual language selection) ───────────────────────────────
-  # media_folder MUST be set explicitly: folder collections without it browse
-  # and upload to their own entry folder (src/content/videos), which hides the
-  # shared library in the picker and is how uploads ended up stranded there.
+  # ── Content ──────────────────────────────────────────────────────────────
   - name: videos
-    label: Videos
+    label: 🎬 Videos
     label_singular: Video
     folder: src/content/videos
     media_folder: /src/assets/media
@@ -60,15 +48,36 @@ collections:
     sortable_fields: [order, title]
     summary: '{{title}} · {{language}}'
     editor:
-      preview: false
+      preview: true
     view_filters:
       - label: Drafts
         field: draft
         pattern: true
     fields:
-      - { label: Language, name: language, widget: select, options: [en, el], default: 'en' }
-      - { label: Title, name: title, widget: string, required: false }
+      - {
+          label: Video file,
+          name: video,
+          widget: file,
+          required: true,
+          hint: 'MP4 (H.264) portrait — the only required field',
+          choose_url: false,
+        }
+      - {
+          label: Title,
+          name: title,
+          widget: string,
+          required: false,
+          hint: Shows on the card when expanded,
+        }
       - { label: Description, name: description, widget: text, required: false }
+      - {
+          label: Language,
+          name: language,
+          widget: select,
+          options: [en, el],
+          default: 'en',
+          hint: 'The site currently publishes English only',
+        }
       - {
           label: Order,
           name: order,
@@ -77,29 +86,16 @@ collections:
           hint: Lower numbers appear first,
         }
       - {
-          label: Video file,
-          name: video,
-          widget: file,
-          hint: 'Portrait (9:16) MP4/WebM',
-          choose_url: false,
-        }
-      - { label: Poster image, name: poster, widget: image, required: false }
-      - { label: Poster alt text, name: posterAlt, widget: string, required: false }
-      - { label: Transcript / captions, name: transcript, widget: text, required: false }
-      - {
           label: Tag,
           name: tag,
           widget: string,
           required: false,
-          hint: Platform or category chip (e.g. TikTok,
-          Dessert),
+          hint: 'Optional chip (e.g. TikTok)',
         }
-      - { label: Draft, name: draft, widget: boolean, default: false }
+      - { label: 'Draft — hidden from the live site', name: draft, widget: boolean, default: false }
 
-  # ── Pictures (simplified, manual language selection) ─────────────────────────────
-  # media_folder set explicitly for the same reason as Videos above.
   - name: pictures
-    label: Pictures
+    label: 🖼️ Pictures
     label_singular: Picture
     folder: src/content/pictures
     media_folder: /src/assets/media
@@ -109,15 +105,43 @@ collections:
     sortable_fields: [order, title]
     summary: '{{title}} · {{language}}'
     editor:
-      preview: false
+      preview: true
     view_filters:
       - label: Drafts
         field: draft
         pattern: true
     fields:
-      - { label: Language, name: language, widget: select, options: [en, el], default: 'en' }
-      - { label: Title, name: title, widget: string, required: false }
+      - {
+          label: Image,
+          name: image,
+          widget: image,
+          required: true,
+          hint: 'The only required field',
+          choose_url: false,
+        }
+      - {
+          label: Title,
+          name: title,
+          widget: string,
+          required: false,
+          hint: Shows on the card when expanded,
+        }
+      - {
+          label: Alt text,
+          name: imageAlt,
+          widget: string,
+          required: false,
+          hint: 'Short description for screen readers — falls back to the title',
+        }
       - { label: Description, name: description, widget: text, required: false }
+      - {
+          label: Language,
+          name: language,
+          widget: select,
+          options: [en, el],
+          default: 'en',
+          hint: 'The site currently publishes English only',
+        }
       - {
           label: Order,
           name: order,
@@ -125,34 +149,209 @@ collections:
           default: 100,
           hint: Lower numbers appear first,
         }
-      - {
-          label: Image,
-          name: image,
-          widget: image,
-          choose_url: false,
-          hint: Upload or select from media library,
-        }
-      - { label: Alt text, name: imageAlt, widget: string, required: false }
-      - {
-          label: Tag,
-          name: tag,
-          widget: string,
-          required: false,
-          hint: Category chip (e.g. Lifestyle,
-          Editorial),
-        }
-      - { label: Draft, name: draft, widget: boolean, default: false }
+      - { label: 'Draft — hidden from the live site', name: draft, widget: boolean, default: false }
 
-  # ── Settings ────────────────────────────────────────────────────────────────
-  - name: settings
-    label: Settings
-    media_folder: /src/assets/media
-    public_folder: /media
+  # ── The landing page itself, in page order ───────────────────────────────
+  - name: pagesections
+    label: ✏️ Page Sections
+    label_singular: Section
     editor:
       preview: false
     files:
-      - name: settings-en
-        label: ⚙️ Site settings & section order (English)
+      - name: hero
+        label: 🟡 Hero — top banner
+        file: src/content/sections/hero.en.json
+        fields:
+          - { label: Small label above the heading, name: eyebrow, widget: string, required: false }
+          - { label: Heading, name: heading, widget: string }
+          - {
+              label: 'Heading accent (italic second line)',
+              name: headingAccent,
+              widget: string,
+              required: false,
+            }
+          - { label: Supporting text, name: supporting, widget: text }
+          - { label: Hero image, name: image, widget: image }
+          - { label: Image alt text, name: imageAlt, widget: string }
+          - {
+              label: Layout,
+              name: variant,
+              widget: select,
+              options: [split, center],
+              default: split,
+              hint: split = image beside text · center = stacked,
+            }
+          - label: Primary button
+            name: primaryCta
+            widget: object
+            fields:
+              - { label: Label, name: label, widget: string }
+              - { label: Link, name: href, widget: string, hint: '#videos / #contact or a URL' }
+          - label: Secondary button
+            name: secondaryCta
+            widget: object
+            required: false
+            fields:
+              - { label: Label, name: label, widget: string }
+              - { label: Link, name: href, widget: string }
+
+      - name: video-section
+        label: 🎬 Videos — section settings
+        file: src/content/sections/video-section.en.json
+        fields:
+          - { label: Heading, name: heading, widget: string }
+          - { label: Intro, name: intro, widget: text, required: false }
+          - {
+              label: Layout,
+              name: layout,
+              widget: select,
+              options: [grid, scroll],
+              default: grid,
+              hint: grid = responsive grid · scroll = swipeable rail,
+            }
+          - {
+              label: Show details (+) button on cards,
+              name: showDetailsButton,
+              widget: boolean,
+              default: true,
+            }
+
+      - name: picture-section
+        label: 🖼️ Pictures — section settings
+        file: src/content/sections/picture-section.en.json
+        fields:
+          - { label: Heading, name: heading, widget: string }
+          - { label: Intro, name: intro, widget: text, required: false }
+          - {
+              label: Layout,
+              name: layout,
+              widget: select,
+              options: [grid, scroll],
+              default: grid,
+              hint: grid = responsive grid · scroll = swipeable rail,
+            }
+          - {
+              label: Show details (+) button on cards,
+              name: showDetailsButton,
+              widget: boolean,
+              default: false,
+            }
+          - {
+              label: Show metadata on hover,
+              name: enableHoverPreview,
+              widget: boolean,
+              default: false,
+            }
+          - {
+              label: Show metadata on click,
+              name: enableClickToReveal,
+              widget: boolean,
+              default: false,
+            }
+
+      - name: about
+        label: 📖 About — my story
+        file: src/content/sections/about.en.json
+        fields:
+          - { label: Heading, name: heading, widget: string }
+          - label: Paragraphs
+            name: paragraphs
+            widget: list
+            field: { label: Paragraph, name: paragraph, widget: text }
+          - { label: Pull quote, name: pullQuote, widget: string, required: false }
+          - { label: Featured image, name: image, widget: image }
+          - { label: Image alt text, name: imageAlt, widget: string }
+          - label: Button
+            name: cta
+            widget: object
+            required: false
+            fields:
+              - { label: Label, name: label, widget: string }
+              - { label: Link, name: href, widget: string }
+
+      - name: analytics
+        label: 📊 Analytics — stats
+        file: src/content/sections/analytics.en.json
+        fields:
+          - { label: Heading, name: heading, widget: string }
+          - { label: Intro, name: intro, widget: text, required: false }
+          - {
+              label: Footnote,
+              name: footnote,
+              widget: text,
+              required: false,
+              hint: Disclaimer under the metrics,
+            }
+          - label: Metrics
+            name: metrics
+            label_singular: Metric
+            widget: list
+            fields:
+              - { label: Value, name: value, widget: string, hint: 'e.g. 1.2M, 14%' }
+              - { label: Label, name: label, widget: string }
+              - { label: Description, name: description, widget: text, required: false }
+              - {
+                  label: Icon,
+                  name: icon,
+                  widget: select,
+                  required: false,
+                  options: [heart, users, star, globe, play, chart, sparkle],
+                  default: sparkle,
+                }
+
+      - name: contact
+        label: ✉️ Contact
+        file: src/content/sections/contact.en.json
+        fields:
+          - { label: Heading, name: heading, widget: string }
+          - { label: Intro, name: intro, widget: text }
+          - { label: Button label, name: ctaLabel, widget: string }
+          - label: Contact methods
+            name: methods
+            label_singular: Method
+            widget: list
+            hint: The first email method feeds the header email icon.
+            fields:
+              - {
+                  label: Icon,
+                  name: icon,
+                  widget: select,
+                  options: [email, phone, location, link],
+                  default: email,
+                }
+              - { label: Label, name: label, widget: string }
+              - { label: Value, name: value, widget: string }
+              - {
+                  label: Link,
+                  name: href,
+                  widget: string,
+                  required: false,
+                  hint: 'mailto:/tel:/URL',
+                }
+          - label: Social links
+            name: socials
+            label_singular: Social
+            widget: list
+            fields:
+              - {
+                  label: Icon,
+                  name: icon,
+                  widget: select,
+                  options: [tiktok, instagram, facebook, youtube, x],
+                  default: instagram,
+                }
+              - { label: Label, name: label, widget: string }
+              - { label: URL, name: href, widget: string }
+
+      - name: footer
+        label: 🦶 Footer
+        file: src/content/sections/footer.en.json
+        fields:
+          - { label: '"How to use" link label', name: howToUseLabel, widget: string }
+          - { label: Note, name: note, widget: string, required: false }
+
+      - name: settings
+        label: ⚙️ Site settings & section order
         file: src/content/sections/settings.en.json
         fields:
           - { label: Site title, name: siteTitle, widget: string }
@@ -176,436 +375,3 @@ collections:
                 }
               - { label: Enabled, name: enabled, widget: boolean, default: true }
               - { label: Nav label, name: navLabel, widget: string }
-      - name: settings-el
-        label: ⚙️ Ρυθμίσεις ιστοσελίδας & σειρά ενοτήτων (Ελληνικά)
-        file: src/content/sections/settings.el.json
-        fields:
-          - { label: Τίτλος ιστοσελίδας, name: siteTitle, widget: string }
-          - { label: Περιγραφή ιστοσελίδας, name: siteDescription, widget: text }
-          - label: Ενότητες
-            name: sections
-            label_singular: Ενότητα
-            widget: list
-            fields:
-              - {
-                  label: Ενότητα,
-                  name: id,
-                  widget: select,
-                  options: [hero, videos, pictures, about, analytics, contact, footer],
-                }
-              - { label: Ενεργή, name: enabled, widget: boolean, default: true }
-              - { label: Ετικέτα πλοήγησης, name: navLabel, widget: string }
-
-  # ── Hero ───────────────────────────────────────────────────────────────────
-  - name: hero
-    label: Hero Section
-    media_folder: /src/assets/media
-    public_folder: /media
-    editor:
-      preview: false
-    files:
-      - name: hero-en
-        label: 🟡 Hero (English)
-        file: src/content/sections/hero.en.json
-        fields:
-          - { label: Eyebrow (optional), name: eyebrow, widget: string, required: false }
-          - { label: Heading, name: heading, widget: string }
-          - {
-              label: 'Heading accent (italic second line)',
-              name: headingAccent,
-              widget: string,
-              required: false,
-            }
-          - { label: Supporting text, name: supporting, widget: text }
-          - { label: Hero image, name: image, widget: image }
-          - { label: Image alt text, name: imageAlt, widget: string }
-          - {
-              label: Layout variant,
-              name: variant,
-              widget: select,
-              options: [split, center],
-              default: split,
-            }
-          - label: Primary call to action
-            name: primaryCta
-            widget: object
-            fields:
-              - { label: Label, name: label, widget: string }
-              - { label: Link, name: href, widget: string, hint: "'#videos' / '#contact' or a URL" }
-          - label: Secondary call to action
-            name: secondaryCta
-            widget: object
-            required: false
-            fields:
-              - { label: Label, name: label, widget: string }
-              - { label: Link, name: href, widget: string }
-      - name: hero-el
-        label: 🟡 Πρωτότυπη ενότητα (Ελληνικά)
-        file: src/content/sections/hero.el.json
-        fields:
-          - {
-              label: Μικρό κείμενο (eyebrow,
-              προαιρετικό),
-              name: eyebrow,
-              widget: string,
-              required: false,
-            }
-          - { label: Τίτλος, name: heading, widget: string }
-          - {
-              label: 'Δεύτερη γραμμή τίτλου (πλάγια)',
-              name: headingAccent,
-              widget: string,
-              required: false,
-            }
-          - { label: Κείμενο υποστήριξης, name: supporting, widget: text }
-          - { label: Εικόνα, name: image, widget: image }
-          - { label: Κείμενο εναλλακτικού (alt), name: imageAlt, widget: string }
-          - {
-              label: Διάταξη,
-              name: variant,
-              widget: select,
-              options: [split, center],
-              default: split,
-            }
-          - label: Κύριο κουμπί (CTA)
-            name: primaryCta
-            widget: object
-            fields:
-              - { label: Ετικέτα, name: label, widget: string }
-              - { label: Σύνδεσμος, name: href, widget: string }
-          - label: Δευτερεύον κουμπί (CTA)
-            name: secondaryCta
-            widget: object
-            required: false
-            fields:
-              - { label: Ετικέτα, name: label, widget: string }
-              - { label: Σύνδεσμος, name: href, widget: string }
-
-  # ── Video Section Settings ───────────────────────────────────────────────────
-  - name: videoSection
-    label: Video Section Settings
-    media_folder: /src/assets/media
-    public_folder: /media
-    editor:
-      preview: false
-    files:
-      - name: video-section-en
-        label: 🎬 Video section settings (English)
-        file: src/content/sections/video-section.en.json
-        fields:
-          - { label: Heading, name: heading, widget: string }
-          - { label: Intro, name: intro, widget: text, required: false }
-          - {
-              label: Layout,
-              name: layout,
-              widget: select,
-              options: [grid, scroll],
-              default: grid,
-              hint: 'grid = 3×2 responsive grid · scroll = horizontal rail',
-            }
-          - {
-              label: Show details toggle button,
-              name: showDetailsButton,
-              widget: boolean,
-              default: true,
-            }
-      - name: video-section-el
-        label: 🎬 Ρυθμίσεις ενότητας Βίντεο (Ελληνικά)
-        file: src/content/sections/video-section.el.json
-        fields:
-          - { label: Τίτλος, name: heading, widget: string }
-          - { label: Εισαγωγή, name: intro, widget: text, required: false }
-          - { label: Διάταξη, name: layout, widget: select, options: [grid, scroll], default: grid }
-
-  # ── Picture Section Settings ───────────────────────────────────────────────────
-  - name: pictureSection
-    label: Picture Section Settings
-    media_folder: /src/assets/media
-    public_folder: /media
-    editor:
-      preview: false
-    files:
-      - name: picture-section-en
-        label: 🖼️ Picture section settings (English)
-        file: src/content/sections/picture-section.en.json
-        fields:
-          - { label: Heading, name: heading, widget: string }
-          - { label: Intro, name: intro, widget: text, required: false }
-          - {
-              label: Layout,
-              name: layout,
-              widget: select,
-              options: [grid, scroll],
-              default: grid,
-              hint: 'grid = 3×2 responsive grid · scroll = horizontal rail',
-            }
-          - {
-              label: Show details toggle button,
-              name: showDetailsButton,
-              widget: boolean,
-              default: false,
-            }
-          - {
-              label: Enable hover preview,
-              name: enableHoverPreview,
-              widget: boolean,
-              default: false,
-            }
-          - {
-              label: Enable click-to-reveal metadata,
-              name: enableClickToReveal,
-              widget: boolean,
-              default: false,
-            }
-      - name: picture-section-el
-        label: 🖼️ Ρυθμίσεις ενότητας Φωτογραφίες (Ελληνικά)
-        file: src/content/sections/picture-section.el.json
-        fields:
-          - { label: Τίτλος, name: heading, widget: string }
-          - { label: Εισαγωγή, name: intro, widget: text, required: false }
-          - { label: Διάταξη, name: layout, widget: select, options: [grid, scroll], default: grid }
-          - {
-              label: Εμφάνηση κουμπι λεπτομερειών,
-              name: showDetailsButton,
-              widget: boolean,
-              default: false,
-            }
-          - {
-              label: Ενεργοποίηση προεπισκόπησης κατά την αιώρηση,
-              name: enableHoverPreview,
-              widget: boolean,
-              default: false,
-            }
-          - {
-              label: Ενεργοποίηση αποκάλυψε με κλικ,
-              name: enableClickToReveal,
-              widget: boolean,
-              default: false,
-            }
-
-  # ── About ───────────────────────────────────────────────────────────────────
-  - name: about
-    label: About Section
-    media_folder: /src/assets/media
-    public_folder: /media
-    editor:
-      preview: false
-    files:
-      - name: about-en
-        label: 📖 About (English)
-        file: src/content/sections/about.en.json
-        fields:
-          - { label: Heading, name: heading, widget: string }
-          - label: Paragraphs
-            name: paragraphs
-            widget: list
-            field: { label: Paragraph, name: paragraph, widget: text }
-          - { label: Pull quote, name: pullQuote, widget: string, required: false }
-          - { label: Featured image, name: image, widget: image }
-          - { label: Image alt text, name: imageAlt, widget: string }
-          - label: Call to action
-            name: cta
-            widget: object
-            required: false
-            fields:
-              - { label: Label, name: label, widget: string }
-              - { label: Link, name: href, widget: string }
-      - name: about-el
-        label: 📖 Περί (Ελληνικά)
-        file: src/content/sections/about.el.json
-        fields:
-          - { label: Τίτλος, name: heading, widget: string }
-          - label: Παράγραφοι
-            name: paragraphs
-            widget: list
-            field: { label: Παράγραφος, name: paragraph, widget: text }
-          - { label: Εμπνευσμένο απόσπασμα, name: pullQuote, widget: string, required: false }
-          - { label: Εικόνα, name: image, widget: image }
-          - { label: Κείμενο alt, name: imageAlt, widget: string }
-          - label: Κουμπί (CTA)
-            name: cta
-            widget: object
-            required: false
-            fields:
-              - { label: Ετικέτα, name: label, widget: string }
-              - { label: Σύνδεσμος, name: href, widget: string }
-
-  # ── Analytics ────────────────────────────────────────────────────────────────
-  - name: analytics
-    label: Analytics Section
-    media_folder: /src/assets/media
-    public_folder: /media
-    editor:
-      preview: false
-    files:
-      - name: analytics-en
-        label: 📊 Analytics (English)
-        file: src/content/sections/analytics.en.json
-        fields:
-          - { label: Heading, name: heading, widget: string }
-          - { label: Intro, name: intro, widget: text, required: false }
-          - {
-              label: Footnote,
-              name: footnote,
-              widget: text,
-              required: false,
-              hint: Data disclaimer shown under the metrics,
-            }
-          - label: Metrics
-            name: metrics
-            label_singular: Metric
-            widget: list
-            fields:
-              - {
-                  label: Value,
-                  name: value,
-                  widget: string,
-                  hint: Displayed as text (e.g. 1.2M,
-                  14%),
-                }
-              - { label: Label, name: label, widget: string }
-              - { label: Description, name: description, widget: text, required: false }
-              - {
-                  label: Icon,
-                  name: icon,
-                  widget: select,
-                  required: false,
-                  options: [heart, users, star, globe, play, chart, sparkle],
-                  default: sparkle,
-                }
-      - name: analytics-el
-        label: 📊 Στοιχεία (Ελληνικά)
-        file: src/content/sections/analytics.el.json
-        fields:
-          - { label: Τίτλος, name: heading, widget: string }
-          - { label: Εισαγωγή, name: intro, widget: text, required: false }
-          - { label: Σημείωση, name: footnote, widget: text, required: false }
-          - label: Δείκτες
-            name: metrics
-            label_singular: Δείκτης
-            widget: list
-            fields:
-              - { label: Τιμή, name: value, widget: string }
-              - { label: Ετικέτα, name: label, widget: string }
-              - { label: Περιγραφή, name: description, widget: text, required: false }
-              - {
-                  label: Εικόνισμα,
-                  name: icon,
-                  widget: select,
-                  required: false,
-                  options: [heart, users, star, globe, play, chart, sparkle],
-                  default: sparkle,
-                }
-
-  # ── Contact ───────────────────────────────────────────────────────────────────
-  - name: contact
-    label: Contact Section
-    media_folder: /src/assets/media
-    public_folder: /media
-    editor:
-      preview: false
-    files:
-      - name: contact-en
-        label: ✉️ Contact (English)
-        file: src/content/sections/contact.en.json
-        fields:
-          - { label: Heading, name: heading, widget: string }
-          - { label: Intro, name: intro, widget: text }
-          - { label: CTA label, name: ctaLabel, widget: string }
-          - label: Contact methods
-            name: methods
-            label_singular: Method
-            widget: list
-            hint: The first email method feeds the header email icon.
-            fields:
-              - {
-                  label: Icon,
-                  name: icon,
-                  widget: select,
-                  options: [email, phone, location, link],
-                  default: email,
-                }
-              - { label: Label, name: label, widget: string }
-              - { label: Value, name: value, widget: string }
-              - {
-                  label: Link (optional),
-                  name: href,
-                  widget: string,
-                  required: false,
-                  hint: mailto:/tel:/URL,
-                }
-          - label: Social links
-            name: socials
-            label_singular: Social
-            widget: list
-            fields:
-              - {
-                  label: Icon,
-                  name: icon,
-                  widget: select,
-                  options: [tiktok, instagram, facebook, youtube, x],
-                  default: instagram,
-                }
-              - { label: Label, name: label, widget: string }
-              - { label: URL, name: href, widget: string }
-      - name: contact-el
-        label: ✉️ Επικοινωνία (Ελληνικά)
-        file: src/content/sections/contact.el.json
-        fields:
-          - { label: Τίτλος, name: heading, widget: string }
-          - { label: Εισαγωγή, name: intro, widget: text }
-          - { label: Ετικέτα κουμπιού, name: ctaLabel, widget: string }
-          - label: Τρόποι επικοινωνίας
-            name: methods
-            label_singular: Τρόπος
-            widget: list
-            fields:
-              - {
-                  label: Εικόνισμα,
-                  name: icon,
-                  widget: select,
-                  options: [email, phone, location, link],
-                  default: email,
-                }
-              - { label: Ετικέτα, name: label, widget: string }
-              - { label: Τιμή, name: value, widget: string }
-              - { label: Σύνδεσμος (προαιρετικό), name: href, widget: string, required: false }
-          - label: Κοινωνικά δίκτυα
-            name: socials
-            label_singular: Κοινωνικό δίκτυο
-            widget: list
-            fields:
-              - {
-                  label: Εικόνισμα,
-                  name: icon,
-                  widget: select,
-                  options: [tiktok, instagram, facebook, youtube, x],
-                  default: instagram,
-                }
-              - { label: Ετικέτα, name: label, widget: string }
-              - { label: URL, name: href, widget: string }
-
-  # ── Footer ───────────────────────────────────────────────────────────────────
-  - name: footer
-    label: Footer Section
-    media_folder: /src/assets/media
-    public_folder: /media
-    editor:
-      preview: false
-    files:
-      - name: footer-en
-        label: 🦶 Footer (English)
-        file: src/content/sections/footer.en.json
-        fields:
-          - { label: '"How to use" link label', name: howToUseLabel, widget: string }
-          - { label: Note (optional), name: note, widget: string, required: false }
-      - name: footer-el
-        label: 🦶 Υποσέλιδο (Ελληνικά)
-        file: src/content/sections/footer.el.json
-        fields:
-          - {
-              label: 'Ετικέτα συνδέσμου «Πώς να χρησιμοποιήσετε»',
-              name: howToUseLabel,
-              widget: string,
-            }
-          - { label: Σημείωση (προαιρετικό), name: note, widget: string, required: false }
