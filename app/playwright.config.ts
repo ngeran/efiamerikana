@@ -28,7 +28,13 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     launchOptions: {
       executablePath: process.env.PLAYWRIGHT_EXECUTABLE,
-      args: ['--no-sandbox', '--disable-dev-shm-usage'],
+      args: [
+        '--no-sandbox',
+        '--disable-dev-shm-usage',
+        // Real browsers allow muted autoplay without a gesture; align the
+        // headless runner so the viewport-autoplay specs test real behavior.
+        '--autoplay-policy=no-user-gesture-required',
+      ],
     },
   },
   projects: [

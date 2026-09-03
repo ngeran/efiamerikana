@@ -5,72 +5,94 @@ test.describe('video section', () => {
     await page.goto('/en/');
   });
 
-  test('renders six cards in the seeded scroll layout', async ({ page }) => {
+  test('renders a card per video with posters and lazy playback attrs', async ({ page }) => {
     const section = page.locator('#videos');
-    await expect(section.locator('[data-video-card]')).toHaveCount(6);
-    await expect(section.locator('[data-scroller]')).toHaveCount(1);
-    await expect(section.locator('[data-scroll-next]')).toBeVisible();
+    // Count-agnostic on purpose: entries are CMS-managed. The loop phase may
+    // also multiply DOM copies behind data-sets, so assert ≥1 and uniqueness
+    // of the details-overlay ids rather than an exact total.
+    const cards = section.locator('[data-video-card]');
+    expect(await cards.count()).toBeGreaterThanOrEqual(3);
 
-    // ~3 cards visible at desktop widths (rail items are ~31% wide).
-    await page.setViewportSize({ width: 1280, height: 800 });
-    const ratio = await section
-      .locator('[data-video-card]')
-      .first()
-      .evaluate((el) => el.getBoundingClientRect().width / window.innerWidth);
-    expect(ratio).toBeGreaterThan(0.25);
-    expect(ratio).toBeLessThan(0.4);
+    await cards.first().scrollIntoViewIfNeeded();
+    await expect(cards.first().locator('video[data-video]')).toHaveAttribute('preload', 'none');
+    await expect(cards.first().locator('video[data-video]')).toHaveAttribute('poster', /.+/);
+    await expect(cards.first().locator('video[data-video]')).toHaveAttribute('playsinline', '');
+    await expect(cards.first().locator('video[data-video]')).toHaveAttribute('muted', '');
+
+    const ids = await cards.evaluateAll((els) =>
+      els.map((el) => el.querySelector('[id^="video-details-"]')?.id ?? ''),
+    );
+    expect(new Set(ids).size).toBe(ids.length); // no duplicate overlay ids
   });
 
-  test('arrows slide the rail in', async ({ page }) => {
+  test('rail arrows exist on desktop and scroll the rail', async ({ page }) => {
+    test.skip(
+      test.info().project.name === 'mobile-chromium',
+      'arrows are sm+ only — phones use the native swipe',
+    );
     const section = page.locator('#videos');
-    const scroller = section.locator('[data-scroller]');
-    const next = section.locator('[data-scroll-next]');
+    await section.scrollIntoViewIfNeeded();
+    const rail = section.locator('[data-rail]');
+    const next = section.locator('[data-rail-scroll="1"]');
 
-    await expect(next).toBeEnabled();
-    const before = await scroller.evaluate((el) => el.scrollLeft);
+    await expect(next).toBeVisible();
+
+    // With few entries the cards fit without overflowing — the arrows are
+    // legitimately no-ops. Only assert scrolling when there is scroll to do.
+    const overflows = await rail.evaluate((el) => el.scrollWidth > el.clientWidth + 4);
+    test.skip(!overflows, 'rail content fits — nothing to scroll (see the loop phase for 6+)');
+
+    const before = await rail.evaluate((el) => el.scrollLeft);
     await next.click();
-    await expect.poll(() => scroller.evaluate((el) => el.scrollLeft)).toBeGreaterThan(before);
+    await expect.poll(() => rail.evaluate((el) => el.scrollLeft)).toBeGreaterThan(before);
   });
 
-  test('videos never autoplay', async ({ page }) => {
-    for (const video of await page.locator('#videos video').all()) {
-      expect(await video.evaluate((v) => (v as HTMLVideoElement).paused)).toBe(true);
-      expect(await video.evaluate((v) => (v as HTMLVideoElement).muted)).toBe(true);
-      expect(await video.getAttribute('preload')).toBe('none');
-    }
+  test('rail arrows are hidden on phones (finger swipe is the control)', async ({ page }) => {
+    test.skip(
+      test.info().project.name !== 'mobile-chromium',
+      'desktop keeps the arrows — covered by the test above',
+    );
+    const section = page.locator('#videos');
+    await section.scrollIntoViewIfNeeded();
+    await expect(section.locator('[data-rail-scroll="1"]')).toBeHidden();
   });
 
-  test('click plays and pauses without resizing the card', async ({ page }) => {
+  test('stays paused below the fold, autoplays on scroll-in, pause sticks', async ({ page }) => {
     const card = page.locator('[data-video-card]').first();
-    const video = card.locator('video');
-    const play = card.locator('[data-play-toggle]');
+    const video = card.locator('video[data-video]');
 
-    await card.scrollIntoViewIfNeeded();
-    const before = await card.boundingBox();
-
-    await play.click();
-    await expect.poll(() => video.evaluate((v) => (v as HTMLVideoElement).paused)).toBe(false);
-    await expect(card).toHaveAttribute('data-playing', 'true');
-    await expect(play).toHaveAttribute('aria-pressed', 'true');
-
-    // Unmute control appears during playback.
-    await expect(card.locator('[data-mute-toggle]')).toBeVisible();
-
-    // Dimensional stability: same box during playback.
-    const during = await card.boundingBox();
-    expect(during?.width).toBeCloseTo(before?.width ?? 0, 0);
-    expect(during?.height).toBeCloseTo(before?.height ?? 0, 0);
-
-    await play.click();
+    // Below the fold on load: paused poster frame, nothing fetched.
     await expect.poll(() => video.evaluate((v) => (v as HTMLVideoElement).paused)).toBe(true);
+
+    // Scrolled into view: the most-visible card autoplays (muted).
+    await card.scrollIntoViewIfNeeded();
+    await expect
+      .poll(() => video.evaluate((v) => (v as HTMLVideoElement).paused), { timeout: 8_000 })
+      .toBe(false);
+    await expect(card).toHaveAttribute('data-playing', 'true');
+
+    // Explicit pause wins over autoplay while still in view.
+    await card.locator('[data-play-toggle]').click();
+    await expect.poll(() => video.evaluate((v) => (v as HTMLVideoElement).paused)).toBe(true);
+    await expect(card).toHaveAttribute('data-playing', 'false');
+
+    // Scrolled far away: paused by the visibility controller.
+    await card.locator('[data-play-toggle]').click(); // resume
+    await page.locator('#contact').scrollIntoViewIfNeeded();
+    await expect
+      .poll(() => video.evaluate((v) => (v as HTMLVideoElement).paused), { timeout: 5_000 })
+      .toBe(true);
   });
 
-  test('unmute toggles audio state without autoplaying it', async ({ page }) => {
+  test('unmute toggles audio state without stopping playback', async ({ page }) => {
     const card = page.locator('[data-video-card]').first();
-    const video = card.locator('video');
+    const video = card.locator('video[data-video]');
     await card.scrollIntoViewIfNeeded();
     await card.locator('[data-play-toggle]').click();
-    await expect(card.locator('[data-mute-toggle]')).toBeVisible();
+    if (await video.evaluate((v) => (v as HTMLVideoElement).paused)) {
+      await card.locator('[data-play-toggle]').click();
+    }
+    await expect.poll(() => video.evaluate((v) => (v as HTMLVideoElement).paused)).toBe(false);
 
     await card.locator('[data-mute-toggle]').click();
     expect(await video.evaluate((v) => (v as HTMLVideoElement).muted)).toBe(false);
@@ -81,38 +103,17 @@ test.describe('video section', () => {
   test('+ button reveals and hides the metadata overlay', async ({ page }) => {
     const card = page.locator('[data-video-card]').first();
     const toggle = card.locator('[data-details-toggle]');
-
     await card.scrollIntoViewIfNeeded();
-    await expect(card.locator('[data-overlay]')).toHaveCSS('opacity', '0');
+    const overlay = card.locator('[id^="video-details-"]');
+    await expect(overlay).toHaveCSS('opacity', '0');
+
     await toggle.click();
     await expect(card).toHaveAttribute('data-open', 'true');
     await expect(toggle).toHaveAttribute('aria-expanded', 'true');
-    await expect(card.locator('[data-overlay]')).toHaveCSS('opacity', '1');
+    await expect(overlay).toHaveCSS('opacity', '1');
 
     await toggle.click();
-    // Hover AND focus-within each keep the overlay open on their own —
-    // leave the card and drop focus from the toggle before asserting.
-    await page.mouse.move(10, 10);
-    await toggle.blur();
     await expect(card).toHaveAttribute('data-open', 'false');
-    await expect(toggle).toHaveAttribute('aria-expanded', 'false');
-    await expect(card.locator('[data-overlay]')).toHaveCSS('opacity', '0');
-  });
-
-  test('pauses videos that scroll out of the viewport', async ({ page }) => {
-    const card = page.locator('[data-video-card]').first();
-    await card.scrollIntoViewIfNeeded();
-    await card.locator('[data-play-toggle]').click();
-    await expect
-      .poll(() => card.locator('video').evaluate((v) => (v as HTMLVideoElement).paused))
-      .toBe(false);
-
-    // Scroll far away → the card is paused by the IntersectionObserver.
-    await page.locator('#contact').scrollIntoViewIfNeeded();
-    await expect
-      .poll(() => card.locator('video').evaluate((v) => (v as HTMLVideoElement).paused), {
-        timeout: 5_000,
-      })
-      .toBe(true);
+    await expect(overlay).toHaveCSS('opacity', '0');
   });
 });

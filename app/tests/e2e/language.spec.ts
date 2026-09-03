@@ -1,33 +1,32 @@
 import { expect, test } from '@playwright/test';
 
-test.describe('language switching', () => {
-  test('landing page switches EN ↔ ΕΛ and preserves the page', async ({ page }) => {
+/**
+ * The site currently publishes English only (src/i18n/config.ts
+ * `enabledLocales`). These specs pin that contract: no switcher, no /el/
+ * routes, and exactly one canonical + x-default alternate. When Greek is
+ * re-enabled, replace this with real EN ↔ ΕΛ switching coverage.
+ */
+test.describe('language (English-only)', () => {
+  test('hides the EN | ΕΛ switcher with a single enabled locale', async ({ page }) => {
     await page.goto('/en/');
-    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
-
-    await page.getByRole('link', { name: 'Αλλαγή στα Ελληνικά' }).first().click();
-    await expect(page).toHaveURL(/\/el\/?$/);
-    await expect(page.locator('html')).toHaveAttribute('lang', 'el');
-    await expect(page.locator('#hero h1')).toContainText('ΜΑΓΕΙΡΕΜΑ');
-
-    await page.getByRole('link', { name: 'Switch to English' }).first().click();
-    await expect(page).toHaveURL(/\/en\/?$/);
-    await expect(page.locator('#hero h1')).toContainText('COOKING');
+    await expect(
+      page.getByRole('link', { name: /Αλλαγή στα Ελληνικά|Switch to Ελληνικά/ }),
+    ).toHaveCount(0);
+    await expect(page.locator('a[href="/el/"]')).toHaveCount(0);
   });
 
-  test('help page switching preserves the equivalent page', async ({ page }) => {
-    await page.goto('/en/how-to-use');
-    await page.getByRole('link', { name: 'Αλλαγή στα Ελληνικά' }).first().click();
-    await expect(page).toHaveURL(/\/el\/how-to-use/);
-    await expect(page.locator('h1')).toContainText('Πώς να χρησιμοποιήσετε');
+  test('does not generate Greek routes', async ({ page }) => {
+    const response = await page.goto('/el/');
+    expect(response?.status()).toBe(404);
   });
 
-  test('emits canonical + hreflang alternates', async ({ page }) => {
-    await page.goto('/el/');
-    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', /\/el\/?$/);
+  test('emits canonical and hreflang for the enabled locale only', async ({ page }) => {
+    await page.goto('/en/');
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', /\/en\/?$/);
     expect(await page.locator('link[rel="alternate"][hreflang="en"]').count()).toBe(1);
-    expect(await page.locator('link[rel="alternate"][hreflang="el"]').count()).toBe(1);
     expect(await page.locator('link[rel="alternate"][hreflang="x-default"]').count()).toBe(1);
+    expect(await page.locator('link[rel="alternate"][hreflang="el"]').count()).toBe(0);
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   });
 
   test('root redirects to the default locale', async ({ page }) => {
