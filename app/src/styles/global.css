@@ -21,6 +21,7 @@
   --color-brand-black: #000000; /* analytics (required #000000) */
   --color-brand-red: #d62839; /* contact */
   --color-brand-red-deep: #b01e2d; /* small-text accent red, AA on cream */
+  --color-brand-pink-deep: #e1148f; /* hero name on yellow — AA large-text (3.37:1) */
   --color-cream: #f7f2e7; /* videos */
   --color-charcoal: #17130f; /* about / dark text */
 
@@ -179,11 +180,7 @@
      does, at every width from 1024px up. */
   @media (min-width: 1024px) {
     .hero-content {
-      padding-right: clamp(
-        2.5rem,
-        calc(var(--rail-w) - max(0px, (100% - 80rem) / 2)),
-        45%
-      );
+      padding-right: clamp(2.5rem, calc(var(--rail-w) - max(0px, (100% - 80rem) / 2)), 45%);
     }
   }
 

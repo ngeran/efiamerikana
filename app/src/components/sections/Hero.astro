@@ -43,20 +43,20 @@ const t = translator(locale).hero;
       </div>
 
       <!-- TEXT CONTENT -->
-      <div class="flex flex-col items-center text-center lg:items-start lg:text-left lg:pr-32">
+      <div class="flex flex-col items-center text-center lg:items-start lg:pr-32 lg:text-left">
         <p class="reveal font-display text-xl tracking-tight sm:text-2xl">
           {data.eyebrow}
         </p>
 
         <h1
           id="hero-heading"
-          class="reveal mt-1 font-display text-[length:var(--text-hero-name)] leading-[1.1] tracking-tight text-balance text-brand-pink"
+          class="reveal mt-1 font-display text-[length:var(--text-hero-name)] leading-[1.1] tracking-tight text-balance text-brand-pink-deep"
           style="--reveal-delay: 0.06s"
         >
           {data.heading}
         </h1>
 
-        <div class="mt-6 h-[2px] w-20 bg-charcoal/20 mx-auto lg:mx-0" aria-hidden="true"></div>
+        <div class="mx-auto mt-6 h-[2px] w-20 bg-charcoal/20 lg:mx-0" aria-hidden="true"></div>
 
         {
           (data.headingAccent || data.tagline) && (
@@ -82,7 +82,10 @@ const t = translator(locale).hero;
         }
 
         <!-- Social Icons -->
-        <div class="reveal mt-10 flex justify-center gap-4 lg:justify-start" style="--reveal-delay: 0.2s">
+        <div
+          class="reveal mt-10 flex justify-center gap-4 lg:justify-start"
+          style="--reveal-delay: 0.2s"
+        >
           {
             socials.map((social) => {
               let iconBg = 'bg-black';
@@ -98,7 +101,7 @@ const t = translator(locale).hero;
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={social.label}
-                  class={`flex h-12 w-12 items-center justify-center rounded-full transition-transform hover:scale-110 shadow-lg ${iconBg}`}
+                  class={`flex h-12 w-12 items-center justify-center rounded-full shadow-lg transition-transform hover:scale-110 ${iconBg}`}
                 >
                   <Icon name={social.icon as IconName} class="h-6 w-6 fill-white text-white" />
                 </a>
@@ -117,7 +120,7 @@ const t = translator(locale).hero;
       <a
         href="#videos"
         data-hero-rail-cta
-        class="group flex flex-col items-center gap-8 translate-x-[var(--rail-align-x,0px)] no-underline transition-transform hover:scale-105"
+        class="group flex translate-x-[var(--rail-align-x,0px)] flex-col items-center gap-8 no-underline transition-transform hover:scale-105"
       >
         <span class="max-w-[12ch] text-center font-display text-xl leading-tight text-charcoal">
           {t.viewPortfolio}
@@ -125,7 +128,7 @@ const t = translator(locale).hero;
 
         <div
           data-hero-rail-button
-          class="relative flex h-20 w-20 items-center justify-center rounded-full bg-black shadow-2xl ring-8 ring-brand-yellow/20 hover:ring-brand-yellow/40 transition-all duration-300"
+          class="relative flex h-20 w-20 items-center justify-center rounded-full bg-black shadow-2xl ring-8 ring-brand-yellow/20 transition-all duration-300 hover:ring-brand-yellow/40"
         >
           <div
             class="ml-2 h-0 w-0 border-t-[12px] border-b-[12px] border-l-[20px] border-t-transparent border-b-transparent border-l-brand-yellow"
@@ -172,10 +175,11 @@ const t = translator(locale).hero;
         return;
       }
       if (label.offsetParent === null) return;
-      
-      const closerOffset = 200; 
-      const width = (document.documentElement.clientWidth - label.getBoundingClientRect().left) + closerOffset;
-      
+
+      const closerOffset = 200;
+      const width =
+        document.documentElement.clientWidth - label.getBoundingClientRect().left + closerOffset;
+
       if (width > 0) hero.style.setProperty('--rail-w', `${Math.round(width)}px`);
     };
 
@@ -212,11 +216,25 @@ const t = translator(locale).hero;
 
   const alignTargets: AlignTarget[] = [];
   const ctaButton = document.querySelector<HTMLElement>('[data-hero-cta-button]');
-  if (ctaButton) alignTargets.push({ move: ctaButton, measure: ctaButton, cssVar: '--cta-align-x', offset: 0, disableOnMobile: true });
+  if (ctaButton)
+    alignTargets.push({
+      move: ctaButton,
+      measure: ctaButton,
+      cssVar: '--cta-align-x',
+      offset: 0,
+      disableOnMobile: true,
+    });
 
   const railCta = document.querySelector<HTMLElement>('[data-hero-rail-cta]');
   const railButton = document.querySelector<HTMLElement>('[data-hero-rail-button]');
-  if (railCta && railButton) alignTargets.push({ move: railCta, measure: railButton, cssVar: '--rail-align-x', offset: 10, disableOnMobile: false });
+  if (railCta && railButton)
+    alignTargets.push({
+      move: railCta,
+      measure: railButton,
+      cssVar: '--rail-align-x',
+      offset: 10,
+      disableOnMobile: false,
+    });
 
   if (emailIcon && alignTargets.length > 0) {
     const alignAll = () => {
@@ -229,15 +247,15 @@ const t = translator(locale).hero;
           move.style.setProperty(cssVar, '0px'); // Keep it centered on mobile
           continue;
         }
-        
+
         move.style.setProperty(cssVar, '0px');
         const measureRect = measure.getBoundingClientRect();
-        
+
         /**
          * Subtracting the offset pushes the button to the left.
          * rail target has 10px offset here.
          */
-        const delta = (iconCenter - (measureRect.left + measureRect.width / 2)) - offset;
+        const delta = iconCenter - (measureRect.left + measureRect.width / 2) - offset;
         move.style.setProperty(cssVar, `${Math.round(delta)}px`);
       }
     };
