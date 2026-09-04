@@ -1,0 +1,44 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+/**
+ * Fixed-ratio media slot that never crops: the media sits `object-contain`
+ * over a blurred, blown-out copy of itself, so letterbox bars read as an
+ * intentional colour wash rather than dead black (the Instagram / Shorts /
+ * Spotify pattern). For assets that already match the slot ratio the two
+ * layers are pixel-identical in extent — contain == cover, nothing changes.
+ *
+ * The backdrop is deliberately 32px wide: it is blurred to oblivion, so the
+ * extra fetch is near-free and the browser decodes a thumbnail, not the
+ * full asset.
+ */
+interface Props {
+  /** Blurred backdrop source — the poster for video, the image for pictures. */
+  backdrop?: ImageMetadata | null;
+  /** `contain` never crops (and renders the backdrop); `cover` fills. */
+  fit?: 'contain' | 'cover';
+  class?: string;
+}
+
+const { backdrop, fit = 'contain', class: className } = Astro.props;
+---
+
+<div class:list={['relative h-full w-full overflow-hidden bg-black', className]}>
+  {
+    fit === 'contain' && backdrop && (
+      <Image
+        src={backdrop}
+        alt=""
+        aria-hidden="true"
+        width={32}
+        loading="lazy"
+        decoding="async"
+        class="pointer-events-none absolute inset-0 h-full w-full scale-110 object-cover blur-2xl saturate-150"
+      />
+    )
+  }
+  <div class="relative h-full w-full">
+    <slot />
+  </div>
+</div>

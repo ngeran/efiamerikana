@@ -19,9 +19,11 @@ test.describe('pictures section', () => {
       await cards.nth(i).scrollIntoViewIfNeeded();
     }
     await page.waitForTimeout(600);
+    // Exclude MediaFrame's decorative blurred backdrop (aria-hidden, alt="")
+    // — only the content image counts.
     const loaded = await cards
       .first()
-      .locator('img')
+      .locator('img:not([aria-hidden="true"])')
       .evaluate((img) => img.complete && img.naturalWidth > 0);
     expect(loaded).toBe(true);
 

@@ -42,9 +42,10 @@ test.describe('CMS-managed content', () => {
     await page.goto('/en/');
 
     // Every picture card's image has non-empty alt (CMS alt or title
-    // fallback) — the ImageMissingAlt crash guard.
+    // fallback) — the ImageMissingAlt crash guard. Decorative blur
+    // backdrops (aria-hidden) are excluded.
     const alts = await page
-      .locator('[data-picture-card] img')
+      .locator('[data-picture-card] img:not([aria-hidden="true"])')
       .evaluateAll((imgs) => imgs.map((img) => img.getAttribute('alt') ?? ''));
     expect(alts.length).toBeGreaterThanOrEqual(3);
     for (const alt of alts) expect(alt.length).toBeGreaterThan(0);

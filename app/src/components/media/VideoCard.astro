@@ -1,5 +1,6 @@
 ---
 import { getImage } from 'astro:assets';
+import MediaFrame from './MediaFrame.astro';
 import { translator } from '../../i18n/ui';
 import type { Locale } from '../../i18n/config';
 import type { VideoData } from '../../content.config';
@@ -75,18 +76,20 @@ const pauseLabel = `${t.pause} — ${video.title}`;
     preload="none" is the single biggest win here: 6 rail videos would each
     otherwise fetch metadata on page load.
   -->
-  <video
-    data-video
-    src={missing ? undefined : src}
-    poster={posterSrc}
-    aria-label={video.posterAlt || video.title}
-    width="1080"
-    height="1920"
-    loop
-    muted
-    playsinline
-    preload="none"
-    class="h-full w-full object-cover"></video>
+  <MediaFrame backdrop={posterImage} fit="contain">
+    <video
+      data-video
+      src={missing ? undefined : src}
+      poster={posterSrc}
+      aria-label={video.posterAlt || video.title}
+      width="1080"
+      height="1920"
+      loop
+      muted
+      playsinline
+      preload="none"
+      class="h-full w-full object-contain"></video>
+  </MediaFrame>
 
   <button
     type="button"

@@ -1,5 +1,6 @@
 ---
 import { Image } from 'astro:assets';
+import MediaFrame from './MediaFrame.astro';
 import { translator } from '../../i18n/ui';
 import type { Locale } from '../../i18n/config';
 import type { PictureData } from '../../content.config';
@@ -68,15 +69,17 @@ const hideLabel = `${t.hideDescription} — ${picture.title}`;
   data-picture-card
   data-open="false"
 >
-  <Image
-    src={image}
-    alt={picture.imageAlt ?? picture.title ?? ''}
-    widths={[400, 800]}
-    sizes={sizes}
-    loading="lazy"
-    decoding="async"
-    class="h-full w-full object-cover transition-transform duration-[600ms] ease-[var(--ease-out-soft)] group-focus-within:scale-[1.06] group-hover:scale-[1.06] group-data-[open=true]:scale-[1.06]"
-  />
+  <MediaFrame backdrop={image} fit="contain">
+    <Image
+      src={image}
+      alt={picture.imageAlt ?? picture.title ?? ''}
+      widths={[400, 800]}
+      sizes={sizes}
+      loading="lazy"
+      decoding="async"
+      class="h-full w-full object-contain transition-transform duration-[600ms] ease-[var(--ease-out-soft)] group-focus-within:scale-[1.06] group-hover:scale-[1.06] group-data-[open=true]:scale-[1.06]"
+    />
+  </MediaFrame>
 
   {
     enableClickToReveal &&
