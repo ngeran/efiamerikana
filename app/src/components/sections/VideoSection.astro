@@ -147,6 +147,12 @@ const RAIL_CARD =
 </section>
 
 <script>
+  import { initRails } from '../../scripts/rail';
+
+  // Shared rail navigation (arrows, snap-aware targets, optional loop) lives
+  // in src/scripts/rail.ts; what remains here is card playback wiring.
+  initRails({ wrap: '[data-video-rail-wrap]', card: '[data-video-card]' });
+
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   for (const root of document.querySelectorAll<HTMLElement>('[data-videos]')) {
@@ -227,73 +233,6 @@ const RAIL_CARD =
           { threshold: [0.5] },
         ).observe(card);
       }
-    }
-  }
-
-  // ------------------------------------------------------------------
-  // Endless rail navigation: index-based rather than raw pixel scrollBy,
-  // so "next" past the last card wraps to the first (and vice versa)
-  // instead of stopping — the arrows are always active, never disabled.
-  // ------------------------------------------------------------------
-  for (const wrap of document.querySelectorAll<HTMLElement>('[data-video-rail-wrap]')) {
-    const rail = wrap.querySelector<HTMLElement>('[data-rail]');
-    if (!rail) continue;
-
-    const cards = () => Array.from(rail.querySelectorAll<HTMLElement>('[data-video-card]'));
-
-    // Which card the rail is currently parked closest to, used as the base
-    // for the next/prev step so a manual swipe stays in sync with the arrows.
-    const currentIndex = () => {
-      const list = cards();
-      if (list.length === 0) return 0;
-      let closest = 0;
-      let closestDist = Infinity;
-      list.forEach((card, i) => {
-        const dist = Math.abs(card.offsetLeft - rail.offsetLeft - rail.scrollLeft);
-        if (dist < closestDist) {
-          closestDist = dist;
-          closest = i;
-        }
-      });
-      return closest;
-    };
-
-    // Below `sm` the visible card is center-snapped with margin either side
-    // (see RAIL_CARD); from `sm` up, cards tile flush against the row start.
-    // The scroll target math has to match whichever mode is active, or the
-    // programmatic scroll lands short/long of where CSS snap actually settles.
-    const centered = window.matchMedia('(max-width: 639.98px)');
-
-    const scrollToIndex = (index: number) => {
-      const list = cards();
-      if (list.length === 0) return;
-      const wrapped = ((index % list.length) + list.length) % list.length;
-      const target = list[wrapped];
-      const left = centered.matches
-        ? (() => {
-            const railRect = rail.getBoundingClientRect();
-            const targetRect = target.getBoundingClientRect();
-            const targetCenter =
-              targetRect.left - railRect.left + rail.scrollLeft + targetRect.width / 2;
-            return targetCenter - rail.clientWidth / 2;
-          })()
-        : target.offsetLeft - rail.offsetLeft;
-      // The global reduced-motion CSS rule can't reach a JS scroll behaviour.
-      rail.scrollTo({ left, behavior: reducedMotion.matches ? 'auto' : 'smooth' });
-    };
-
-    for (const btn of wrap.querySelectorAll<HTMLButtonElement>('[data-rail-scroll]')) {
-      btn.addEventListener('click', () => {
-        const dir = Number(btn.dataset.railScroll ?? '1');
-        const list = cards();
-        if (list.length === 0) return;
-        const gap = Number.parseFloat(getComputedStyle(rail).columnGap) || 0;
-        // Step by however many cards are fully visible at once, so one click
-        // advances a full "screen" rather than nudging by a single card.
-        const cardSpan = list[0].getBoundingClientRect().width + gap;
-        const visible = Math.max(1, Math.round(rail.clientWidth / cardSpan));
-        scrollToIndex(currentIndex() + dir * visible);
-      });
     }
   }
 </script>
