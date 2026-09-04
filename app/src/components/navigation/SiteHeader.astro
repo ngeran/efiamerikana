@@ -79,26 +79,24 @@ const langClasses = (active: boolean) =>
             class="flex items-center gap-1.5 font-label text-xs font-bold tracking-[0.18em] uppercase"
             aria-label={t.languageSwitch}
           >
-            {
-              locales.map((l, i) => (
-                <span class="flex items-center gap-1.5">
-                  {i > 0 && (
-                    <span class="text-charcoal/30" aria-hidden="true">
-                      |
-                    </span>
-                  )}
-                  <a
-                    href={l === locale ? currentPath : switchLocale(currentPath, l)}
-                    hreflang={l}
-                    aria-current={l === locale ? 'page' : undefined}
-                    aria-label={l === locale ? undefined : translator(l).switchToLocale}
-                    class={langClasses(l === locale)}
-                  >
-                    {localeSwitcherLabel(l)}
-                  </a>
-                </span>
-              ))
-            }
+            {locales.map((l, i) => (
+              <span class="flex items-center gap-1.5">
+                {i > 0 && (
+                  <span class="text-charcoal/30" aria-hidden="true">
+                    |
+                  </span>
+                )}
+                <a
+                  href={l === locale ? currentPath : switchLocale(currentPath, l)}
+                  hreflang={l}
+                  aria-current={l === locale ? 'page' : undefined}
+                  aria-label={l === locale ? undefined : translator(l).switchToLocale}
+                  class={langClasses(l === locale)}
+                >
+                  {localeSwitcherLabel(l)}
+                </a>
+              </span>
+            ))}
           </nav>
         )
       }
@@ -164,28 +162,24 @@ const langClasses = (active: boolean) =>
         <!-- Language switcher (mobile): only shown when multiple locales are available -->
         {
           locales.length > 1 && (
-            <div
-              class="flex items-center gap-1.5 font-label text-sm font-bold tracking-[0.18em] uppercase"
-            >
-              {
-                locales.map((l, i) => (
-                  <span class="flex items-center gap-1.5">
-                    {i > 0 && (
-                      <span class="text-charcoal/30" aria-hidden="true">
-                        |
-                      </span>
-                    )}
-                    <a
-                      href={l === locale ? currentPath : switchLocale(currentPath, l)}
-                      hreflang={l}
-                      aria-current={l === locale ? 'page' : undefined}
-                      class={langClasses(l === locale)}
-                    >
-                      {localeSwitcherLabel(l)}
-                    </a>
-                  </span>
-                ))
-              }
+            <div class="flex items-center gap-1.5 font-label text-sm font-bold tracking-[0.18em] uppercase">
+              {locales.map((l, i) => (
+                <span class="flex items-center gap-1.5">
+                  {i > 0 && (
+                    <span class="text-charcoal/30" aria-hidden="true">
+                      |
+                    </span>
+                  )}
+                  <a
+                    href={l === locale ? currentPath : switchLocale(currentPath, l)}
+                    hreflang={l}
+                    aria-current={l === locale ? 'page' : undefined}
+                    class={langClasses(l === locale)}
+                  >
+                    {localeSwitcherLabel(l)}
+                  </a>
+                </span>
+              ))}
             </div>
           )
         }

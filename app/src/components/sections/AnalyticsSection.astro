@@ -35,7 +35,7 @@ const velocity = data.velocity ?? [];
 <section
   id="analytics"
   aria-labelledby="analytics-heading"
-  class="relative w-full overflow-hidden bg-brand-black text-white defer-paint"
+  class="defer-paint relative w-full overflow-hidden bg-brand-black text-white"
 >
   <div class="shell relative py-16 sm:py-20 lg:py-24">
     <!-- Glow accent behind the headline, purely decorative -->
@@ -72,9 +72,7 @@ const velocity = data.velocity ?? [];
         style="font-size: clamp(3.5rem, 2rem + 10vw, 12rem); --reveal-delay: 0.08s"
       >
         {headline.value}
-        <span
-          class="font-label text-3xl font-normal tracking-normal text-brand-yellow sm:text-5xl"
-        >
+        <span class="font-label text-3xl font-normal tracking-normal text-brand-yellow sm:text-5xl">
           {headline.label}
         </span>
       </p>
@@ -82,7 +80,13 @@ const velocity = data.velocity ?? [];
       {
         data.trend && (
           <div class="mt-10 inline-flex items-center gap-2 border border-brand-yellow/30 px-4 py-2 font-label text-xs font-bold tracking-[0.15em] text-brand-yellow uppercase shadow-[0_0_15px_rgba(255,222,89,0.15)] sm:text-sm">
-            <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2">
+            <svg
+              viewBox="0 0 24 24"
+              class="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
               <path d="M3 17l6-6 4 4 8-8" stroke-linecap="round" stroke-linejoin="round" />
               <path d="M15 7h6v6" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
@@ -160,11 +164,17 @@ const velocity = data.velocity ?? [];
             <div class="pointer-events-none absolute top-8 left-8 font-label text-xs font-bold tracking-[0.2em] text-white/50 uppercase">
               {t.velocityTitle}
             </div>
-            <div class="relative z-10 flex h-32 w-full items-end gap-[3px] opacity-90" aria-hidden="true">
+            <div
+              class="relative z-10 flex h-32 w-full items-end gap-[3px] opacity-90"
+              aria-hidden="true"
+            >
               {velocity.map((v, index) => (
                 <div
                   class="bar-grow w-full origin-bottom bg-white/10 transition-colors group-hover:bg-white/20"
-                  class:list={[v > 70 && 'bg-brand-yellow shadow-[0_0_15px_rgba(255,222,89,0.6)] group-hover:bg-brand-yellow']}
+                  class:list={[
+                    v > 70 &&
+                      'bg-brand-yellow shadow-[0_0_15px_rgba(255,222,89,0.6)] group-hover:bg-brand-yellow',
+                  ]}
                   style={`height: ${Math.max(v, 4)}%; --reveal-delay: ${0.24 + (index % 24) * 0.012}s`}
                 />
               ))}

@@ -17,7 +17,11 @@ const data = await getAbout(Astro.props.locale);
 const image = resolveImage(data.image);
 ---
 
-<section id="about" aria-labelledby="about-heading" class="w-full bg-charcoal text-cream defer-paint">
+<section
+  id="about"
+  aria-labelledby="about-heading"
+  class="defer-paint w-full bg-charcoal text-cream"
+>
   <div class="shell grid items-center gap-10 py-16 sm:py-20 lg:grid-cols-2 lg:gap-16 lg:py-28">
     <div class="flex flex-col items-center text-center lg:items-start lg:text-left">
       <div class="reveal">

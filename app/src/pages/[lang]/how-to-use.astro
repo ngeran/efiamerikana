@@ -1,6 +1,11 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { defaultLocale, enabledLocales as locales, isEnabledLocale, type Locale } from '../../i18n/config';
+import {
+  defaultLocale,
+  enabledLocales as locales,
+  isEnabledLocale,
+  type Locale,
+} from '../../i18n/config';
 import { translator } from '../../i18n/ui';
 
 export function getStaticPaths() {

@@ -17,13 +17,15 @@ const emailMethod = data.methods.find((m) => m.icon === 'email');
 const mailto = emailMethod?.href ?? (emailMethod ? `mailto:${emailMethod.value}` : '#contact');
 ---
 
-<section id="contact" aria-labelledby="contact-heading" class="w-full bg-brand-red text-white defer-paint">
+<section
+  id="contact"
+  aria-labelledby="contact-heading"
+  class="defer-paint w-full bg-brand-red text-white"
+>
   <div class="shell flex max-w-3xl flex-col items-center gap-8 py-20 text-center sm:py-24 lg:py-28">
     {
       label && (
-        <p
-          class="reveal rounded-full bg-charcoal px-3 py-1 font-label text-xs font-semibold tracking-[0.18em] text-cream uppercase"
-        >
+        <p class="reveal rounded-full bg-charcoal px-3 py-1 font-label text-xs font-semibold tracking-[0.18em] text-cream uppercase">
           {label}
         </p>
       )
