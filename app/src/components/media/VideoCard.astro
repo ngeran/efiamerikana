@@ -21,7 +21,7 @@ import { autoPosterFor, resolveImage, resolveVideo } from '../../utils/media';
  * Localized labels are passed down as data-* attributes so the section's
  * behaviour script stays free of user-facing strings.
  */
-interface Props {
+interface Props extends astroHTML.JSX.HTMLAttributes {
   video: VideoData;
   locale: Locale;
   /** Unique across the page — grid and rail must not collide on DOM ids. */
@@ -36,7 +36,16 @@ interface Props {
   respectRatio?: boolean;
 }
 
-const { video, locale, cardId, class: className, respectRatio = false } = Astro.props;
+const {
+  video,
+  locale,
+  cardId,
+  class: className,
+  respectRatio = false,
+  // Loop clones pass aria-hidden + inert through here; anything else the
+  // section may add lands on the root untouched.
+  ...rest
+} = Astro.props;
 const t = translator(locale).video;
 
 /** Authored orientation → grid card ratio (rail slots stay fixed). */
@@ -74,6 +83,7 @@ const pauseLabel = `${t.pause} — ${video.title}`;
 ---
 
 <li
+  {...rest}
   class={`group relative overflow-hidden rounded-[18px] bg-black shadow-xl ${className}`}
   data-video-card
   data-playing="false"

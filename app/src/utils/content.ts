@@ -68,15 +68,29 @@ export const getContact = (locale: Locale) => singleton<ContactData>('contact', 
 export const getFooter = (locale: Locale) => singleton<FooterData>('footer', 'footer', locale);
 
 export async function getVideos(locale: Locale): Promise<VideoData[]> {
-  return ordered(published(byLocale(await getCollection('videos'), locale))).map(
+  const videos = ordered(published(byLocale(await getCollection('videos'), locale))).map(
     (entry) => entry.data,
   );
+  if (import.meta.env.DEV && videos.length > 0 && videos.length < 6) {
+    console.warn(
+      `[content] Only ${videos.length} videos — the rail needs 6+ to loop. ` +
+        `Falling back to a bounded rail.`,
+    );
+  }
+  return videos;
 }
 
 export async function getPictures(locale: Locale): Promise<PictureData[]> {
-  return ordered(published(byLocale(await getCollection('pictures'), locale))).map(
+  const pictures = ordered(published(byLocale(await getCollection('pictures'), locale))).map(
     (entry) => entry.data,
   );
+  if (import.meta.env.DEV && pictures.length > 0 && pictures.length < 6) {
+    console.warn(
+      `[content] Only ${pictures.length} pictures — the rail needs 6+ to loop. ` +
+        `Falling back to a bounded rail.`,
+    );
+  }
+  return pictures;
 }
 
 /** Nav items for enabled sections (footer renders no nav link). */

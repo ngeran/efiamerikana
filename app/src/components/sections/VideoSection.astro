@@ -45,6 +45,21 @@ const t = translator(locale).video;
 const GRID_CARD = 'reveal aspect-[9/16] w-full max-w-[380px] mx-auto';
 const RAIL_CARD =
   'reveal aspect-[9/16] w-[calc(100vw-4rem)] snap-center sm:w-[calc((100%-1rem)/2)] sm:snap-start lg:w-[calc((100%-2rem)/3)] xl:w-[calc((100%-3rem)/4)] 2xl:w-[calc((100%-4rem)/5)] shrink-0';
+
+/**
+ * A seamless loop needs duplicate content to scroll into. Three copies is
+ * the minimum that lets the visitor travel a full copy-width in either
+ * direction before rail.ts normalises, so the correction is never visible.
+ *
+ * Gated on a real minimum: looping two or three cards reads as a bug, not a
+ * feature. Below the threshold the rail stays bounded (data-sets=1) and
+ * behaves exactly as before. Tripling the DOM is safe only with the
+ * playback controller's preload=none + decoder budget already in place.
+ */
+const LOOP_MIN = 6;
+const LOOP_SETS = 3;
+const shouldLoop = data.layout !== 'grid' && videos.length >= LOOP_MIN;
+const railItems = shouldLoop ? Array.from({ length: LOOP_SETS }, () => videos).flat() : videos;
 ---
 
 <section
@@ -92,7 +107,11 @@ const RAIL_CARD =
           ))}
         </ul>
       ) : (
-        <div class="relative mt-10 w-full" data-video-rail-wrap>
+        <div
+          class="relative mt-10 w-full"
+          data-video-rail-wrap
+          data-sets={shouldLoop ? LOOP_SETS : 1}
+        >
           <button
             type="button"
             data-rail-scroll="-1"
@@ -140,9 +159,24 @@ const RAIL_CARD =
             aria-label={t.railLabel}
             class="no-scrollbar flex snap-x snap-mandatory justify-start gap-4 overflow-x-auto scroll-smooth px-8 pb-2"
           >
-            {videos.map((video, index) => (
-              <VideoCard video={video} locale={locale} cardId={`rail-${index}`} class={RAIL_CARD} />
-            ))}
+            {railItems.map((video, index) => {
+              // Only the middle copy is real as far as assistive tech and
+              // keyboard focus are concerned; the clones are decorative
+              // duplicates. inert (not just aria-hidden) — aria-hidden does
+              // NOT block pointer events. cardId derives from the flat index
+              // across all copies, keeping the details-overlay ids unique.
+              const isClone = shouldLoop && Math.floor(index / videos.length) !== 1;
+              return (
+                <VideoCard
+                  video={video}
+                  locale={locale}
+                  cardId={`rail-${index}`}
+                  class={RAIL_CARD}
+                  aria-hidden={isClone ? 'true' : undefined}
+                  inert={isClone ? true : undefined}
+                />
+              );
+            })}
           </ul>
         </div>
       )

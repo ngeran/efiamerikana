@@ -15,7 +15,7 @@ import { resolveImage } from '../../utils/media';
  * The description is revealed by the +/x toggle. It stays in the DOM either
  * way so assistive tech and touch users are never cut off from it.
  */
-interface Props {
+interface Props extends astroHTML.JSX.HTMLAttributes {
   picture: PictureData;
   locale: Locale;
   /** Unique across the page — grid and rail must not collide on DOM ids. */
@@ -62,6 +62,9 @@ const {
   enableHoverPreview = false,
   enableClickToReveal = false,
   respectRatio = false,
+  // Loop clones pass aria-hidden + inert through here; anything else the
+  // section may add lands on the root untouched.
+  ...rest
 } = Astro.props;
 const t = translator(locale).pictures;
 
@@ -76,6 +79,7 @@ const hideLabel = `${t.hideDescription} — ${picture.title}`;
 ---
 
 <li
+  {...rest}
   class={`group relative overflow-hidden rounded-[18px] bg-black shadow-xl ${className}`}
   data-picture-card
   data-open="false"

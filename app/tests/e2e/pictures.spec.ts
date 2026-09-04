@@ -20,8 +20,11 @@ test.describe('pictures section', () => {
     }
     await page.waitForTimeout(600);
     // Exclude MediaFrame's decorative blurred backdrop (aria-hidden, alt="")
-    // — only the content image counts.
+    // — only the content image counts. :not([inert]) skips the loop's clone
+    // copies (inert is a bare boolean attribute; with data-sets=1 nothing is
+    // inert, so this is a no-op there).
     const loaded = await cards
+      .locator(':not([inert])')
       .first()
       .locator('img:not([aria-hidden="true"])')
       .evaluate((img) => img.complete && img.naturalWidth > 0);
@@ -64,7 +67,7 @@ test.describe('pictures section', () => {
       test.info().project.name !== 'mobile-chromium',
       'the 100vw-4rem centered card is a phone-only layout',
     );
-    const card = page.locator('[data-picture-card]').first();
+    const card = page.locator('[data-picture-card]:not([inert])').first();
     await card.scrollIntoViewIfNeeded();
     const gutters = await card.evaluate((el) => {
       const r = el.getBoundingClientRect();
@@ -77,7 +80,7 @@ test.describe('pictures section', () => {
   test('metadata overlay stays hidden while interaction toggles are off', async ({ page }) => {
     // The shipped config has showDetailsButton/hover/click all disabled —
     // the overlay must not leak through and no toggle control may render.
-    const card = page.locator('[data-picture-card]').first();
+    const card = page.locator('[data-picture-card]:not([inert])').first();
     await card.scrollIntoViewIfNeeded();
     const overlay = card.locator('[id^="picture-details-"]');
     await expect(overlay).toHaveCSS('opacity', '0');

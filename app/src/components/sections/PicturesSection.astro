@@ -50,6 +50,16 @@ const RAIL_CARD =
   'reveal aspect-[4/5.5] w-[calc(100vw-4rem)] snap-center sm:w-[calc((100%-1rem)/2)] sm:snap-start lg:w-[calc((100%-2rem)/3)] xl:w-[calc((100%-3rem)/4)] 2xl:w-[calc((100%-4rem)/5)] shrink-0';
 const RAIL_SIZES =
   '(min-width: 1536px) 20vw, (min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, calc(100vw - 4rem)';
+
+/**
+ * Seamless loop, same contract as VideoSection: 3 copies at ≥6 items,
+ * bounded rail below. rail.ts parks and normalises; the middle copy is the
+ * real one (clones are aria-hidden + inert).
+ */
+const LOOP_MIN = 6;
+const LOOP_SETS = 3;
+const shouldLoop = data.layout !== 'grid' && pictures.length >= LOOP_MIN;
+const railItems = shouldLoop ? Array.from({ length: LOOP_SETS }, () => pictures).flat() : pictures;
 ---
 
 <section
@@ -100,7 +110,11 @@ const RAIL_SIZES =
           ))}
         </ul>
       ) : (
-        <div class="relative mt-10 w-full" data-picture-rail-wrap>
+        <div
+          class="relative mt-10 w-full"
+          data-picture-rail-wrap
+          data-sets={shouldLoop ? LOOP_SETS : 1}
+        >
           <button
             type="button"
             data-rail-scroll="-1"
@@ -144,18 +158,27 @@ const RAIL_SIZES =
             aria-label={t.railLabel}
             class="no-scrollbar flex snap-x snap-mandatory justify-start gap-4 overflow-x-auto scroll-smooth px-8 pb-2"
           >
-            {pictures.map((picture, index) => (
-              <PictureCard
-                picture={picture}
-                locale={locale}
-                cardId={`rail-${index}`}
-                class={RAIL_CARD}
-                sizes={RAIL_SIZES}
-                showDetailsButton={data.showDetailsButton}
-                enableHoverPreview={data.enableHoverPreview}
-                enableClickToReveal={data.enableClickToReveal}
-              />
-            ))}
+            {railItems.map((picture, index) => {
+              // Only the middle copy is real (see VideoSection); clones are
+              // decorative: aria-hidden for the a11y tree, inert to also
+              // remove them from focus and pointer reach. Flat-index
+              // cardIds keep the details-overlay ids unique across copies.
+              const isClone = shouldLoop && Math.floor(index / pictures.length) !== 1;
+              return (
+                <PictureCard
+                  picture={picture}
+                  locale={locale}
+                  cardId={`rail-${index}`}
+                  class={RAIL_CARD}
+                  sizes={RAIL_SIZES}
+                  showDetailsButton={data.showDetailsButton}
+                  enableHoverPreview={data.enableHoverPreview}
+                  enableClickToReveal={data.enableClickToReveal}
+                  aria-hidden={isClone ? 'true' : undefined}
+                  inert={isClone ? true : undefined}
+                />
+              );
+            })}
           </ul>
         </div>
       )

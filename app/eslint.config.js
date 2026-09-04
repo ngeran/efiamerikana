@@ -22,6 +22,15 @@ export default tseslint.config(
     ...tseslint.configs.disableTypeChecked,
   },
   {
+    // Astro frontmatter: the ambient global `astroHTML` namespace (HTML
+    // attribute types for Props extends/spreads) comes from astro's own
+    // types, which the JS linter doesn't load.
+    files: ['**/*.astro'],
+    languageOptions: {
+      globals: { astroHTML: 'readonly' },
+    },
+  },
+  {
     // Node contexts: seed scripts and the build-tool config files.
     files: ['scripts/**/*.mjs', 'astro.config.mjs', '*.config.{js,ts}'],
     languageOptions: {

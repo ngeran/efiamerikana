@@ -52,13 +52,23 @@ export function initRails({ wrap, card: cardSelector }: RailOptions) {
 
     const cards = () => Array.from(rail.querySelectorAll<HTMLElement>(cardSelector));
 
-    /** Which card the rail is parked closest to — keeps swipes and arrows in sync. */
+    /**
+     * Which card the rail is parked closest to — keeps swipes and arrows in
+     * sync. In loop mode only the MIDDLE copy is scanned: every card exists
+     * at identical pixel offsets in all three copies, and tie-breaking
+     * toward an outer copy makes the arrows advance once and then stick.
+     */
     const currentIndex = () => {
       const list = cards();
       if (list.length === 0) return 0;
-      let closest = 0;
+      const per = Math.floor(list.length / sets);
+      let closest = sets > 1 ? per : 0;
       let closestDist = Infinity;
       list.forEach((el, i) => {
+        if (sets > 1) {
+          const copy = Math.floor(i / per);
+          if (copy !== 1) return; // middle copy only
+        }
         const dist = Math.abs(el.offsetLeft - rail.offsetLeft - rail.scrollLeft);
         if (dist < closestDist) {
           closestDist = dist;
@@ -104,15 +114,23 @@ export function initRails({ wrap, card: cardSelector }: RailOptions) {
     };
 
     /**
-     * Park in the middle copy, then whenever the visitor drifts into the
-     * first or last copy, jump by exactly one copy-width. The jump is
-     * invisible because the pixels either side of it are identical.
+     * Keep scrollLeft inside the middle copy's span `[w, 2w)`: one copy-width
+     * jump, invisible because the pixels a copy away are identical. The band
+     * check is idempotent — a jump can never re-trigger itself, so there is
+     * no normalise ping-pong.
+     *
+     * Whenever the rail can scroll at all (`clientWidth < w`) the maximum
+     * scrollLeft is `3w + padding - clientWidth ≥ 2w`, so both hard ends are
+     * always reachable by this correction: scrolling into copy 0 or copy 2
+     * gets pulled back into the band instead of stopping at a visible seam.
+     * (A viewport-edge trigger instead fires, subtracts a copy, lands below
+     * `w`, and the next tick adds it back — oscillating forever.)
      */
     const normalise = () => {
       const w = copyWidth();
       if (!w) return;
-      if (rail.scrollLeft < w * 0.5) jumpBy(w);
-      else if (rail.scrollLeft > w * (sets - 0.5)) jumpBy(-w);
+      if (rail.scrollLeft >= w * 2) jumpBy(-w);
+      else if (rail.scrollLeft < w) jumpBy(w);
     };
 
     const park = () => {

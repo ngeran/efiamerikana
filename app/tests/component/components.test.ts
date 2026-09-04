@@ -72,6 +72,25 @@ describe('<VideoCard>', () => {
     expect(html).toContain('aria-expanded="false"');
   });
 
+  it('passes loop-clone attributes through to the card root', async () => {
+    const container = await AstroContainer.create();
+    const html = await container.renderToString(VideoCard, {
+      props: {
+        video,
+        locale: 'en',
+        cardId: 'clone-0',
+        class: 'aspect-[9/16] w-full',
+        // What the section renders for the non-middle copies of the loop:
+        'aria-hidden': 'true',
+        inert: true,
+      } as never,
+    });
+
+    expect(html).toContain('aria-hidden="true"');
+    // Boolean attribute: renders bare (`inert`) or as inert="inert".
+    expect(html).toMatch(/inert(\s|=")/);
+  });
+
   it('renders poster-only when the video file is missing', async () => {
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
     const container = await AstroContainer.create();

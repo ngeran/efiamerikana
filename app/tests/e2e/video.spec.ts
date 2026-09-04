@@ -13,11 +13,17 @@ test.describe('video section', () => {
     const cards = section.locator('[data-video-card]');
     expect(await cards.count()).toBeGreaterThanOrEqual(3);
 
-    await cards.first().scrollIntoViewIfNeeded();
-    await expect(cards.first().locator('video[data-video]')).toHaveAttribute('preload', 'none');
-    await expect(cards.first().locator('video[data-video]')).toHaveAttribute('poster', /.+/);
-    await expect(cards.first().locator('video[data-video]')).toHaveAttribute('playsinline', '');
-    await expect(cards.first().locator('video[data-video]')).toHaveAttribute('muted', '');
+    // :not([inert]) skips the loop's clone copies (inert is a bare boolean
+    // attribute; with data-sets=1 nothing is inert, so this is a no-op there).
+    // Interaction tests below need a REAL card: clones are aria-hidden (the
+    // playback controller skips them) and parked off-screen by the loop's
+    // normalise, which would fight scrollIntoViewIfNeeded forever.
+    const real = cards.locator(':not([inert])').first();
+    await real.scrollIntoViewIfNeeded();
+    await expect(real.locator('video[data-video]')).toHaveAttribute('preload', 'none');
+    await expect(real.locator('video[data-video]')).toHaveAttribute('poster', /.+/);
+    await expect(real.locator('video[data-video]')).toHaveAttribute('playsinline', '');
+    await expect(real.locator('video[data-video]')).toHaveAttribute('muted', '');
 
     const ids = await cards.evaluateAll((els) =>
       els.map((el) => el.querySelector('[id^="video-details-"]')?.id ?? ''),
@@ -58,7 +64,7 @@ test.describe('video section', () => {
   });
 
   test('stays paused below the fold, autoplays on scroll-in, pause sticks', async ({ page }) => {
-    const card = page.locator('[data-video-card]').first();
+    const card = page.locator('[data-video-card]:not([inert])').first();
     const video = card.locator('video[data-video]');
 
     // Below the fold on load: paused poster frame, nothing fetched.
@@ -85,7 +91,7 @@ test.describe('video section', () => {
   });
 
   test('unmute toggles audio state without stopping playback', async ({ page }) => {
-    const card = page.locator('[data-video-card]').first();
+    const card = page.locator('[data-video-card]:not([inert])').first();
     const video = card.locator('video[data-video]');
     await card.scrollIntoViewIfNeeded();
     await card.locator('[data-play-toggle]').click();
@@ -101,7 +107,7 @@ test.describe('video section', () => {
   });
 
   test('+ button reveals and hides the metadata overlay', async ({ page }) => {
-    const card = page.locator('[data-video-card]').first();
+    const card = page.locator('[data-video-card]:not([inert])').first();
     const toggle = card.locator('[data-details-toggle]');
     await card.scrollIntoViewIfNeeded();
     const overlay = card.locator('[id^="video-details-"]');
