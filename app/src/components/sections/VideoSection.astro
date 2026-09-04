@@ -82,7 +82,13 @@ const RAIL_CARD =
           data-videos
         >
           {videos.map((video, index) => (
-            <VideoCard video={video} locale={locale} cardId={`grid-${index}`} class={GRID_CARD} />
+            <VideoCard
+              video={video}
+              locale={locale}
+              cardId={`grid-${index}`}
+              class={GRID_CARD}
+              respectRatio
+            />
           ))}
         </ul>
       ) : (

@@ -96,6 +96,12 @@ const videoSchema = z.object({
   order: z.number().int().default(100),
   language: z.enum(['en', 'el']).default('en'),
   video: mediaRef,
+  // Authored, not probed: an editor uploading a clip already knows the
+  // orientation, and a 3-option select is far cheaper than ffprobe at build
+  // time. Drives the grid card's aspect ratio (rail slots stay fixed for
+  // snap alignment). The default is load-bearing — every existing entry
+  // lacks the field.
+  orientation: z.enum(['portrait', 'landscape', 'square']).default('portrait'),
   poster: mediaRef.nullish(),
   posterAlt: z.string().nullish(),
   transcript: z.string().nullish(),

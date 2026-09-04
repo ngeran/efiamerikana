@@ -92,6 +92,15 @@ collections:
           required: false,
           hint: 'Optional chip (e.g. TikTok)',
         }
+      - label: Orientation
+        name: orientation
+        widget: select
+        default: portrait
+        hint: Grid cards use the video's own shape; the rail keeps its slot
+        options:
+          - { label: 'Portrait (9:16)', value: portrait }
+          - { label: 'Landscape (16:9)', value: landscape }
+          - { label: 'Square (1:1)', value: square }
       - { label: 'Draft — hidden from the live site', name: draft, widget: boolean, default: false }
 
   - name: pictures

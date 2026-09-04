@@ -43,6 +43,13 @@ interface Props {
    * Defaults false.
    */
   enableClickToReveal?: boolean;
+  /**
+   * Grid-only: honour the asset's own aspect ratio instead of the layout's
+   * fixed slot, so a landscape upload is never cropped into a portrait slot.
+   * The rail never sets this — equal card heights are what snap alignment
+   * and the arrow stepping assume.
+   */
+  respectRatio?: boolean;
 }
 
 const {
@@ -54,10 +61,14 @@ const {
   showDetailsButton = true,
   enableHoverPreview = false,
   enableClickToReveal = false,
+  respectRatio = false,
 } = Astro.props;
 const t = translator(locale).pictures;
 
 const image = resolveImage(picture.image);
+// The asset's true ratio, straight off the build-time metadata. Emitted as
+// --card-ratio (consumed in global.css) only when the grid asked for it.
+const ratio = image.width && image.height ? `${image.width} / ${image.height}` : null;
 const detailsId = `picture-details-${cardId}`;
 
 const showLabel = `${t.showDescription} — ${picture.title}`;
@@ -68,6 +79,7 @@ const hideLabel = `${t.hideDescription} — ${picture.title}`;
   class={`group relative overflow-hidden rounded-[18px] bg-black shadow-xl ${className}`}
   data-picture-card
   data-open="false"
+  style={respectRatio && ratio ? `--card-ratio: ${ratio};` : undefined}
 >
   <MediaFrame backdrop={image} fit="contain">
     <Image

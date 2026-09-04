@@ -133,6 +133,18 @@
     object-fit: cover;
   }
 
+  /* Media cards honour the asset's own ratio in GRID layouts (emitted as
+     --card-ratio by the cards when the grid passes respectRatio), falling
+     back to the layout ratio in the class strings otherwise. Scoped to the
+     attribute-selector form so cards without the custom property keep the
+     Tailwind aspect-[…] utility untouched — no specificity fight. The rail
+     never emits it: equal card heights are what snap alignment and the
+     arrow stepping assume. */
+  [data-picture-card][style*='--card-ratio'],
+  [data-video-card][style*='--card-ratio'] {
+    aspect-ratio: var(--card-ratio);
+  }
+
   /* ----------------------------------------------------------------- */
   /* Hero rail geometry                                                */
   /*                                                                   */

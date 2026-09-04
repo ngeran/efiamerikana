@@ -41,6 +41,7 @@ describe('<VideoCard>', () => {
     description: 'Crispy, glossy, aggressively lemony.',
     order: 1,
     language: 'en',
+    orientation: 'portrait',
     video: '/media/videos/lemon-potatoes.mp4',
     poster: '/media/posters/lemon-potatoes.svg',
     posterAlt: 'Placeholder poster: lemon potatoes.',

@@ -28,10 +28,20 @@ interface Props {
   cardId: string;
   /** Layout-specific <li> sizing (grid cell vs rail slide). */
   class: string;
+  /**
+   * Grid-only: honour the video's authored orientation instead of the
+   * layout's fixed slot. The rail never sets this — equal card heights are
+   * what snap alignment and the arrow stepping assume.
+   */
+  respectRatio?: boolean;
 }
 
-const { video, locale, cardId, class: className } = Astro.props;
+const { video, locale, cardId, class: className, respectRatio = false } = Astro.props;
 const t = translator(locale).video;
+
+/** Authored orientation → grid card ratio (rail slots stay fixed). */
+const RATIOS = { portrait: '9 / 16', landscape: '16 / 9', square: '1 / 1' } as const;
+const ratio = RATIOS[video.orientation];
 
 const src = resolveVideo(video.video);
 // '' means the referenced file is missing (failed upload) — render poster-only.
@@ -69,6 +79,7 @@ const pauseLabel = `${t.pause} — ${video.title}`;
   data-playing="false"
   data-muted="true"
   data-open="false"
+  style={respectRatio ? `--card-ratio: ${ratio};` : undefined}
 >
   <!--
     width/height give the element a 9:16 intrinsic ratio before any metadata
