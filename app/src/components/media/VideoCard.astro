@@ -90,7 +90,6 @@ const pauseLabel = `${t.pause} — ${video.title}`;
   <MediaFrame backdrop={posterImage} fit="contain">
     <video
       data-video
-      src={missing ? undefined : src}
       poster={posterSrc}
       aria-label={video.posterAlt || video.title}
       width="1080"
@@ -99,7 +98,14 @@ const pauseLabel = `${t.pause} — ${video.title}`;
       muted
       playsinline
       preload="none"
-      class="h-full w-full object-contain"></video>
+      class="h-full w-full object-contain"
+    >
+      {
+        /* data-src, not src: the playback controller promotes it on demand,
+           so page load fetches zero video bytes (posters only). */
+        !missing && <source data-src={src} type="video/mp4" />
+      }
+    </video>
   </MediaFrame>
 
   <button

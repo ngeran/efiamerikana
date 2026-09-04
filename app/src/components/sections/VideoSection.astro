@@ -152,12 +152,14 @@ const RAIL_CARD =
 
 <script>
   import { initRails } from '../../scripts/rail';
+  import { initVideoPlayback } from '../../scripts/video-playback';
 
-  // Shared rail navigation (arrows, snap-aware targets, optional loop) lives
-  // in src/scripts/rail.ts; what remains here is card playback wiring.
+  // Shared rail navigation (arrows, snap-aware targets, optional loop) and
+  // the centralised autoplay controller (top-N visible cards, deferred
+  // sources, decoder budget) live in src/scripts/. What remains here is the
+  // per-card presentation wiring.
   initRails({ wrap: '[data-video-rail-wrap]', card: '[data-video-card]' });
-
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  initVideoPlayback();
 
   for (const root of document.querySelectorAll<HTMLElement>('[data-videos]')) {
     for (const card of root.querySelectorAll<HTMLElement>('[data-video-card]')) {
@@ -170,6 +172,8 @@ const RAIL_CARD =
 
       // Keeps the DOM state and the accessible names in step. Labels come from
       // data-* attributes so this script stays free of user-facing strings.
+      // These listeners sit on the video elements themselves (media events
+      // don't bubble), so controller-initiated play/pause stays in sync.
       const sync = () => {
         const playing = !video.paused && !video.ended;
         card.dataset.playing = String(playing);
@@ -189,16 +193,6 @@ const RAIL_CARD =
       video.addEventListener('play', sync);
       video.addEventListener('pause', sync);
 
-      playBtn.addEventListener('click', () => {
-        if (!video.paused) {
-          card.dataset.intent = 'pause';
-          video.pause();
-        } else {
-          card.dataset.intent = 'play';
-          video.play().catch(() => {});
-        }
-      });
-
       muteBtn?.addEventListener('click', () => {
         video.muted = !video.muted;
         sync();
@@ -213,30 +207,6 @@ const RAIL_CARD =
       });
 
       sync();
-
-      // Viewport autoplay, TikTok-style: play (muted — the element carries
-      // muted+playsinline, which every mobile browser permits without a
-      // gesture) once the card is mostly on screen, pause when it leaves.
-      // An explicit pause by the visitor (data-intent) wins until they tap
-      // play again, and reduced-motion visitors get no autoplay at all.
-      // This replaces the old hover-only preview so touch devices behave
-      // exactly like desktop.
-      if ('IntersectionObserver' in window) {
-        new IntersectionObserver(
-          (entries) => {
-            for (const entry of entries) {
-              if (entry.intersectionRatio >= 0.5) {
-                if (video.paused && card.dataset.intent !== 'pause' && !reducedMotion.matches) {
-                  video.play().catch(() => {});
-                }
-              } else {
-                if (!video.paused) video.pause();
-              }
-            }
-          },
-          { threshold: [0.5] },
-        ).observe(card);
-      }
     }
   }
 </script>
