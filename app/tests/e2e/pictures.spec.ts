@@ -27,7 +27,9 @@ test.describe('pictures section', () => {
       .locator(':not([inert])')
       .first()
       .locator('img:not([aria-hidden="true"])')
-      .evaluate((img) => img.complete && img.naturalWidth > 0);
+      .evaluate(
+        (img) => (img as HTMLImageElement).complete && (img as HTMLImageElement).naturalWidth > 0,
+      );
     expect(loaded).toBe(true);
 
     const ids = await cards.evaluateAll((els) =>
