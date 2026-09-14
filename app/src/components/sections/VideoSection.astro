@@ -54,7 +54,7 @@ const RAIL_CARD =
  * Gated on a real minimum: looping two or three cards reads as a bug, not a
  * feature. Below the threshold the rail stays bounded (data-sets=1) and
  * behaves exactly as before. Tripling the DOM is safe only with the
- * playback controller's preload=none + decoder budget already in place.
+ * playback controller's deferred sources + decoder budget already in place.
  */
 const LOOP_MIN = 6;
 const LOOP_SETS = 3;

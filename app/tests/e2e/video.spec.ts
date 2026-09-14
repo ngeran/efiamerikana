@@ -70,14 +70,17 @@ test.describe('video section', () => {
     const card = page.locator('[data-video-card]:not([inert])').first();
     const video = card.locator('video[data-video]');
 
-    // Below the fold on load: paused poster frame, nothing fetched.
+    // Below the fold on load: paused poster frame — no winner plays; at most
+    // a moov-only metadata fetch happens for cards near the fold.
     await expect.poll(() => video.evaluate((v) => (v as HTMLVideoElement).paused)).toBe(true);
 
-    // Scrolled into view: the most-visible card autoplays (muted).
+    // Scrolled into view: the most-visible card autoplays (muted) and has
+    // been warmed to preload="auto" by the controller.
     await card.scrollIntoViewIfNeeded();
     await expect
       .poll(() => video.evaluate((v) => (v as HTMLVideoElement).paused), { timeout: 8_000 })
       .toBe(false);
+    await expect.poll(() => video.evaluate((v) => (v as HTMLVideoElement).preload)).toBe('auto');
     await expect(card).toHaveAttribute('data-playing', 'true');
 
     // Explicit pause wins over autoplay while still in view.

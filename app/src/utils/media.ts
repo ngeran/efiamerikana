@@ -94,8 +94,8 @@ export function resolveImage(input: string): ImageMetadata {
 /**
  * Build-time poster for a video with none set in the CMS: the first-frame
  * still extracted by `npm run media:posters`, when one exists. Without a
- * poster, `<video preload="none">` renders as a black card until played —
- * and on touch devices nothing ever hovers to wake it.
+ * poster, an unplayed video card renders as a black box — and on touch
+ * devices nothing ever hovers to wake it.
  */
 export function autoPosterFor(videoRef: string): ImageMetadata | null {
   const base = normalizeMediaPath(videoRef).replace(/\.[^.]+$/, '');
