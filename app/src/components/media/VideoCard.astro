@@ -161,10 +161,15 @@ const pauseLabel = `${t.pause} — ${video.title}`;
     </svg>
   </button>
 
+  <!--
+    Bare "+" glyph, no chip (the Framer-card look): the button box stays
+    40px for the tap target, but nothing is painted except the glyph, which
+    rotates 45° into an "×" when the details are open.
+  -->
   <button
     type="button"
     data-details-toggle
-    class="absolute top-3 right-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black transition-transform duration-500 ease-[var(--ease-out-soft)] group-data-[open=true]:rotate-45 sm:h-9 sm:w-9"
+    class="absolute top-2 right-2 z-10 flex h-10 w-10 items-center justify-center transition-transform duration-500 ease-[var(--ease-out-soft)] group-data-[open=true]:rotate-45"
     aria-expanded="false"
     aria-controls={detailsId}
     aria-label={t.showDetails}
@@ -173,10 +178,11 @@ const pauseLabel = `${t.pause} — ${video.title}`;
   >
     <svg
       viewBox="0 0 24 24"
-      class="h-4 w-4"
+      class="h-5 w-5"
       fill="none"
       stroke="white"
-      stroke-width="2.5"
+      stroke-width="2"
+      stroke-linecap="round"
       aria-hidden="true"
     >
       <line x1="12" y1="5" x2="12" y2="19"></line>
