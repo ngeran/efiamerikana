@@ -169,7 +169,7 @@ const pauseLabel = `${t.pause} — ${video.title}`;
   <button
     type="button"
     data-details-toggle
-    class="absolute top-2 right-2 z-10 flex h-10 w-10 items-center justify-center transition-transform duration-500 ease-[var(--ease-out-soft)] group-data-[open=true]:rotate-45"
+    class="absolute top-2 right-2 z-10 flex h-10 w-10 items-center justify-center text-charcoal transition-transform duration-500 ease-[var(--ease-out-soft)] group-data-[open=true]:rotate-45"
     aria-expanded="false"
     aria-controls={detailsId}
     aria-label={t.showDetails}
@@ -178,9 +178,9 @@ const pauseLabel = `${t.pause} — ${video.title}`;
   >
     <svg
       viewBox="0 0 24 24"
-      class="h-5 w-5"
+      class="h-10 w-10"
       fill="none"
-      stroke="white"
+      stroke="currentColor"
       stroke-width="2"
       stroke-linecap="round"
       aria-hidden="true"
