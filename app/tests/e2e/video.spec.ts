@@ -112,6 +112,47 @@ test.describe('video section', () => {
     expect(await video.evaluate((v) => (v as HTMLVideoElement).muted)).toBe(true);
   });
 
+  test('unmuting one video mutes the rest — the audio feed is exclusive', async ({ page }) => {
+    test.skip(
+      test.info().project.name === 'mobile-chromium',
+      'the decoder budget is 1 on phones — no second stream to duel with',
+    );
+    const cards = page.locator('[data-video-card]:not([inert])');
+    const videos = cards.locator('video[data-video]');
+
+    // Desktop budget is 2: scrolling the first card into view plays the two
+    // most-visible cards simultaneously, both muted.
+    await cards.first().scrollIntoViewIfNeeded();
+    await expect
+      .poll(() => videos.nth(0).evaluate((v) => (v as HTMLVideoElement).paused), { timeout: 8_000 })
+      .toBe(false);
+    await expect
+      .poll(() => videos.nth(1).evaluate((v) => (v as HTMLVideoElement).paused), { timeout: 8_000 })
+      .toBe(false);
+
+    // Unmute card 0 → card 1 goes silent but KEEPS PLAYING: only the audio
+    // channel is exclusive, not the decoder.
+    await cards.nth(0).locator('[data-mute-toggle]').click();
+    await expect
+      .poll(() => videos.nth(0).evaluate((v) => (v as HTMLVideoElement).muted))
+      .toBe(false);
+    await expect
+      .poll(() => videos.nth(1).evaluate((v) => (v as HTMLVideoElement).muted))
+      .toBe(true);
+    await expect
+      .poll(() => videos.nth(1).evaluate((v) => (v as HTMLVideoElement).paused))
+      .toBe(false);
+    // The soloed card's controls reflect reality for the next visitor gesture.
+    await expect(cards.nth(1)).toHaveAttribute('data-muted', 'true');
+
+    // Re-muting card 0 does not resurrect card 1's audio — silence is the
+    // honest state; bringing sound back is a deliberate act, never an echo.
+    await cards.nth(0).locator('[data-mute-toggle]').click();
+    await expect
+      .poll(() => videos.nth(1).evaluate((v) => (v as HTMLVideoElement).muted))
+      .toBe(true);
+  });
+
   test('+ button reveals and hides the metadata overlay', async ({ page }) => {
     const card = page.locator('[data-video-card]:not([inert])').first();
     const toggle = card.locator('[data-details-toggle]');

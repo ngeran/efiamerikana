@@ -210,6 +210,26 @@ export function initVideoPlayback() {
 
   wide.addEventListener('change', apply);
 
+  /**
+   * One audio feed site-wide: unmuting any video mutes every other one.
+   * Videos keep playing — sight is cheap, the audio channel is singular
+   * (the TikTok/YouTube-embed pattern). Capture phase, because media
+   * events don't bubble but DO traverse the capture path, so this funnels
+   * EVERY unmute path through one policy rather than trusting each button.
+   */
+  document.addEventListener(
+    'volumechange',
+    (event) => {
+      const video = event.target as HTMLVideoElement;
+      // React to un-mutes only, and only our cards.
+      if (video.muted || !video.matches('video[data-video]')) return;
+      for (const other of document.querySelectorAll<HTMLVideoElement>('video[data-video]')) {
+        if (other !== video) other.muted = true;
+      }
+    },
+    true,
+  );
+
   // Manual play must always work, even when autoplay is disallowed.
   document.addEventListener('click', (event) => {
     const btn = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-play-toggle]');
