@@ -3,3 +3,9 @@
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; font-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'; form-action: none
+
+# Content-hashed build output never changes — let every revisit come from
+# cache instead of a 304 round trip per video/poster/script (Pages merges
+# this block with the /* security headers above).
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
