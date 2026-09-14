@@ -19,8 +19,11 @@ test.describe('video section', () => {
     // playback controller skips them) and parked off-screen by the loop's
     // normalise, which would fight scrollIntoViewIfNeeded forever.
     const real = cards.locator(':not([inert])').first();
+    // Assert the SSR preload hint BEFORE scrolling: once the card is in view
+    // the controller may promote the preload to 'auto' and the metadata
+    // assertion would race the promotion.
+    await expect(real.locator('video[data-video]')).toHaveAttribute('preload', 'metadata');
     await real.scrollIntoViewIfNeeded();
-    await expect(real.locator('video[data-video]')).toHaveAttribute('preload', 'none');
     await expect(real.locator('video[data-video]')).toHaveAttribute('poster', /.+/);
     await expect(real.locator('video[data-video]')).toHaveAttribute('playsinline', '');
     await expect(real.locator('video[data-video]')).toHaveAttribute('muted', '');

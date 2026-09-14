@@ -51,6 +51,17 @@ const t = translator(locale).video;
 /** Authored orientation → grid card ratio (rail slots stay fixed). */
 const RATIOS = { portrait: '9 / 16', landscape: '16 / 9', square: '1 / 1' } as const;
 const ratio = RATIOS[video.orientation];
+/**
+ * Intrinsic dimensions matching each ratio — only the pre-metadata aspect
+ * ratio is load-bearing (CSS sizes the element); real values arrive with
+ * the video's own metadata. 576×1024 matches the actual ladder assets.
+ */
+const DIMS = {
+  portrait: [576, 1024],
+  landscape: [1024, 576],
+  square: [720, 720],
+} as const;
+const [dimW, dimH] = DIMS[video.orientation];
 
 const src = resolveVideo(video.video);
 // '' means the referenced file is missing (failed upload) — render poster-only.
@@ -92,27 +103,29 @@ const pauseLabel = `${t.pause} — ${video.title}`;
   style={respectRatio ? `--card-ratio: ${ratio};` : undefined}
 >
   <!--
-    width/height give the element a 9:16 intrinsic ratio before any metadata
-    loads — which, with preload="none", is not until the visitor hits play.
-    preload="none" is the single biggest win here: 6 rail videos would each
-    otherwise fetch metadata on page load.
+    width/height give the element its intrinsic ratio before any metadata
+    loads. preload="metadata" costs only the moov atom (~50-150KB) once the
+    playback controller attaches a source NEAR the viewport — duration and
+    dimensions are then ready instantly at play() time, and the browser can
+    begin streaming the first frames while the visitor is still scrolling.
   -->
   <MediaFrame backdrop={posterImage} fit="contain">
     <video
       data-video
       poster={posterSrc}
       aria-label={video.posterAlt || video.title}
-      width="1080"
-      height="1920"
+      width={dimW}
+      height={dimH}
       loop
       muted
       playsinline
-      preload="none"
+      disablepictureinpicture
+      preload="metadata"
       class="h-full w-full object-contain"
     >
       {
         /* data-src, not src: the playback controller promotes it on demand,
-           so page load fetches zero video bytes (posters only). */
+           so page load still fetches zero video bytes (posters only). */
         !missing && <source data-src={src} type="video/mp4" />
       }
     </video>

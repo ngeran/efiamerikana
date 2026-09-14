@@ -62,7 +62,8 @@ describe('<VideoCard>', () => {
     });
 
     expect(html).toContain('aspect-[9/16]');
-    expect(html).toContain('preload="none"');
+    expect(html).toContain('preload="metadata"');
+    expect(html).toContain('width="576"');
     expect(html).toContain('playsinline');
     expect(html).toContain('muted');
     expect(html).toContain('loop');
