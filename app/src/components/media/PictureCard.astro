@@ -85,10 +85,12 @@ const hideLabel = `${t.hideDescription} — ${picture.title}`;
   data-open="false"
   style={respectRatio && ratio ? `--card-ratio: ${ratio};` : undefined}
 >
-  <!-- No blurred backdrop: on near-matching ratios its few-pixel rim read as
-       a dirty gray outline around the picture. Bars fall back to the card's
-       own black and the image meets the frame cleanly. -->
-  <MediaFrame fit="contain">
+  <!-- Cover, not contain: the rail's slot is a fixed 4/5.5 while photos sit
+       a few percent off, and letterbox bars (blurred or black) read as a
+       defect on the flat section background. A uniform fill crops only that
+       sliver; grid cards use the asset's own ratio, where cover == contain
+       and nothing is lost. -->
+  <MediaFrame fit="cover">
     <Image
       src={image}
       alt={picture.imageAlt ?? picture.title ?? ''}
@@ -96,7 +98,7 @@ const hideLabel = `${t.hideDescription} — ${picture.title}`;
       sizes={sizes}
       loading="lazy"
       decoding="async"
-      class="h-full w-full object-contain"
+      class="h-full w-full object-cover"
     />
   </MediaFrame>
 
