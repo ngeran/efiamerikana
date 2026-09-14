@@ -85,7 +85,10 @@ const hideLabel = `${t.hideDescription} — ${picture.title}`;
   data-open="false"
   style={respectRatio && ratio ? `--card-ratio: ${ratio};` : undefined}
 >
-  <MediaFrame backdrop={image} fit="contain">
+  <!-- No blurred backdrop: on near-matching ratios its few-pixel rim read as
+       a dirty gray outline around the picture. Bars fall back to the card's
+       own black and the image meets the frame cleanly. -->
+  <MediaFrame fit="contain">
     <Image
       src={image}
       alt={picture.imageAlt ?? picture.title ?? ''}
