@@ -17,6 +17,7 @@
     "admin": "npx decap-server",
     "media:transcode": "node scripts/transcode-videos.mjs",
     "media:check": "node scripts/transcode-videos.mjs -n",
+    "media:normalize": "node scripts/transcode-videos.mjs --all",
     "media:posters": "node scripts/generate-posters.mjs"
   },
   "dependencies": {
