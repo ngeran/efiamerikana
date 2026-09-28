@@ -23,8 +23,13 @@ test.describe('video section', () => {
     // the controller may promote the preload to 'auto' and the metadata
     // assertion would race the promotion.
     await expect(real.locator('video[data-video]')).toHaveAttribute('preload', 'metadata');
+    // The poster is a lazy <img> overlay — the video element itself carries
+    // no poster attribute (Chromium fetches those eagerly at render time,
+    // viewport notwithstanding).
+    await expect(real.locator('video[data-video]')).not.toHaveAttribute('poster');
+    await expect(real.locator('[data-video-poster]')).toHaveAttribute('src', /.+/);
+    await expect(real.locator('[data-video-poster]')).toHaveAttribute('loading', 'lazy');
     await real.scrollIntoViewIfNeeded();
-    await expect(real.locator('video[data-video]')).toHaveAttribute('poster', /.+/);
     await expect(real.locator('video[data-video]')).toHaveAttribute('playsinline', '');
     await expect(real.locator('video[data-video]')).toHaveAttribute('muted', '');
 
@@ -82,6 +87,10 @@ test.describe('video section', () => {
       .toBe(false);
     await expect.poll(() => video.evaluate((v) => (v as HTMLVideoElement).preload)).toBe('auto');
     await expect(card).toHaveAttribute('data-playing', 'true');
+    // First frame is up: the poster overlay has faded out — and stays gone
+    // (the latch never resets; a paused video keeps its last frame).
+    await expect(card).toHaveAttribute('data-started', 'true');
+    await expect(card.locator('[data-video-poster]')).toHaveCSS('opacity', '0');
 
     // Explicit pause wins over autoplay while still in view.
     await card.locator('[data-play-toggle]').click();
@@ -94,6 +103,85 @@ test.describe('video section', () => {
     await expect
       .poll(() => video.evaluate((v) => (v as HTMLVideoElement).paused), { timeout: 5_000 })
       .toBe(true);
+  });
+
+  test('a card taller than the viewport still autoplays (landscape phone)', async ({ page }) => {
+    // 568×320: below the sm breakpoint (centered rail card), and the 9:16
+    // card is ~2.8× the viewport height. Against its own height its visible
+    // fraction tops out at ~0.36 — the old coverage metric could never pass
+    // the 0.5 gate here, so landscape phones got no autoplay at all. The
+    // metric now measures against the smaller of card/viewport extent, so a
+    // card that fills the screen scores 1.0.
+    await page.setViewportSize({ width: 568, height: 320 });
+    await page.goto('/en/');
+    const card = page.locator('[data-video-card]:not([inert])').first();
+    const video = card.locator('video[data-video]');
+    await expect.poll(() => video.evaluate((v) => (v as HTMLVideoElement).paused)).toBe(true);
+
+    // Park the card so it spans the full (short) viewport.
+    await card.evaluate((el) => {
+      const top = el.getBoundingClientRect().top;
+      window.scrollBy(0, top);
+    });
+    await expect
+      .poll(() => video.evaluate((v) => (v as HTMLVideoElement).paused), { timeout: 8_000 })
+      .toBe(false);
+  });
+
+  test('returning to a played card resumes where it left off (no re-warm restart)', async ({
+    page,
+  }) => {
+    const card = page.locator('[data-video-card]:not([inert])').first();
+    const video = card.locator('video[data-video]');
+    await card.scrollIntoViewIfNeeded();
+    await expect.poll(() => video.evaluate((v) => (v as HTMLVideoElement).paused)).toBe(false);
+
+    // Simulate watched progress, then leave the fold: the controller pauses,
+    // and 2s later demotes the preload back to metadata (hint-only).
+    await video.evaluate((v) => {
+      (v as HTMLVideoElement).currentTime = 5;
+    });
+    await page.locator('#contact').scrollIntoViewIfNeeded();
+    await expect.poll(() => video.evaluate((v) => (v as HTMLVideoElement).paused)).toBe(true);
+    await page.waitForTimeout(2_500);
+
+    // Fling back: re-promoting to preload="auto" must NOT load() — a load
+    // would wipe the buffer and reset the clip to 0:00, the exact refetch+
+    // rejank the demote path exists to avoid.
+    await card.scrollIntoViewIfNeeded();
+    await expect
+      .poll(() => video.evaluate((v) => (v as HTMLVideoElement).paused), { timeout: 8_000 })
+      .toBe(false);
+    const t = await video.evaluate((v) => (v as HTMLVideoElement).currentTime);
+    expect(t).toBeGreaterThanOrEqual(4.5);
+  });
+
+  test('controller pause re-mutes — returning never restores audio on its own', async ({
+    page,
+  }) => {
+    const card = page.locator('[data-video-card]:not([inert])').first();
+    const video = card.locator('video[data-video]');
+    await card.scrollIntoViewIfNeeded();
+    // No play click here: the controller has usually already autoplayed the
+    // card, and the surface is a toggle — clicking would pause it.
+    await expect
+      .poll(() => video.evaluate((v) => (v as HTMLVideoElement).paused), { timeout: 8_000 })
+      .toBe(false);
+    await card.locator('[data-mute-toggle]').click();
+    expect(await video.evaluate((v) => (v as HTMLVideoElement).muted)).toBe(false);
+
+    // Scrolling away pauses the card via the controller — which must re-mute
+    // it: sound the visitor enabled for one moment must not come back on its
+    // own (and Safari would refuse the unmuted play() anyway).
+    await page.locator('#contact').scrollIntoViewIfNeeded();
+    await expect.poll(() => video.evaluate((v) => (v as HTMLVideoElement).muted)).toBe(true);
+
+    // Back in view: playback resumes, still muted.
+    await card.scrollIntoViewIfNeeded();
+    await expect
+      .poll(() => video.evaluate((v) => (v as HTMLVideoElement).paused), { timeout: 8_000 })
+      .toBe(false);
+    expect(await video.evaluate((v) => (v as HTMLVideoElement).muted)).toBe(true);
   });
 
   test('unmute toggles audio state without stopping playback', async ({ page }) => {

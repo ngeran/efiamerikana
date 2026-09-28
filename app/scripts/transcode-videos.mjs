@@ -164,6 +164,16 @@ const rel = (file) => join('src/assets/media', file.split('/src/assets/media/')[
  * One encode path for both passes: HEVC rescues get the same ladder flags as
  * --all normalisations — there is no reason to produce a non-ladder file.
  */
+/**
+ * Cap the frame rate ONLY when the source exceeds the ladder: -r as an
+ * output option forces CFR, frame-duplicating 24/25fps sources (judder on
+ * pans, ~20% wasted bits). Anything at or under MAX_FPS passes through at
+ * its native rate.
+ */
+function fpsArgs(meta) {
+  return meta && meta.fps > MAX_FPS + 1 ? ['-r', String(MAX_FPS)] : [];
+}
+
 function encode(file, meta) {
   const cap = videoCapFor(meta?.duration ?? 60);
   const tmp = join(MEDIA_ROOT, `.transcoding-${process.pid}-${statSync(file).size}.mp4`);
@@ -177,8 +187,7 @@ function encode(file, meta) {
       file,
       '-vf',
       `scale='min(${MAX_WIDTH},iw)':-2`,
-      '-r',
-      String(MAX_FPS),
+      ...fpsArgs(meta),
       '-c:v',
       'libx264',
       '-pix_fmt',

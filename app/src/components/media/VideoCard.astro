@@ -15,11 +15,11 @@ import { autoPosterFor, resolveImage, resolveVideo } from '../../utils/media';
  *  - the whole media surface is the play/pause control
  *  - audio starts muted; unmuting is a separate explicit button (browsers
  *    block autoplay with sound, and surprise audio is hostile)
- *  - the +/x button reveals title/description/transcript (touch-friendly;
- *    hover-capable pointers also get a hover preview from the section script)
+ *  - the +/x button reveals title/description/transcript (touch-friendly)
  *
- * Localized labels are passed down as data-* attributes so the section's
- * behaviour script stays free of user-facing strings.
+ * Localized labels are passed down as data-* attributes so the playback
+ * controller (src/scripts/video-playback.ts) stays free of user-facing
+ * strings.
  */
 interface Props extends astroHTML.JSX.HTMLAttributes {
   video: VideoData;
@@ -34,6 +34,14 @@ interface Props extends astroHTML.JSX.HTMLAttributes {
    * what snap alignment and the arrow stepping assume.
    */
   respectRatio?: boolean;
+  /**
+   * Loop clones (copies 0/2 of the infinite rail) render POSTER-ONLY: no
+   * <video>, no deferred source, no media element ever — clones hold zero
+   * media bytes and no decoder slot at any point in the loop. The chrome
+   * (buttons, tag, details) stays so the cards look identical to the middle
+   * copy while the rail crosses a seam; they are inert regardless.
+   */
+  posterOnly?: boolean;
 }
 
 const {
@@ -42,6 +50,7 @@ const {
   cardId,
   class: className,
   respectRatio = false,
+  posterOnly = false,
   // Loop clones pass aria-hidden + inert through here; anything else the
   // section may add lands on the root untouched.
   ...rest
@@ -68,7 +77,16 @@ const src = resolveVideo(video.video);
 const missing = src === '';
 
 /**
- * `<video poster>` needs a URL string, so <Image> can't be used — but reading
+ * The poster ships as a LAZY `<img>` overlay rather than `<video poster>`:
+ * Chromium fetches poster attributes at render time with no viewport check,
+ * so a below-the-fold section pulled every poster at page load — tripled in
+ * the rail loop. `loading="lazy"` defers each overlay until near-viewport,
+ * and fading it out on first 'playing' (the section script latches
+ * `data-started`) doubles as the Safari poster→first-frame flash fix: the
+ * element keeps its last rendered frame once started, so the overlay never
+ * returns.
+ *
+ * The overlay still needs a URL string, so <Image> can't be used — reading
  * `.src` off the import would serve the ORIGINAL file. One entry's poster is a
  * 1668x2420 16-bit PNG (8.2MB) rendering into a card at most 380px wide, so
  * that bypass cost ~100x the bytes needed. getImage() runs the same transform
@@ -110,56 +128,85 @@ const pauseLabel = `${t.pause} — ${video.title}`;
     begin streaming the first frames while the visitor is still scrolling.
   -->
   <MediaFrame backdrop={posterImage} fit="contain">
-    <video
-      data-video
-      poster={posterSrc}
-      aria-label={video.posterAlt || video.title}
-      width={dimW}
-      height={dimH}
-      loop
-      muted
-      playsinline
-      disablepictureinpicture
-      preload="metadata"
-      class="h-full w-full object-contain"
-    >
-      {
-        /* data-src, not src: the playback controller promotes it on demand,
-           so page load still fetches zero video bytes (posters only). */
-        !missing && <source data-src={src} type="video/mp4" />
-      }
-    </video>
+    {
+      !posterOnly && (
+        <video
+          data-video
+          aria-label={video.posterAlt || video.title}
+          width={dimW}
+          height={dimH}
+          loop
+          muted
+          playsinline
+          disablepictureinpicture
+          disableRemotePlayback
+          preload="metadata"
+          class="h-full w-full object-contain"
+        >
+          {
+            /* data-src, not src: the playback controller promotes it on demand,
+               so page load still fetches zero video bytes (posters only). */
+            !missing && <source data-src={src} type="video/mp4" />
+          }
+        </video>
+      )
+    }
+    {
+      /* Lazy poster overlay — see the poster note in the frontmatter. */
+      posterSrc && (
+        <img
+          data-video-poster
+          src={posterSrc}
+          alt=""
+          aria-hidden="true"
+          loading="lazy"
+          decoding="async"
+          class="pointer-events-none absolute inset-0 h-full w-full object-contain transition-opacity duration-500 ease-[var(--ease-out-soft)] group-data-[started=true]:opacity-0"
+        />
+      )
+    }
   </MediaFrame>
 
-  <button
-    type="button"
-    data-play-toggle
-    class="absolute inset-0 z-0 h-full w-full cursor-pointer"
-    aria-label={playLabel}
-    data-label-play={playLabel}
-    data-label-pause={pauseLabel}></button>
+  {
+    /* No video file, no play surface and no mute control — controls that
+       silently do nothing read as a broken site, not a failed upload. */
+    !missing && (
+      <button
+        type="button"
+        data-play-toggle
+        class="absolute inset-0 z-0 h-full w-full cursor-pointer"
+        aria-label={playLabel}
+        data-label-play={playLabel}
+        data-label-pause={pauseLabel}
+      />
+    )
+  }
 
-  <button
-    type="button"
-    data-mute-toggle
-    class="absolute top-3 left-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/10 backdrop-blur-md sm:h-9 sm:w-9"
-    aria-label={t.unmute}
-    data-label-mute={t.mute}
-    data-label-unmute={t.unmute}
-  >
-    <svg
-      viewBox="0 0 24 24"
-      class="h-4 w-4"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      aria-hidden="true"
-    >
-      <path d="M11 5L6 9H2v6h4l5 4V5z"></path>
-      <line data-mute-line x1="23" y1="9" x2="17" y2="15"></line>
-      <line data-mute-line x1="17" y1="9" x2="23" y2="15"></line>
-    </svg>
-  </button>
+  {
+    !missing && (
+      <button
+        type="button"
+        data-mute-toggle
+        class="absolute top-3 left-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/10 backdrop-blur-md sm:h-9 sm:w-9"
+        aria-label={t.unmute}
+        data-label-mute={t.mute}
+        data-label-unmute={t.unmute}
+      >
+        <svg
+          viewBox="0 0 24 24"
+          class="h-4 w-4"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          aria-hidden="true"
+        >
+          <path d="M11 5L6 9H2v6h4l5 4V5z" />
+          <line data-mute-line x1="23" y1="9" x2="17" y2="15" />
+          <line data-mute-line x1="17" y1="9" x2="23" y2="15" />
+        </svg>
+      </button>
+    )
+  }
 
   <!--
     Bare "+" glyph, no chip (the Framer-card look): the button box stays
@@ -210,7 +257,10 @@ const pauseLabel = `${t.pause} — ${video.title}`;
     }
     {
       video.transcript && (
-        <p class="mt-2 max-h-24 overflow-y-auto text-[11px] leading-relaxed text-white/60">
+        /* pointer-events-auto once open: the transcript scrolls, which the
+           all-none overlay would otherwise make impossible — but only while
+           open, so a closed card's whole surface still toggles playback. */
+        <p class="pointer-events-none mt-2 max-h-24 overflow-y-auto text-[11px] leading-relaxed text-white/60 group-data-[open=true]:pointer-events-auto">
           <span class="font-bold tracking-wide uppercase">{t.transcript}: </span>
           {video.transcript}
         </p>

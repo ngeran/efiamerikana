@@ -165,6 +165,8 @@ const railItems = shouldLoop ? Array.from({ length: LOOP_SETS }, () => videos).f
               // duplicates. inert (not just aria-hidden) — aria-hidden does
               // NOT block pointer events. cardId derives from the flat index
               // across all copies, keeping the details-overlay ids unique.
+              // Clones render poster-only (no <video>) — the media-element
+              // weight of the 3x loop was the heaviest thing on the page.
               const isClone = shouldLoop && Math.floor(index / videos.length) !== 1;
               return (
                 <VideoCard
@@ -172,6 +174,7 @@ const railItems = shouldLoop ? Array.from({ length: LOOP_SETS }, () => videos).f
                   locale={locale}
                   cardId={`rail-${index}`}
                   class={RAIL_CARD}
+                  posterOnly={isClone}
                   aria-hidden={isClone ? 'true' : undefined}
                   inert={isClone ? true : undefined}
                 />
@@ -190,61 +193,11 @@ const railItems = shouldLoop ? Array.from({ length: LOOP_SETS }, () => videos).f
 
   // Shared rail navigation (arrows, snap-aware targets, optional loop) and
   // the centralised autoplay controller (top-N visible cards, deferred
-  // sources, decoder budget) live in src/scripts/. What remains here is the
-  // per-card presentation wiring.
+  // sources, decoder budget, and — via delegated capture listeners — all
+  // per-card presentation wiring) live in src/scripts/. Media events don't
+  // bubble but DO traverse the capture path, so the controller syncs every
+  // card's state through one funnel; this script stays O(1) no matter how
+  // many cards or loop copies the section renders.
   initRails({ wrap: '[data-video-rail-wrap]', card: '[data-video-card]' });
   initVideoPlayback();
-
-  for (const root of document.querySelectorAll<HTMLElement>('[data-videos]')) {
-    for (const card of root.querySelectorAll<HTMLElement>('[data-video-card]')) {
-      const video = card.querySelector<HTMLVideoElement>('video[data-video]');
-      const playBtn = card.querySelector<HTMLButtonElement>('[data-play-toggle]');
-      const muteBtn = card.querySelector<HTMLButtonElement>('[data-mute-toggle]');
-      const detailsBtn = card.querySelector<HTMLButtonElement>('[data-details-toggle]');
-      const muteLines = card.querySelectorAll<SVGLineElement>('[data-mute-line]');
-      if (!video || !playBtn) continue;
-
-      // Keeps the DOM state and the accessible names in step. Labels come from
-      // data-* attributes so this script stays free of user-facing strings.
-      // These listeners sit on the video elements themselves (media events
-      // don't bubble), so controller-initiated play/pause stays in sync —
-      // including the audio-solo mutes the controller applies to OTHER cards
-      // when this one is unmuted (hence the volumechange listener).
-      const sync = () => {
-        const playing = !video.paused && !video.ended;
-        card.dataset.playing = String(playing);
-        card.dataset.muted = String(video.muted);
-        muteLines.forEach((line) => {
-          line.style.display = video.muted ? 'block' : 'none';
-        });
-
-        const playLabel = playBtn.dataset[playing ? 'labelPause' : 'labelPlay'];
-        if (playLabel) playBtn.setAttribute('aria-label', playLabel);
-
-        if (muteBtn) {
-          const muteLabel = muteBtn.dataset[video.muted ? 'labelUnmute' : 'labelMute'];
-          if (muteLabel) muteBtn.setAttribute('aria-label', muteLabel);
-        }
-      };
-
-      video.addEventListener('play', sync);
-      video.addEventListener('pause', sync);
-      video.addEventListener('volumechange', sync);
-
-      muteBtn?.addEventListener('click', () => {
-        video.muted = !video.muted;
-        sync();
-      });
-
-      detailsBtn?.addEventListener('click', () => {
-        const open = detailsBtn.getAttribute('aria-expanded') !== 'true';
-        detailsBtn.setAttribute('aria-expanded', String(open));
-        card.dataset.open = String(open);
-        const label = detailsBtn.dataset[open ? 'labelHide' : 'labelShow'];
-        if (label) detailsBtn.setAttribute('aria-label', label);
-      });
-
-      sync();
-    }
-  }
 </script>

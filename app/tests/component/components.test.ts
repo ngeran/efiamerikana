@@ -42,7 +42,9 @@ describe('<VideoCard>', () => {
     order: 1,
     language: 'en',
     orientation: 'portrait',
-    video: '/media/videos/lemon-potatoes.mp4',
+    // A REAL bundled asset — with dead controls now hidden on missing
+    // files, a nonexistent video would change what the card renders.
+    video: '/media/dunkin.mp4',
     poster: '/media/posters/lemon-potatoes.svg',
     posterAlt: 'Placeholder poster: lemon potatoes.',
     transcript: 'Placeholder transcript.',
@@ -105,8 +107,59 @@ describe('<VideoCard>', () => {
     });
 
     expect(html).not.toContain('src="/src/assets/media/videos/never-uploaded.mp4"');
-    expect(html).toContain('poster=');
+    // The video element itself keeps no poster attribute — but a CMS poster
+    // can exist even when the upload failed, so the lazy overlay stays.
+    expect(html).not.toContain('poster=');
+    expect(html).toContain('data-video-poster');
+    // Dead controls are hidden: nothing to play, nothing to unmute.
+    expect(html).not.toContain('data-play-toggle');
+    expect(html).not.toContain('data-mute-toggle');
     expect(spy).toHaveBeenCalledWith(expect.stringMatching(/not found/));
     spy.mockRestore();
+  });
+
+  it('renders the poster as a lazy overlay, not a video poster attribute', async () => {
+    const container = await AstroContainer.create();
+    const html = await container.renderToString(VideoCard, {
+      props: {
+        video,
+        locale: 'en',
+        cardId: 'test-poster',
+        class: 'aspect-[9/16] w-full',
+      },
+    });
+
+    expect(html).toContain('data-video-poster');
+    expect(html).toContain('loading="lazy"');
+    expect(html).toContain('decoding="async"');
+    // Chromium fetches <video poster> eagerly at render time, viewport
+    // notwithstanding — the attribute must stay gone now that the lazy
+    // overlay carries the image.
+    expect(html).not.toMatch(/<video[^>]*poster=/);
+  });
+
+  it('renders loop clones poster-only: full chrome, no media element', async () => {
+    const container = await AstroContainer.create();
+    const html = await container.renderToString(VideoCard, {
+      props: {
+        video,
+        locale: 'en',
+        cardId: 'clone-7',
+        class: 'aspect-[9/16] w-full',
+        posterOnly: true,
+        // What the section renders for the non-middle loop copies.
+        'aria-hidden': 'true',
+        inert: true,
+      } as never,
+    });
+
+    // No <video>, no deferred source: clones hold zero media bytes and no
+    // decoder slot at any point in the loop.
+    expect(html).not.toContain('<video');
+    expect(html).not.toContain('data-src');
+    // Visual parity with the middle copy while the rail crosses a seam.
+    expect(html).toContain('data-video-poster');
+    expect(html).toContain('data-play-toggle');
+    expect(html).toContain('data-details-toggle');
   });
 });
