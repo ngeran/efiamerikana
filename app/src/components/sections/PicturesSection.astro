@@ -7,10 +7,9 @@ import { getPictureSection, getPictures } from '../../utils/content';
 
 interface Props {
   locale: Locale;
-  label?: string;
 }
 
-const { locale, label } = Astro.props;
+const { locale } = Astro.props;
 const data = await getPictureSection(locale);
 const pictures = await getPictures(locale);
 const t = translator(locale).pictures;
@@ -69,12 +68,7 @@ const railItems = shouldLoop ? Array.from({ length: LOOP_SETS }, () => pictures)
 >
   <div class="shell pt-10 sm:pt-14 lg:pt-16">
     <div class="reveal">
-      <SectionHeading
-        id="pictures-heading"
-        label={label}
-        heading={data.heading}
-        intro={data.intro}
-      />
+      <SectionHeading id="pictures-heading" heading={data.heading} intro={data.intro} />
     </div>
   </div>
 

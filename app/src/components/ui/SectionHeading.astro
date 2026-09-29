@@ -1,36 +1,26 @@
 ---
 /**
- * Shared section heading block: small uppercase label chip (from the nav
- * label in CMS settings), the h2, and an optional intro paragraph.
+ * Shared section heading block: the h2 and an optional intro paragraph.
+ * (The old nav-label chip was removed — with the fixed scroll-spy nav
+ * highlighting the current section, the chip only duplicated it.)
  */
 interface Props {
   id: string;
-  label?: string;
   heading: string;
   intro?: string | null;
   align?: 'left' | 'center';
   tone?: 'dark' | 'light';
 }
 
-const { id, label, heading, intro, align = 'left', tone = 'dark' } = Astro.props;
+const { id, heading, intro, align = 'left', tone = 'dark' } = Astro.props;
 
 const alignment = align === 'center' ? 'items-center text-center' : 'items-start text-left';
-// Solid chips + full-opacity intros: translucent charcoal fails AA on the
-// saturated pink section background (and marginal on cream).
-const labelTone = tone === 'light' ? 'bg-white/10 text-white' : 'bg-charcoal text-cream';
+// Full-opacity intros: translucent charcoal fails AA on the saturated
+// pink section background (and marginal on cream).
 const introTone = tone === 'light' ? 'text-white/75' : 'text-charcoal';
 ---
 
 <div class:list={['flex flex-col gap-4', alignment]}>
-  {
-    label && (
-      <p
-        class={`rounded-full px-3 py-1 font-label text-xs font-semibold tracking-[0.18em] uppercase ${labelTone}`}
-      >
-        {label}
-      </p>
-    )
-  }
   <h2 id={id} class="font-display text-section leading-[1.05]">{heading}</h2>
   {
     intro && (

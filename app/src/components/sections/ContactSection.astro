@@ -6,10 +6,9 @@ import { getContact } from '../../utils/content';
 
 interface Props {
   locale: Locale;
-  label?: string;
 }
 
-const { locale, label } = Astro.props;
+const { locale } = Astro.props;
 const data = await getContact(locale);
 const t = translator(locale).contact;
 
@@ -23,13 +22,6 @@ const mailto = emailMethod?.href ?? (emailMethod ? `mailto:${emailMethod.value}`
   class="defer-paint w-full bg-brand-red text-white"
 >
   <div class="shell flex max-w-3xl flex-col items-center gap-8 py-16 text-center sm:py-20 lg:py-24">
-    {
-      label && (
-        <p class="reveal rounded-full bg-charcoal px-3 py-1 font-label text-xs font-semibold tracking-[0.18em] text-cream uppercase">
-          {label}
-        </p>
-      )
-    }
     <h2
       id="contact-heading"
       class="reveal font-display text-contact leading-[1.05] italic"

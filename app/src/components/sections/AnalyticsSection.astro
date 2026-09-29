@@ -6,10 +6,9 @@ import { getAnalytics } from '../../utils/content';
 
 interface Props {
   locale: Locale;
-  label?: string;
 }
 
-const { locale, label } = Astro.props;
+const { locale } = Astro.props;
 const data = await getAnalytics(locale);
 const t = translator(locale).analytics;
 
@@ -46,18 +45,7 @@ const velocity = data.velocity ?? [];
     </div>
 
     <div class="relative flex flex-col items-center text-center">
-      {
-        label && (
-          <span class="font-label text-xs font-bold tracking-[0.3em] text-white/50 uppercase sm:text-sm">
-            {label}
-          </span>
-        )
-      }
-
-      <h2
-        id="analytics-heading"
-        class="reveal mt-6 font-display text-section leading-[1.05] text-white"
-      >
+      <h2 id="analytics-heading" class="reveal font-display text-section leading-[1.05] text-white">
         {data.heading}
       </h2>
 

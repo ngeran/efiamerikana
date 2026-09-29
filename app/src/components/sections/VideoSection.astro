@@ -7,10 +7,9 @@ import { getVideoSection, getVideos } from '../../utils/content';
 
 interface Props {
   locale: Locale;
-  label?: string;
 }
 
-const { locale, label } = Astro.props;
+const { locale } = Astro.props;
 const data = await getVideoSection(locale);
 const videos = await getVideos(locale);
 const t = translator(locale).video;
@@ -76,13 +75,7 @@ const railItems = shouldLoop ? Array.from({ length: LOOP_SETS }, () => videos).f
 >
   <div class="shell pt-10 sm:pt-14 lg:pt-16">
     <div class="reveal">
-      <SectionHeading
-        id="videos-heading"
-        label={label}
-        heading={data.heading}
-        intro={data.intro}
-        tone="light"
-      />
+      <SectionHeading id="videos-heading" heading={data.heading} intro={data.intro} tone="light" />
     </div>
   </div>
 

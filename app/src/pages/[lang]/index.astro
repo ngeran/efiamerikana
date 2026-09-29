@@ -41,7 +41,7 @@ const path = `/${locale}`;
   {
     mainSections.map((section) => {
       const Section = sectionComponents[section.id];
-      return <Section locale={locale} label={section.navLabel} />;
+      return <Section locale={locale} />;
     })
   }
 </BaseLayout>
