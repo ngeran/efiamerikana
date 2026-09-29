@@ -31,8 +31,15 @@ const t = translator(locale).video;
  * first cards past the unreachable left edge (a data-loss alignment bug).
  * The mobile width is viewport-relative (`100vw-4rem`) so it lands exactly
  * between the two 2rem gutters; % would resolve against the padded content
- * box and end up off-center. From `sm` up, cards tile flush with
- * `justify-start` + `snap-start`.
+ * box and end up off-center.
+ *
+ * EVERY breakpoint is snap-center (rail.ts `center` mode): the active card
+ * rides the midline with its neighbours peeking symmetrically, and when
+ * every item fits the whole group centers instead — 1 item centered, 2 as
+ * a symmetric pair, 3 with the middle card center. global.css owns both
+ * halves of that: the first/last-card end margins that let the ends reach
+ * the midline, and the justify-center switch that fires only when JS
+ * measured no overflow.
  */
 /*
  * `reveal` rides along on these same layout strings so VideoCard's root
@@ -44,7 +51,7 @@ const t = translator(locale).video;
  */
 const GRID_CARD = 'reveal aspect-[9/16] w-full max-w-[380px] mx-auto';
 const RAIL_CARD =
-  'reveal aspect-[9/16] w-[calc(100vw-4rem)] snap-center sm:w-[calc((100%-1rem)/2)] sm:snap-start lg:w-[calc((100%-2rem)/3)] xl:w-[calc((100%-3rem)/4)] 2xl:w-[calc((100%-4rem)/5)] shrink-0';
+  'reveal aspect-[9/16] w-[calc(100vw-4rem)] snap-center sm:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-2rem)/3)] xl:w-[calc((100%-3rem)/4)] 2xl:w-[calc((100%-4rem)/5)] shrink-0';
 
 /**
  * A seamless loop needs duplicate content to scroll into. Three copies is
@@ -157,7 +164,7 @@ const railItems = shouldLoop ? Array.from({ length: LOOP_SETS }, () => videos).f
             data-rail
             tabindex="0"
             aria-label={t.railLabel}
-            class="no-scrollbar flex snap-x snap-mandatory justify-start gap-4 overflow-x-auto scroll-smooth px-8 pb-2"
+            class="no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-8 pb-2"
           >
             {railItems.map((video, index) => {
               // Only the middle copy is real as far as assistive tech and
@@ -197,7 +204,9 @@ const railItems = shouldLoop ? Array.from({ length: LOOP_SETS }, () => videos).f
   // per-card presentation wiring) live in src/scripts/. Media events don't
   // bubble but DO traverse the capture path, so the controller syncs every
   // card's state through one funnel; this script stays O(1) no matter how
-  // many cards or loop copies the section renders.
-  initRails({ wrap: '[data-video-rail-wrap]', card: '[data-video-card]' });
+  // many cards or loop copies the section renders. `center` puts the rail
+  // in center mode: the active card rides the midline, arrows step one
+  // card and exist only while there is something to reach.
+  initRails({ wrap: '[data-video-rail-wrap]', card: '[data-video-card]', center: true });
   initVideoPlayback();
 </script>

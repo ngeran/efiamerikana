@@ -40,12 +40,48 @@ export interface RailOptions {
   wrap: string;
   /** Selector for an individual card inside the rail. */
   card: string;
+  /**
+   * Center mode (the video rail): the active card sits mid-screen with the
+   * neighbours peeking symmetrically, arrows advance ONE card, and — when
+   * every item fits — the whole group centers instead of hugging the left
+   * edge. Off (the picture rail): flush tiling, screen-sized arrow steps.
+   */
+  center?: boolean;
 }
 
-export function initRails({ wrap, card: cardSelector }: RailOptions) {
+export function initRails({ wrap, card: cardSelector, center = false }: RailOptions) {
   for (const wrapEl of document.querySelectorAll<HTMLElement>(wrap)) {
     const rail = wrapEl.querySelector<HTMLElement>('[data-rail]');
     if (!rail) continue;
+
+    // State mirror for the CSS (global.css keys the center-mode layout and
+    // the arrow visibility off these): can the rail move at all, and —
+    // per direction — is there anything on that side of the current card?
+    // Both wraps carry data-rail-ui so one rule set serves every rail.
+    wrapEl.setAttribute('data-rail-ui', '');
+    if (center) rail.setAttribute('data-center', 'true');
+
+    const publish = () => {
+      const maxScroll = rail.scrollWidth - rail.clientWidth;
+      const overflow = maxScroll > 4;
+      wrapEl.dataset.overflow = String(overflow);
+      wrapEl.dataset.canPrev = String(rail.scrollLeft > 4);
+      wrapEl.dataset.canNext = String(rail.scrollLeft < maxScroll - 4);
+      // The center-mode layout reads this off the rail itself (justify
+      // switches between centered group and snap-based single card).
+      rail.dataset.overflow = String(overflow);
+    };
+    let publishRaf = 0;
+    const queuePublish = () => {
+      cancelAnimationFrame(publishRaf);
+      publishRaf = requestAnimationFrame(publish);
+    };
+    rail.addEventListener('scroll', queuePublish, { passive: true });
+    // ResizeObserver, not just init+resize: sections rendered behind
+    // content-visibility report garbage geometry until they near the
+    // viewport, and the RO fires exactly when the rail's real box lands.
+    if ('ResizeObserver' in window) new ResizeObserver(queuePublish).observe(rail);
+    publish();
 
     /** Card copies rendered in the DOM; 1 = bounded rail, 3 = infinite loop. */
     const sets = Math.max(1, Number(wrapEl.dataset.sets ?? '1'));
@@ -69,7 +105,17 @@ export function initRails({ wrap, card: cardSelector }: RailOptions) {
           const copy = Math.floor(i / per);
           if (copy !== 1) return; // middle copy only
         }
-        const dist = Math.abs(el.offsetLeft - rail.offsetLeft - rail.scrollLeft);
+        // Center mode measures from the scrollport's midline (the "active"
+        // card is the one closest to the center); flush mode from the left
+        // edge, matching where snap-start parks the cards.
+        const dist = center
+          ? Math.abs(
+              el.offsetLeft -
+                rail.offsetLeft +
+                el.offsetWidth / 2 -
+                (rail.scrollLeft + rail.clientWidth / 2),
+            )
+          : Math.abs(el.offsetLeft - rail.offsetLeft - rail.scrollLeft);
         if (dist < closestDist) {
           closestDist = dist;
           closest = i;
@@ -83,15 +129,16 @@ export function initRails({ wrap, card: cardSelector }: RailOptions) {
       if (list.length === 0) return;
       const wrapped = ((index % list.length) + list.length) % list.length;
       const target = list[wrapped];
-      const left = centered.matches
-        ? (() => {
-            const railRect = rail.getBoundingClientRect();
-            const targetRect = target.getBoundingClientRect();
-            const targetCenter =
-              targetRect.left - railRect.left + rail.scrollLeft + targetRect.width / 2;
-            return targetCenter - rail.clientWidth / 2;
-          })()
-        : target.offsetLeft - rail.offsetLeft;
+      const left =
+        center || centered.matches
+          ? (() => {
+              const railRect = rail.getBoundingClientRect();
+              const targetRect = target.getBoundingClientRect();
+              const targetCenter =
+                targetRect.left - railRect.left + rail.scrollLeft + targetRect.width / 2;
+              return targetCenter - rail.clientWidth / 2;
+            })()
+          : target.offsetLeft - rail.offsetLeft;
       // The global reduced-motion CSS rule can't reach a JS scroll behaviour.
       rail.scrollTo({ left, behavior: reducedMotion.matches ? 'auto' : 'smooth' });
     };
@@ -187,11 +234,12 @@ export function initRails({ wrap, card: cardSelector }: RailOptions) {
         const list = cards();
         if (list.length === 0) return;
         const gap = Number.parseFloat(getComputedStyle(rail).columnGap) || 0;
-        // Step by however many cards are fully visible, so one click advances
-        // a full "screen" rather than nudging by a single card.
+        // Flush mode steps a full "screen" of cards per click. Center mode
+        // steps ONE: the visitor reads the rail as "move the centered card
+        // along", with the neighbours peeking in from the edges.
         const cardSpan = list[0].getBoundingClientRect().width + gap;
         const visible = Math.max(1, Math.round(rail.clientWidth / cardSpan));
-        scrollToIndex(currentIndex() + dir * visible);
+        scrollToIndex(currentIndex() + dir * (center ? 1 : visible));
       });
     }
   }

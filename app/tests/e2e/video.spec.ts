@@ -39,26 +39,70 @@ test.describe('video section', () => {
     expect(new Set(ids).size).toBe(ids.length); // no duplicate overlay ids
   });
 
-  test('rail arrows exist on desktop and scroll the rail', async ({ page }) => {
+  test('arrows exist only while more items remain, and step one card', async ({ page }) => {
     test.skip(
       test.info().project.name === 'mobile-chromium',
       'arrows are sm+ only — phones use the native swipe',
     );
+    // 900px sits between sm and lg: two slots, three shipped videos → the
+    // rail overflows by exactly one card. (At the stock 1280 viewport all
+    // three fit and the arrows retire entirely — covered in the fit test.)
+    await page.setViewportSize({ width: 900, height: 700 });
+    await page.goto('/en/');
     const section = page.locator('#videos');
     await section.scrollIntoViewIfNeeded();
     const rail = section.locator('[data-rail]');
     const next = section.locator('[data-rail-scroll="1"]');
+    const prev = section.locator('[data-rail-scroll="-1"]');
 
+    // Start of the rail: nothing to the left — no left arrow.
+    await expect(prev).toBeHidden();
     await expect(next).toBeVisible();
 
-    // With few entries the cards fit without overflowing — the arrows are
-    // legitimately no-ops. Only assert scrolling when there is scroll to do.
-    const overflows = await rail.evaluate((el) => el.scrollWidth > el.clientWidth + 4);
-    test.skip(!overflows, 'rail content fits — nothing to scroll (see the loop phase for 6+)');
-
-    const before = await rail.evaluate((el) => el.scrollLeft);
+    // Center mode steps ONE card, and each stop lands the active card
+    // exactly on the midline (900 / 2).
+    const centerOf = (locator: ReturnType<typeof page.locator>) => async () => {
+      const box = await locator.boundingBox();
+      return box ? box.x + box.width / 2 : 0;
+    };
+    const cards = page.locator('[data-video-card]:not([inert])');
     await next.click();
-    await expect.poll(() => rail.evaluate((el) => el.scrollLeft)).toBeGreaterThan(before);
+    await expect.poll(centerOf(cards.nth(1))).toBeCloseTo(450, -1);
+
+    // Walk to the far end: the next arrow retires exactly there, while the
+    // prev arrow is back for the return trip.
+    for (let i = 0; i < 12 && (await next.isVisible()); i++) {
+      await next.click();
+      await page.waitForTimeout(650); // smooth scroll + snap settle
+    }
+    await expect(next).toBeHidden();
+    await expect(prev).toBeVisible();
+    await expect.poll(() => rail.evaluate((el) => el.scrollLeft)).toBeGreaterThan(0);
+  });
+
+  test('when every card fits, the group centers and the arrows retire', async ({ page }) => {
+    test.skip(
+      test.info().project.name === 'mobile-chromium',
+      'phones are single-card and overflow by design',
+    );
+    const section = page.locator('#videos');
+    await section.scrollIntoViewIfNeeded();
+    const rail = section.locator('[data-rail]');
+    const overflows = await rail.evaluate((el) => el.scrollWidth > el.clientWidth + 4);
+    test.skip(overflows, 'library outgrew the stock viewport — the overflow test covers arrows');
+
+    // Nothing to scroll: the arrows have nothing to offer, and the group
+    // centers instead of hugging the left edge — with three cards the
+    // middle one rides the viewport midline.
+    await expect(section.locator('[data-rail-scroll="1"]')).toBeHidden();
+    await expect(section.locator('[data-rail-scroll="-1"]')).toBeHidden();
+    const middle = page.locator('[data-video-card]:not([inert])').nth(1);
+    await expect
+      .poll(async () => {
+        const box = await middle.boundingBox();
+        return box ? box.x + box.width / 2 : 0;
+      })
+      .toBeCloseTo(640, -1);
   });
 
   test('rail arrows are hidden on phones (finger swipe is the control)', async ({ page }) => {

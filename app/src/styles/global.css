@@ -414,3 +414,77 @@
     }
   }
 }
+
+/* --------------------------------------------------------------------- */
+/* Center-mode rail (the video rail — see rail.ts `center`).              */
+/*                                                                        */
+/* Deliberately UNLAYERED: these are state-driven overrides of Tailwind   */
+/* utilities (`sm:flex` on the arrows, in particular), and utilities sit  */
+/* in a later cascade layer than @layer components — layer order wins     */
+/* over specificity, so these rules would silently lose from inside it.   */
+/*                                                                        */
+/* Overflow: cards tile from the start and snap-center centers the        */
+/* active one. The end margins give the FIRST/LAST card the room to       */
+/* physically reach the midline — (rail − card) / 2, mirroring the card   */
+/* width formulas in VideoSection's RAIL_CARD (% resolves against the     */
+/* same content box as the card widths, so the pair cannot drift apart;   */
+/* margins never resize that box).                                        */
+/*                                                                        */
+/* FIT — fewer items than slots: the whole group centers instead, so one  */
+/* item sits mid-screen, two split it symmetrically, three put the        */
+/* middle one center with its neighbours either side. justify-center is   */
+/* only published when JS measured no overflow: a centered overflowing    */
+/* flex rail shoves the first cards past the reachable left edge (data    */
+/* loss — see VideoSection's layout note).                                */
+/*                                                                        */
+/* Base (1 visible card) needs no end margin: the card already spans the  */
+/* content box between the rail's own gutters.                            */
+/* --------------------------------------------------------------------- */
+[data-rail][data-center='true'] {
+  justify-content: flex-start;
+}
+[data-rail][data-center='true'][data-overflow='false'] {
+  justify-content: center;
+}
+@media (min-width: 640px) {
+  [data-rail][data-center='true'] > li:first-child {
+    margin-left: calc((100% - (100% - 1rem) / 2) / 2);
+  }
+  [data-rail][data-center='true'] > li:last-child {
+    margin-right: calc((100% - (100% - 1rem) / 2) / 2);
+  }
+}
+@media (min-width: 1024px) {
+  [data-rail][data-center='true'] > li:first-child {
+    margin-left: calc((100% - (100% - 2rem) / 3) / 2);
+  }
+  [data-rail][data-center='true'] > li:last-child {
+    margin-right: calc((100% - (100% - 2rem) / 3) / 2);
+  }
+}
+@media (min-width: 1280px) {
+  [data-rail][data-center='true'] > li:first-child {
+    margin-left: calc((100% - (100% - 3rem) / 4) / 2);
+  }
+  [data-rail][data-center='true'] > li:last-child {
+    margin-right: calc((100% - (100% - 3rem) / 4) / 2);
+  }
+}
+@media (min-width: 1536px) {
+  [data-rail][data-center='true'] > li:first-child {
+    margin-left: calc((100% - (100% - 4rem) / 5) / 2);
+  }
+  [data-rail][data-center='true'] > li:last-child {
+    margin-right: calc((100% - (100% - 4rem) / 5) / 2);
+  }
+}
+
+/* Arrows exist only while the rail can actually move — and per direction:
+   nothing to the left, no left arrow. Loop rails never hit an end, so
+   both stay. (The buttons keep their `hidden sm:flex` classes; this is the
+   state-driven layer on top.) */
+[data-rail-ui][data-overflow='false'] [data-rail-scroll],
+[data-rail-ui][data-can-prev='false'] [data-rail-scroll='-1'],
+[data-rail-ui][data-can-next='false'] [data-rail-scroll='1'] {
+  display: none;
+}
