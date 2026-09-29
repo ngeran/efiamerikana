@@ -64,21 +64,32 @@ export function initRails({ wrap, card: cardSelector, center = false }: RailOpti
     const cards = () => Array.from(rail.querySelectorAll<HTMLElement>(cardSelector));
 
     const publish = () => {
-      // Chrome includes flex items' END MARGINS in scrollWidth — center
-      // mode's phantom end margins would read as permanent overflow and
-      // the fit layout would never engage. Measure the cards' border-box
-      // extent instead: offsetLeft is margin-free and scroll-independent.
-      // (A loop rail measures its far clone — always overflowing, which
-      // is correct: there is always more to reach.)
+      // Overflow must be measured in a way that cannot depend on the layout
+      // mode being measured — the bootstrap trap: the first publish runs
+      // while the rail is still flex-start, where the center mode's phantom
+      // END MARGINS push the last card right and would read as permanent
+      // overflow (the fit layout never engages; on iPad landscape, where
+      // cards ≈ slots, the rail stuck off-center with arrows up). The span
+      // between the FIRST and LAST card's border boxes is margin-free and
+      // justify-independent: margins sit outside the cards, so they cancel
+      // in the difference. (A loop rail spans its far clone — always
+      // overflowing, which is correct: there is always more to reach.)
       const list = cards();
-      const extent = list.length
-        ? list[list.length - 1].offsetLeft - rail.offsetLeft + list[list.length - 1].offsetWidth
+      const span = list.length
+        ? list[list.length - 1].offsetLeft - list[0].offsetLeft + list[list.length - 1].offsetWidth
         : 0;
-      const overflow = extent > rail.clientWidth + 4;
-      const maxScroll = rail.scrollWidth - rail.clientWidth;
+      const overflow = span > rail.clientWidth + 4;
+      // "Is there a next card?" is a question about the LAST card's centered
+      // position, not about scrollWidth — which also carries the phantom
+      // margins and would keep the arrow alive past the end.
+      const last = list[list.length - 1];
+      const lastCenteredScroll =
+        list.length > 0
+          ? last.offsetLeft - rail.offsetLeft + last.offsetWidth / 2 - rail.clientWidth / 2
+          : 0;
       wrapEl.dataset.overflow = String(overflow);
       wrapEl.dataset.canPrev = String(rail.scrollLeft > 4);
-      wrapEl.dataset.canNext = String(rail.scrollLeft < maxScroll - 4);
+      wrapEl.dataset.canNext = String(rail.scrollLeft < lastCenteredScroll - 4);
       // The center-mode layout reads this off the rail itself (justify
       // switches between centered group and snap-based single card).
       rail.dataset.overflow = String(overflow);

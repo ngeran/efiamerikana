@@ -488,3 +488,13 @@
 [data-rail-ui][data-can-next='false'] [data-rail-scroll='1'] {
   display: none;
 }
+
+/* Touch-first devices: the finger IS the navigation. iPads and phones
+   report hover:none + pointer:coarse — the arrows never appear there,
+   overflow or not. Hybrids whose primary input is a mouse (hover:hover)
+   keep the arrows. Must stay in this unlayered block to beat sm:flex. */
+@media (hover: none) and (pointer: coarse) {
+  [data-rail-ui] [data-rail-scroll] {
+    display: none;
+  }
+}

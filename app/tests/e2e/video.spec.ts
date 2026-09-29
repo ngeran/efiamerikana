@@ -86,27 +86,55 @@ test.describe('video section', () => {
       'phones are single-card and overflow by design',
     );
     // Both stock widths matter: 1280 (xl, 4 slots) and 1900 (2xl, 5 slots).
-    // 2xl is the regression case — Chrome counts the center mode's phantom
-    // END MARGINS in scrollWidth, which read as permanent overflow there
-    // and kept the arrows alive; the overflow signal measures the cards'
-    // border-box extent instead, so assert it at both widths.
+    // These were chosen as regression cases TWICE: Chrome counts the center
+    // mode's phantom END MARGINS in scrollWidth, and the bootstrap publish
+    // runs before the fit layout engages — both made overflow read as
+    // permanently true exactly at these widths (iPad landscape included),
+    // so every width asserts, no skips.
     for (const width of [1280, 1900]) {
       await page.setViewportSize({ width, height: 945 });
       await page.goto('/en/');
       const section = page.locator('#videos');
       await section.scrollIntoViewIfNeeded();
-      const rail = section.locator('[data-rail]');
-      const overflows = await rail.evaluate(
-        (el) => el.scrollWidth > el.clientWidth + 4 && el.dataset.overflow === 'true',
-      );
-      test.skip(
-        overflows && width === 1280,
-        'library outgrew the stock viewport — the overflow test covers arrows',
-      );
 
       // Nothing to scroll: the arrows have nothing to offer, and the group
       // centers instead of hugging the left edge — with three cards the
       // middle one rides the viewport midline.
+      await expect(section.locator('[data-rail-scroll="1"]')).toBeHidden();
+      await expect(section.locator('[data-rail-scroll="-1"]')).toBeHidden();
+      const middle = page.locator('[data-video-card]:not([inert])').nth(1);
+      await expect
+        .poll(async () => {
+          const box = await middle.boundingBox();
+          return box ? box.x + box.width / 2 : 0;
+        })
+        .toBeCloseTo(width / 2, -1);
+    }
+  });
+
+  test('iPad landscape: centered fit and no arrows — fingers do the navigating', async ({
+    page,
+  }) => {
+    test.use({ hasTouch: true, isMobile: true });
+    test.skip(
+      test.info().project.name !== 'desktop-chromium',
+      'isMobile is a Chromium context option',
+    );
+    // The deadlock regression: at lg/xl the shipped 3 cards fit their slots
+    // (3/3 and 4/4), but the first publish measured under the pre-fit
+    // layout, read the phantom end margins as overflow, and the rail stuck
+    // off-center with the next arrow up. Touch devices must ALSO never see
+    // the arrows at all — the finger is the navigation there.
+    for (const [width, height] of [
+      [1080, 810], // iPad (gen 7) landscape — lg, 3 slots
+      [1194, 834], // iPad Pro 11 landscape — lg
+      [1280, 1024], // iPad Pro 12.9 landscape — xl, 4 slots
+    ] as const) {
+      await page.setViewportSize({ width, height });
+      await page.goto('/en/');
+      const section = page.locator('#videos');
+      await section.scrollIntoViewIfNeeded();
+
       await expect(section.locator('[data-rail-scroll="1"]')).toBeHidden();
       await expect(section.locator('[data-rail-scroll="-1"]')).toBeHidden();
       const middle = page.locator('[data-video-card]:not([inert])').nth(1);
