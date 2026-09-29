@@ -7,7 +7,7 @@ import { defaultLocale, isLocale, locales, type Locale } from './config';
  *     normalizePath('')                        → '/'
  *     normalizePath('en')                      → '/en'
  *     normalizePath('/en/')                    → '/en'
- *     normalizePath('/en/how-to-use/')         → '/en/how-to-use'
+ *     normalizePath('/en/some-page/')         → '/en/some-page'
  */
 export function normalizePath(pathname: string): string {
   const trimmed = pathname.replace(/\/+/g, '/').replace(/^\/+|\/+$/g, '');
@@ -31,7 +31,7 @@ export function localeOfPath(pathname: string): Locale | null {
 }
 
 /**
- * Strip the leading locale segment (if any): `/el/how-to-use` → `/how-to-use`.
+ * Strip the leading locale segment (if any): `/el/some-page` → `/some-page`.
  */
 export function stripLocale(pathname: string): string {
   const normalized = normalizePath(pathname);

@@ -2,7 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 
 test.describe('accessibility (axe)', () => {
-  for (const path of ['/', '/el/', '/en/how-to-use', '/el/how-to-use']) {
+  for (const path of ['/', '/el/']) {
     test(`no serious violations on ${path}`, async ({ page }) => {
       await page.goto(path === '/' ? '/en/' : path);
       const results = await new AxeBuilder({ page })

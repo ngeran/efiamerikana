@@ -6,15 +6,12 @@ import type { Locale } from '../../i18n/config';
 interface Props {
   data: FooterData;
   locale: Locale;
-  /** Locale-free path of the help page. */
-  howToUsePath?: string;
 }
 
-const { data, locale, howToUsePath = '/how-to-use' } = Astro.props;
+const { data, locale } = Astro.props;
 const t = translator(locale).footer;
 
 const year = new Date().getFullYear();
-const href = locale === 'el' ? `/el${howToUsePath}` : `/en${howToUsePath}`;
 ---
 
 <footer class="w-full border-t border-white/10 bg-charcoal text-cream/70">
@@ -30,12 +27,5 @@ const href = locale === 'el' ? `/el${howToUsePath}` : `/en${howToUsePath}`;
         <p class="font-label text-xs tracking-[0.18em] text-brand-pink uppercase">{data.note}</p>
       )
     }
-
-    <a
-      href={href}
-      class="font-label text-xs font-bold tracking-[0.18em] text-brand-yellow uppercase underline decoration-brand-yellow/40 underline-offset-4 transition-colors duration-200 hover:text-brand-pink"
-    >
-      {data.howToUseLabel}
-    </a>
   </div>
 </footer>

@@ -46,31 +46,6 @@ const en = {
   },
   footer: {
     allRightsReserved: 'All rights reserved.',
-    howToUse: 'How to use this landing page',
-  },
-  howToUse: {
-    title: 'How to use this landing page',
-    intro:
-      'This landing page is fully content-managed: everything you see is edited through the bundled CMS, not in code.',
-    sections: [
-      {
-        heading: 'Editing content',
-        body: 'Open /admin/ and sign in with the configured Git provider. Every section (hero, videos, pictures, about, analytics, contact) is a CMS entry with separate English and Greek fields. Save + publish commits the change to this repository and triggers a rebuild.',
-      },
-      {
-        heading: 'Sections, order and layout',
-        body: 'The “Site settings & section order” entry enables, disables and reorders sections, and sets the videos/pictures layout to grid or horizontal scroll — no code changes needed.',
-      },
-      {
-        heading: 'Media',
-        body: 'Videos, posters and images are uploaded through the CMS media library. Portrait videos use a stable 9:16 frame; pictures are optimized automatically and switch from black & white to colour on hover or keyboard focus.',
-      },
-      {
-        heading: 'Developers',
-        body: 'The site is an Astro + Tailwind project. Run “npm run dev” for the local server, “npm run test:e2e” for end-to-end and accessibility tests, and “just build” for the production image.',
-      },
-    ],
-    backHome: 'Back to the landing page',
   },
   notFound: {
     title: 'Page not found',
@@ -127,31 +102,6 @@ const el: UIStrings = {
   },
   footer: {
     allRightsReserved: 'Με επιφύλαξη παντός δικαιώματος.',
-    howToUse: 'Πώς να χρησιμοποιήσετε αυτή τη σελίδα',
-  },
-  howToUse: {
-    title: 'Πώς να χρησιμοποιήσετε αυτή τη σελίδα',
-    intro:
-      'Αυτή η σελίδα διαχειρίζεται πλήρως μέσω περιεχομένου: ό,τι βλέπετε επεξεργάζεται από το ενσωματωμένο CMS, όχι από κώδικα.',
-    sections: [
-      {
-        heading: 'Επεξεργασία περιεχομένου',
-        body: 'Ανοίξτε το /admin/ και συνδεθείτε με τον διαμορφωμένο πάροχο Git. Κάθε ενότητα (πρωτότυπο, βίντεο, φωτογραφίες, περί, αναλυτικά στοιχεία, επικοινωνία) είναι εγγραφή CMS με ξεχωριστά πεδία για Αγγλικά και Ελληνικά. Η αποθήκευση και δημοσίευση καταγράφει την αλλαγή σε αυτό το αποθετήριο και ενεργοποιεί επανακατασκευή.',
-      },
-      {
-        heading: 'Ενότητες, σειρά και διάταξη',
-        body: 'Η εγγραφή «Ρυθμίσεις ιστοσελίδας & σειρά ενοτήτων» ενεργοποιεί, απενεργοποιεί και αναδιατάσσει τις ενότητες, και ορίζει τη διάταξη βίντεο/φωτογραφιών σε πλέγμα ή οριζόντια κύλιση — χωρίς αλλαγές σε κώδικα.',
-      },
-      {
-        heading: 'Πολυμέσα',
-        body: 'Βίντεο, αφίσες και εικόνες ανεβαίνουν μέσω της βιβλιοθήκης πολυμέσων του CMS. Τα κατακόρυφα βίντεο χρησιμοποιούν σταθερή αναλογία 9:16· οι φωτογραφίες βελτιστοποιούνται αυτόματα και αλλάζουν από ασπρόμαυρες σε έγχρωμες με ποντίκι ή εστίαση πληκτρολογίου.',
-      },
-      {
-        heading: 'Για προγραμματιστές',
-        body: 'Ο ιστότοπος είναι ένα έργο Astro + Tailwind. Εκτελέστε «npm run dev» για τον τοπικό διακομιστή, «npm run test:e2e» για δοκιμές end-to-end και προσβασιμότητας, και «just build» για την εικόνα παραγωγής.',
-      },
-    ],
-    backHome: 'Πίσω στην κεντρική σελίδα',
   },
   notFound: {
     title: 'Η σελίδα δεν βρέθηκε',

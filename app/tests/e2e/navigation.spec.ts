@@ -29,12 +29,6 @@ test.describe('primary navigation', () => {
     await expect(mail).toBeVisible();
   });
 
-  test('subpage nav links back to the landing sections', async ({ page }) => {
-    await page.goto('/en/how-to-use');
-    const link = page.locator('#site-header .desktop-nav a[href="/en#videos"]');
-    await expect(link).toHaveCount(1);
-  });
-
   test('scroll-spy marks the active section', async ({ page }) => {
     await page.goto('/en/');
     await page.locator('#analytics').scrollIntoViewIfNeeded();

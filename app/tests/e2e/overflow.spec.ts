@@ -17,13 +17,4 @@ test.describe('no horizontal overflow', () => {
       });
     }
   }
-
-  test('help page at 320px', async ({ page }) => {
-    await page.setViewportSize({ width: 320, height: 568 });
-    await page.goto('/en/how-to-use');
-    const overflow = await page.evaluate(
-      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
-    );
-    expect(overflow).toBeLessThanOrEqual(1);
-  });
 });

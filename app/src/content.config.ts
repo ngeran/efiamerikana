@@ -222,7 +222,6 @@ const contactSchema = z.object({
 });
 
 const footerSchema = z.object({
-  howToUseLabel: z.string().min(1),
   note: z.string().nullish(),
 });
 

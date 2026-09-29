@@ -6,11 +6,10 @@ import type { FooterData, VideoData } from '../../src/content.config';
 
 describe('<SiteFooter>', () => {
   const data: FooterData = {
-    howToUseLabel: 'How to use this landing page',
     note: null,
   };
 
-  it('renders copyright with the current year, rights and help link', async () => {
+  it('renders copyright with the current year and rights', async () => {
     const container = await AstroContainer.create();
     const html = await container.renderToString(SiteFooter, {
       props: { data, locale: 'en' },
@@ -18,20 +17,17 @@ describe('<SiteFooter>', () => {
 
     expect(html).toContain(`© ${new Date().getFullYear()} EFIAMERIKANA`);
     expect(html).toContain('All rights reserved.');
-    expect(html).toContain('How to use this landing page');
-    expect(html).toContain('href="/en/how-to-use"');
+    // The self-referential help page is gone — no link may linger.
+    expect(html).not.toContain('how-to-use');
   });
 
   it('localizes the Greek footer', async () => {
     const container = await AstroContainer.create();
     const html = await container.renderToString(SiteFooter, {
-      props: {
-        data: { howToUseLabel: 'Πώς να χρησιμοποιήσετε αυτή τη σελίδα', note: null },
-        locale: 'el',
-      },
+      props: { data, locale: 'el' },
     });
     expect(html).toContain('Με επιφύλαξη παντός δικαιώματος.');
-    expect(html).toContain('href="/el/how-to-use"');
+    expect(html).not.toContain('how-to-use');
   });
 });
 

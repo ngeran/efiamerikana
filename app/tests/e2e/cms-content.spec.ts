@@ -83,13 +83,10 @@ test.describe('CMS-managed content', () => {
     }
   });
 
-  test('footer shows the current year and the help link', async ({ page }) => {
+  test('footer shows the current year and no help link', async ({ page }) => {
     await page.goto('/en/');
     const footer = page.locator('footer');
     await expect(footer).toContainText(`© ${new Date().getFullYear()} EFIAMERIKANA`);
-    await expect(footer.getByRole('link', { name: /how to use/i })).toHaveAttribute(
-      'href',
-      '/en/how-to-use',
-    );
+    await expect(footer.getByRole('link', { name: /how to use/i })).toHaveCount(0);
   });
 });
