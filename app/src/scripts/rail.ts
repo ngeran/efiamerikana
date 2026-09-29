@@ -61,9 +61,21 @@ export function initRails({ wrap, card: cardSelector, center = false }: RailOpti
     wrapEl.setAttribute('data-rail-ui', '');
     if (center) rail.setAttribute('data-center', 'true');
 
+    const cards = () => Array.from(rail.querySelectorAll<HTMLElement>(cardSelector));
+
     const publish = () => {
+      // Chrome includes flex items' END MARGINS in scrollWidth — center
+      // mode's phantom end margins would read as permanent overflow and
+      // the fit layout would never engage. Measure the cards' border-box
+      // extent instead: offsetLeft is margin-free and scroll-independent.
+      // (A loop rail measures its far clone — always overflowing, which
+      // is correct: there is always more to reach.)
+      const list = cards();
+      const extent = list.length
+        ? list[list.length - 1].offsetLeft - rail.offsetLeft + list[list.length - 1].offsetWidth
+        : 0;
+      const overflow = extent > rail.clientWidth + 4;
       const maxScroll = rail.scrollWidth - rail.clientWidth;
-      const overflow = maxScroll > 4;
       wrapEl.dataset.overflow = String(overflow);
       wrapEl.dataset.canPrev = String(rail.scrollLeft > 4);
       wrapEl.dataset.canNext = String(rail.scrollLeft < maxScroll - 4);
@@ -85,8 +97,6 @@ export function initRails({ wrap, card: cardSelector, center = false }: RailOpti
 
     /** Card copies rendered in the DOM; 1 = bounded rail, 3 = infinite loop. */
     const sets = Math.max(1, Number(wrapEl.dataset.sets ?? '1'));
-
-    const cards = () => Array.from(rail.querySelectorAll<HTMLElement>(cardSelector));
 
     /**
      * Which card the rail is parked closest to — keeps swipes and arrows in

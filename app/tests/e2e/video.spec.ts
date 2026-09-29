@@ -85,24 +85,38 @@ test.describe('video section', () => {
       test.info().project.name === 'mobile-chromium',
       'phones are single-card and overflow by design',
     );
-    const section = page.locator('#videos');
-    await section.scrollIntoViewIfNeeded();
-    const rail = section.locator('[data-rail]');
-    const overflows = await rail.evaluate((el) => el.scrollWidth > el.clientWidth + 4);
-    test.skip(overflows, 'library outgrew the stock viewport — the overflow test covers arrows');
+    // Both stock widths matter: 1280 (xl, 4 slots) and 1900 (2xl, 5 slots).
+    // 2xl is the regression case — Chrome counts the center mode's phantom
+    // END MARGINS in scrollWidth, which read as permanent overflow there
+    // and kept the arrows alive; the overflow signal measures the cards'
+    // border-box extent instead, so assert it at both widths.
+    for (const width of [1280, 1900]) {
+      await page.setViewportSize({ width, height: 945 });
+      await page.goto('/en/');
+      const section = page.locator('#videos');
+      await section.scrollIntoViewIfNeeded();
+      const rail = section.locator('[data-rail]');
+      const overflows = await rail.evaluate(
+        (el) => el.scrollWidth > el.clientWidth + 4 && el.dataset.overflow === 'true',
+      );
+      test.skip(
+        overflows && width === 1280,
+        'library outgrew the stock viewport — the overflow test covers arrows',
+      );
 
-    // Nothing to scroll: the arrows have nothing to offer, and the group
-    // centers instead of hugging the left edge — with three cards the
-    // middle one rides the viewport midline.
-    await expect(section.locator('[data-rail-scroll="1"]')).toBeHidden();
-    await expect(section.locator('[data-rail-scroll="-1"]')).toBeHidden();
-    const middle = page.locator('[data-video-card]:not([inert])').nth(1);
-    await expect
-      .poll(async () => {
-        const box = await middle.boundingBox();
-        return box ? box.x + box.width / 2 : 0;
-      })
-      .toBeCloseTo(640, -1);
+      // Nothing to scroll: the arrows have nothing to offer, and the group
+      // centers instead of hugging the left edge — with three cards the
+      // middle one rides the viewport midline.
+      await expect(section.locator('[data-rail-scroll="1"]')).toBeHidden();
+      await expect(section.locator('[data-rail-scroll="-1"]')).toBeHidden();
+      const middle = page.locator('[data-video-card]:not([inert])').nth(1);
+      await expect
+        .poll(async () => {
+          const box = await middle.boundingBox();
+          return box ? box.x + box.width / 2 : 0;
+        })
+        .toBeCloseTo(width / 2, -1);
+    }
   });
 
   test('rail arrows are hidden on phones (finger swipe is the control)', async ({ page }) => {
