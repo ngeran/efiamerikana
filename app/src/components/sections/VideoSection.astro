@@ -48,9 +48,9 @@ const t = translator(locale).video;
  * [data-videos] in global.css, since it can't be threaded through a plain
  * class string.
  */
-const GRID_CARD = 'reveal aspect-[9/16] w-full max-w-[380px] mx-auto';
+const GRID_CARD = 'aspect-[9/16] w-full max-w-[380px] mx-auto';
 const RAIL_CARD =
-  'reveal aspect-[9/16] w-[calc(100vw-4rem)] snap-center sm:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-2rem)/3)] xl:w-[calc((100%-3rem)/4)] 2xl:w-[calc((100%-4rem)/5)] shrink-0';
+  'aspect-[9/16] w-[calc(100vw-4rem)] snap-center sm:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-2rem)/3)] xl:w-[calc((100%-3rem)/4)] 2xl:w-[calc((100%-4rem)/5)] shrink-0';
 
 /**
  * A seamless loop needs duplicate content to scroll into. Three copies is
@@ -96,14 +96,8 @@ const railItems = shouldLoop ? Array.from({ length: LOOP_SETS }, () => videos).f
           class="mt-10 grid grid-cols-2 gap-3 px-4 sm:px-6 md:grid-cols-3 lg:grid-cols-4 lg:gap-6 lg:px-8 xl:grid-cols-5 2xl:grid-cols-6"
           data-videos
         >
-          {videos.map((video, index) => (
-            <VideoCard
-              video={video}
-              locale={locale}
-              cardId={`grid-${index}`}
-              class={GRID_CARD}
-              respectRatio
-            />
+          {videos.map((video) => (
+            <VideoCard video={video} locale={locale} class={GRID_CARD} respectRatio />
           ))}
         </ul>
       ) : (
@@ -163,16 +157,14 @@ const railItems = shouldLoop ? Array.from({ length: LOOP_SETS }, () => videos).f
               // Only the middle copy is real as far as assistive tech and
               // keyboard focus are concerned; the clones are decorative
               // duplicates. inert (not just aria-hidden) — aria-hidden does
-              // NOT block pointer events. cardId derives from the flat index
-              // across all copies, keeping the details-overlay ids unique.
-              // Clones render poster-only (no <video>) — the media-element
-              // weight of the 3x loop was the heaviest thing on the page.
+              // NOT block pointer events. Clones render poster-only (no
+              // <video>) — the media-element weight of the 3x loop was the
+              // heaviest thing on the page.
               const isClone = shouldLoop && Math.floor(index / videos.length) !== 1;
               return (
                 <VideoCard
                   video={video}
                   locale={locale}
-                  cardId={`rail-${index}`}
                   class={RAIL_CARD}
                   posterOnly={isClone}
                   aria-hidden={isClone ? 'true' : undefined}

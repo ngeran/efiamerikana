@@ -351,36 +351,33 @@
     }
   }
 
-  /* Grid/rail card wave: PictureCard and VideoCard render their own root
-     element, so the stagger is set here via nth-child on the shared
-     [data-pictures]/[data-videos] list rather than as a per-item inline
-     style — it reaches the card regardless of which component renders it,
-     as long as the layout `class` string below still carries `reveal`
-     (see GRID_CARD/RAIL_CARD in PicturesSection.astro and VideoSection.astro).
-     Six slots repeating is enough to read as a left-to-right wave without
-     ever leaving a card at the end of a long grid waiting a full second. */
-  [data-pictures] > *,
-  [data-videos] > * {
+  /* Picture grid wave: PictureCard renders its own root element, so the
+     stagger is set here via nth-child on the [data-pictures] list rather
+     than as a per-item inline style — it reaches the card regardless of
+     which component renders it, as long as the layout `class` string in
+     PicturesSection still carries `reveal`. (VIDEO cards dropped the
+     reveal deliberately: the scroll-driven blur/transform on a card
+     containing a composited <video> produced blurred, mis-clipped,
+     half-shifted frames right after a #hash load — see VideoCard's
+     clip-path note. Six slots repeating is enough to read as a
+     left-to-right wave without ever leaving a card at the end of a long
+     grid waiting a full second.) */
+  [data-pictures] > * {
     --reveal-delay: 0s;
   }
-  [data-pictures] > *:nth-child(6n + 2),
-  [data-videos] > *:nth-child(6n + 2) {
+  [data-pictures] > *:nth-child(6n + 2) {
     --reveal-delay: 0.06s;
   }
-  [data-pictures] > *:nth-child(6n + 3),
-  [data-videos] > *:nth-child(6n + 3) {
+  [data-pictures] > *:nth-child(6n + 3) {
     --reveal-delay: 0.12s;
   }
-  [data-pictures] > *:nth-child(6n + 4),
-  [data-videos] > *:nth-child(6n + 4) {
+  [data-pictures] > *:nth-child(6n + 4) {
     --reveal-delay: 0.18s;
   }
-  [data-pictures] > *:nth-child(6n + 5),
-  [data-videos] > *:nth-child(6n + 5) {
+  [data-pictures] > *:nth-child(6n + 5) {
     --reveal-delay: 0.24s;
   }
-  [data-pictures] > *:nth-child(6n + 6),
-  [data-videos] > *:nth-child(6n + 6) {
+  [data-pictures] > *:nth-child(6n + 6) {
     --reveal-delay: 0.3s;
   }
 

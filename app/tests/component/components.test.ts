@@ -67,8 +67,10 @@ describe('<VideoCard>', () => {
     expect(html).toContain('loop');
     expect(html).toContain('Lemon Potatoes');
     expect(html).toContain('Placeholder transcript.');
-    expect(html).toContain('data-details-toggle');
-    expect(html).toContain('aria-expanded="false"');
+    // The metadata overlay is always on — no +/x toggle exists anymore.
+    expect(html).toContain('media-overlay-gradient');
+    expect(html).not.toContain('data-details-toggle');
+    expect(html).not.toContain('aria-expanded');
   });
 
   it('passes loop-clone attributes through to the card root', async () => {
@@ -156,6 +158,5 @@ describe('<VideoCard>', () => {
     // Visual parity with the middle copy while the rail crosses a seam.
     expect(html).toContain('data-video-poster');
     expect(html).toContain('data-play-toggle');
-    expect(html).toContain('data-details-toggle');
   });
 });

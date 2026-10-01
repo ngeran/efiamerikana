@@ -33,10 +33,9 @@ test.describe('video section', () => {
     await expect(real.locator('video[data-video]')).toHaveAttribute('playsinline', '');
     await expect(real.locator('video[data-video]')).toHaveAttribute('muted', '');
 
-    const ids = await cards.evaluateAll((els) =>
-      els.map((el) => el.querySelector('[id^="video-details-"]')?.id ?? ''),
-    );
-    expect(new Set(ids).size).toBe(ids.length); // no duplicate overlay ids
+    // The metadata overlay is always on now (no toggle) — its title text
+    // ships in every card's SSR.
+    await expect(real.locator('.media-overlay-gradient h3')).not.toBeEmpty();
   });
 
   test('arrows exist only while more items remain, and step one card', async ({ page }) => {
@@ -69,46 +68,64 @@ test.describe('video section', () => {
     await next.click();
     await expect.poll(centerOf(cards.nth(1))).toBeCloseTo(450, -1);
 
-    // Walk to the far end: the next arrow retires exactly there, while the
-    // prev arrow is back for the return trip.
-    for (let i = 0; i < 12 && (await next.isVisible()); i++) {
-      await next.click();
-      await page.waitForTimeout(650); // smooth scroll + snap settle
+    // Loop rails never retire the arrows — there is always another copy.
+    // Bounded rails walk to the far end, where the next arrow retires
+    // exactly there while the prev arrow is back for the return trip.
+    const looping =
+      (await section.locator('[data-video-rail-wrap]').getAttribute('data-sets')) !== '1';
+    if (looping) {
+      for (let i = 0; i < 3; i++) {
+        await next.click();
+        await page.waitForTimeout(650);
+      }
+      await expect(next).toBeVisible();
+      await expect(prev).toBeVisible();
+    } else {
+      for (let i = 0; i < 12 && (await next.isVisible()); i++) {
+        await next.click();
+        await page.waitForTimeout(650); // smooth scroll + snap settle
+      }
+      await expect(next).toBeHidden();
+      await expect(prev).toBeVisible();
     }
-    await expect(next).toBeHidden();
-    await expect(prev).toBeVisible();
     await expect.poll(() => rail.evaluate((el) => el.scrollLeft)).toBeGreaterThan(0);
   });
 
-  test('when every card fits, the group centers and the arrows retire', async ({ page }) => {
+  test('at stock widths the rail is centered and the arrows match reality', async ({ page }) => {
     test.skip(
       test.info().project.name === 'mobile-chromium',
       'phones are single-card and overflow by design',
     );
-    // Both stock widths matter: 1280 (xl, 4 slots) and 1900 (2xl, 5 slots).
-    // These were chosen as regression cases TWICE: Chrome counts the center
-    // mode's phantom END MARGINS in scrollWidth, and the bootstrap publish
-    // runs before the fit layout engages — both made overflow read as
-    // permanently true exactly at these widths (iPad landscape included),
-    // so every width asserts, no skips.
+    // Mode-aware on purpose: while the library fits its slots the whole
+    // group centers and the arrows retire; once it outgrows them (or the
+    // loop phase kicks in at 6+ videos) the active card centers instead and
+    // the arrows stay. Either way, SOME card must sit exactly on the
+    // midline and the arrows must agree with the measured overflow state.
     for (const width of [1280, 1900]) {
       await page.setViewportSize({ width, height: 945 });
       await page.goto('/en/');
       const section = page.locator('#videos');
       await section.scrollIntoViewIfNeeded();
+      const wrap = section.locator('[data-video-rail-wrap]');
+      const overflowing = (await wrap.getAttribute('data-overflow')) === 'true';
+      const next = section.locator('[data-rail-scroll="1"]');
+      const prev = section.locator('[data-rail-scroll="-1"]');
 
-      // Nothing to scroll: the arrows have nothing to offer, and the group
-      // centers instead of hugging the left edge — with three cards the
-      // middle one rides the viewport midline.
-      await expect(section.locator('[data-rail-scroll="1"]')).toBeHidden();
-      await expect(section.locator('[data-rail-scroll="-1"]')).toBeHidden();
-      const middle = page.locator('[data-video-card]:not([inert])').nth(1);
-      await expect
-        .poll(async () => {
-          const box = await middle.boundingBox();
-          return box ? box.x + box.width / 2 : 0;
-        })
-        .toBeCloseTo(width / 2, -1);
+      const midlineDelta = async () => {
+        const boxes = await page
+          .locator('[data-video-card]:not([inert])')
+          .evaluateAll((els) => els.map((el) => el.getBoundingClientRect()));
+        return Math.min(...boxes.map((b) => Math.abs(b.x + b.width / 2 - width / 2)));
+      };
+      await expect.poll(midlineDelta, { timeout: 5_000 }).toBeLessThan(3);
+
+      if (overflowing) {
+        await expect(next).toBeVisible(); // loop mode: always more to reach
+        await expect(prev).toBeVisible();
+      } else {
+        await expect(next).toBeHidden();
+        await expect(prev).toBeHidden();
+      }
     }
   });
 
@@ -137,13 +154,15 @@ test.describe('video section', () => {
 
       await expect(section.locator('[data-rail-scroll="1"]')).toBeHidden();
       await expect(section.locator('[data-rail-scroll="-1"]')).toBeHidden();
-      const middle = page.locator('[data-video-card]:not([inert])').nth(1);
-      await expect
-        .poll(async () => {
-          const box = await middle.boundingBox();
-          return box ? box.x + box.width / 2 : 0;
-        })
-        .toBeCloseTo(width / 2, -1);
+      // Fit mode centers the middle of the group; overflow mode centers the
+      // active card. Either way one card sits exactly on the midline.
+      const midlineDelta = async () => {
+        const boxes = await page
+          .locator('[data-video-card]:not([inert])')
+          .evaluateAll((els) => els.map((el) => el.getBoundingClientRect()));
+        return Math.min(...boxes.map((b) => Math.abs(b.x + b.width / 2 - width / 2)));
+      };
+      await expect.poll(midlineDelta, { timeout: 5_000 }).toBeLessThan(3);
     }
   });
 
@@ -178,13 +197,16 @@ test.describe('video section', () => {
     await expect(card).toHaveAttribute('data-started', 'true');
     await expect(card.locator('[data-video-poster]')).toHaveCSS('opacity', '0');
 
-    // Explicit pause wins over autoplay while still in view.
-    await card.locator('[data-play-toggle]').click();
+    // Explicit pause wins over autoplay while still in view — via the
+    // KEYBOARD (Enter on the surface = click with detail 0). A mouse click
+    // is deliberately inert: the pointer control is hover.
+    await card.locator('[data-play-toggle]').focus();
+    await page.keyboard.press('Enter');
     await expect.poll(() => video.evaluate((v) => (v as HTMLVideoElement).paused)).toBe(true);
     await expect(card).toHaveAttribute('data-playing', 'false');
 
     // Scrolled far away: paused by the visibility controller.
-    await card.locator('[data-play-toggle]').click(); // resume
+    await page.keyboard.press('Enter'); // resume
     await page.locator('#contact').scrollIntoViewIfNeeded();
     await expect
       .poll(() => video.evaluate((v) => (v as HTMLVideoElement).paused), { timeout: 5_000 })
@@ -274,11 +296,10 @@ test.describe('video section', () => {
     const card = page.locator('[data-video-card]:not([inert])').first();
     const video = card.locator('video[data-video]');
     await card.scrollIntoViewIfNeeded();
-    await card.locator('[data-play-toggle]').click();
-    if (await video.evaluate((v) => (v as HTMLVideoElement).paused)) {
-      await card.locator('[data-play-toggle]').click();
-    }
-    await expect.poll(() => video.evaluate((v) => (v as HTMLVideoElement).paused)).toBe(false);
+    // The controller autoplays the most-covered cards — no click needed.
+    await expect
+      .poll(() => video.evaluate((v) => (v as HTMLVideoElement).paused), { timeout: 8_000 })
+      .toBe(false);
 
     await card.locator('[data-mute-toggle]').click();
     expect(await video.evaluate((v) => (v as HTMLVideoElement).muted)).toBe(false);
@@ -327,20 +348,44 @@ test.describe('video section', () => {
       .toBe(true);
   });
 
-  test('+ button reveals and hides the metadata overlay', async ({ page }) => {
+  test('metadata is always visible and the + toggle is gone', async ({ page }) => {
     const card = page.locator('[data-video-card]:not([inert])').first();
-    const toggle = card.locator('[data-details-toggle]');
     await card.scrollIntoViewIfNeeded();
-    const overlay = card.locator('[id^="video-details-"]');
-    await expect(overlay).toHaveCSS('opacity', '0');
+    const overlay = card.locator('.media-overlay-gradient');
+    await expect(overlay).toBeVisible();
+    await expect(overlay.locator('h3')).toHaveText(/.+/);
+    // Title, description and transcript ship in the SSR — nothing to click.
+    await expect(card.locator('[data-details-toggle]')).toHaveCount(0);
+  });
 
-    await toggle.click();
-    await expect(card).toHaveAttribute('data-open', 'true');
-    await expect(toggle).toHaveAttribute('aria-expanded', 'true');
-    await expect(overlay).toHaveCSS('opacity', '1');
+  test('mouse hover plays a non-winner card, leaving pauses it; clicks are inert', async ({
+    page,
+  }) => {
+    test.skip(test.info().project.name === 'mobile-chromium', 'hover is a pointer-device control');
+    await page.setViewportSize({ width: 1280, height: 945 });
+    await page.goto('/en/');
+    const section = page.locator('#videos');
+    await section.scrollIntoViewIfNeeded();
+    // At xl all four cards are fully visible; the controller autoplays the
+    // top two — the last card is a non-winner, so the pointer owns it.
+    const laggard = page.locator('[data-video-card]:not([inert])').nth(3);
+    const paused = () =>
+      laggard.locator('video[data-video]').evaluate((v) => (v as HTMLVideoElement).paused);
+    await expect.poll(paused).toBe(true);
 
-    await toggle.click();
-    await expect(card).toHaveAttribute('data-open', 'false');
-    await expect(overlay).toHaveCSS('opacity', '0');
+    // A pointer click (event.detail >= 1) is deliberately inert.
+    await laggard.evaluate((el) => {
+      el.querySelector('[data-play-toggle]')?.dispatchEvent(
+        new MouseEvent('click', { detail: 1, bubbles: true }),
+      );
+    });
+    await expect.poll(paused).toBe(true);
+
+    // Hover plays it (muted state untouched — audio stays as the visitor
+    // left it), and leaving pauses it again: the card is not a winner.
+    await laggard.hover();
+    await expect.poll(paused, { timeout: 5_000 }).toBe(false);
+    await page.mouse.move(10, 10);
+    await expect.poll(paused).toBe(true);
   });
 });

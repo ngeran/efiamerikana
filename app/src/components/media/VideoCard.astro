@@ -12,10 +12,17 @@ import { autoPosterFor, resolveImage, resolveVideo } from '../../utils/media';
  * the <li> sizing classes, so that is a prop; everything else is shared.
  *
  * Interaction model:
- *  - the whole media surface is the play/pause control
+ *  - MOUSE: hovering the card plays it; leaving pauses it (unless the
+ *    autoplay controller already owns the card as a winner). Mouse clicks
+ *    on the surface do nothing.
+ *  - KEYBOARD: the surface stays a real button — Enter/Space toggles
+ *    play/pause (a click with event.detail === 0 is a keyboard activation).
+ *  - TOUCH: the autoplay controller owns playback (top-N visible cards);
+ *    taps do nothing.
  *  - audio starts muted; unmuting is a separate explicit button (browsers
  *    block autoplay with sound, and surprise audio is hostile)
- *  - the +/x button reveals title/description/transcript (touch-friendly)
+ *  - title/description/transcript are always visible on the gradient —
+ *    the old +/x reveal toggle is gone
  *
  * Localized labels are passed down as data-* attributes so the playback
  * controller (src/scripts/video-playback.ts) stays free of user-facing
@@ -24,8 +31,6 @@ import { autoPosterFor, resolveImage, resolveVideo } from '../../utils/media';
 interface Props extends astroHTML.JSX.HTMLAttributes {
   video: VideoData;
   locale: Locale;
-  /** Unique across the page — grid and rail must not collide on DOM ids. */
-  cardId: string;
   /** Layout-specific <li> sizing (grid cell vs rail slide). */
   class: string;
   /**
@@ -47,7 +52,6 @@ interface Props extends astroHTML.JSX.HTMLAttributes {
 const {
   video,
   locale,
-  cardId,
   class: className,
   respectRatio = false,
   posterOnly = false,
@@ -105,7 +109,6 @@ const posterSrc = posterImage
     ? posterImage.src
     : (await getImage({ src: posterImage, width: 760, format: 'webp' })).src
   : undefined;
-const detailsId = `video-details-${cardId}`;
 
 const playLabel = `${t.play} — ${video.title}`;
 const pauseLabel = `${t.pause} — ${video.title}`;
@@ -117,7 +120,6 @@ const pauseLabel = `${t.pause} — ${video.title}`;
   data-video-card
   data-playing="false"
   data-muted="true"
-  data-open="false"
   style={respectRatio ? `--card-ratio: ${ratio};` : undefined}
 >
   <!--
@@ -127,7 +129,7 @@ const pauseLabel = `${t.pause} — ${video.title}`;
     dimensions are then ready instantly at play() time, and the browser can
     begin streaming the first frames while the visitor is still scrolling.
 
-    The clip-path is a compositing guard, not styling: once a <video>
+    The clip-path is a compositing guard, not styling: once the video
     starts decoding it gets its own GPU layer, and Chromium lets composited
     video escape the ancestor `border-radius + overflow-hidden` clip until
     some event forces a recomposite — corners paint square and the layer
@@ -218,47 +220,13 @@ const pauseLabel = `${t.pause} — ${video.title}`;
       </button>
     )
   }
-
-  <!--
-    Bare "+" glyph, no chip (the Framer-card look): the button box stays
-    40px for the tap target, but nothing is painted except the glyph, which
-    rotates 45° into an "×" when the details are open.
-  -->
-  <button
-    type="button"
-    data-details-toggle
-    class="absolute top-2 right-2 z-10 flex h-10 w-10 items-center justify-center text-charcoal transition-transform duration-500 ease-[var(--ease-out-soft)] group-data-[open=true]:rotate-45"
-    aria-expanded="false"
-    aria-controls={detailsId}
-    aria-label={t.showDetails}
-    data-label-show={t.showDetails}
-    data-label-hide={t.hideDetails}
-  >
-    <svg
-      viewBox="0 0 24 24"
-      class="h-10 w-10"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      aria-hidden="true"
-    >
-      <line x1="12" y1="5" x2="12" y2="19"></line>
-      <line x1="5" y1="12" x2="19" y2="12"></line>
-    </svg>
-  </button>
-
   {
-    video.tag && (
-      <span class="pointer-events-none absolute bottom-3 left-3 z-10 rounded-full bg-black/60 px-3 py-1 font-label text-[10px] font-bold tracking-[0.15em] text-white uppercase backdrop-blur-sm transition-opacity duration-500 ease-[var(--ease-out-soft)] group-data-[open=true]:opacity-0">
-        {video.tag}
-      </span>
-    )
+    /* The tag chip died with the +/x toggle: the always-on overlay's
+       transcript occupies the same bottom-left corner. */
   }
 
   <div
-    id={detailsId}
-    class="media-overlay-gradient pointer-events-none absolute inset-0 flex translate-y-4 flex-col justify-end p-5 opacity-0 transition-[opacity,transform] duration-500 ease-[var(--ease-out-soft)] group-data-[open=true]:translate-y-0 group-data-[open=true]:opacity-100"
+    class="media-overlay-gradient pointer-events-none absolute inset-0 flex flex-col justify-end p-5"
   >
     <h3 class="font-display text-base text-white">{video.title}</h3>
     {
@@ -268,10 +236,9 @@ const pauseLabel = `${t.pause} — ${video.title}`;
     }
     {
       video.transcript && (
-        /* pointer-events-auto once open: the transcript scrolls, which the
-           all-none overlay would otherwise make impossible — but only while
-           open, so a closed card's whole surface still toggles playback. */
-        <p class="pointer-events-none mt-2 max-h-24 overflow-y-auto text-[11px] leading-relaxed text-white/60 group-data-[open=true]:pointer-events-auto">
+        /* pointer-events-auto: the transcript scrolls — the surrounding
+           all-none overlay would otherwise make that impossible. */
+        <p class="pointer-events-auto mt-2 max-h-24 overflow-y-auto text-[11px] leading-relaxed text-white/60">
           <span class="font-bold tracking-wide uppercase">{t.transcript}: </span>
           {video.transcript}
         </p>

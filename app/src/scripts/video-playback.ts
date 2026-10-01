@@ -56,12 +56,15 @@
  * re-attaches from scratch. The reset playback position is correct there:
  * a card evicted that far away starts over as a fresh visit.
  *
- * Visitor intent: ONE slot, last tap wins. A 'play' focus keeps its decoder
- * outside the winner ranking while the card stays on screen (one
- * user-requested decoder is bounded); a 'pause' focus is exempt from
- * autoplay. Both expire when the card leaves the viewport — off-screen the
- * controller owns playback entirely, and a stale focus must not resurrect a
- * decoder (or suppress autoplay) for a card the visitor scrolled past.
+ * Visitor intent: ONE slot, last intent wins. On mouse-primary devices the
+ * intent is HOVER: entering a card plays it (mute choice untouched — audio
+ * is exactly as the visitor left it), leaving pauses it unless the card is
+ * a controller winner, whose ambient playback a drive-by hover must not
+ * interrupt. Enter/Space on the surface (a click with event.detail === 0)
+ * toggles play/pause for keyboard users; mouse clicks are deliberately
+ * inert. A 'play' focus keeps its decoder outside the winner ranking while
+ * the card stays on screen. Intent expires when the card leaves the
+ * viewport — off-screen the controller owns playback entirely.
  *
  * Autoplay refusals (Low Power Mode, decoder pressure) latch per card so a
  * sweep never hammers play(); the latch clears on viewport re-entry or tap.
@@ -552,23 +555,10 @@ export function initVideoPlayback() {
     true,
   );
 
-  // Button wiring, also delegated. The play surface is a toggle (and the
-  // controller's intent slot — last tap wins); mute flips the video's audio
-  // channel (the volumechange capture listener syncs the card); details
-  // expands the metadata overlay.
+  // Button wiring, also delegated. Mute flips the video's audio channel
+  // (the volumechange capture listener syncs the card).
   document.addEventListener('click', (event) => {
     const target = event.target as HTMLElement;
-
-    const detailsBtn = target.closest<HTMLButtonElement>('[data-details-toggle]');
-    if (detailsBtn) {
-      const card = detailsBtn.closest<HTMLElement>('[data-video-card]');
-      const open = detailsBtn.getAttribute('aria-expanded') !== 'true';
-      detailsBtn.setAttribute('aria-expanded', String(open));
-      if (card) card.dataset.open = String(open);
-      const label = detailsBtn.dataset[open ? 'labelHide' : 'labelShow'];
-      if (label) detailsBtn.setAttribute('aria-label', label);
-      return;
-    }
 
     const muteBtn = target.closest<HTMLButtonElement>('[data-mute-toggle]');
     if (muteBtn) {
@@ -581,7 +571,10 @@ export function initVideoPlayback() {
       return;
     }
 
-    // Manual play must always work, even when autoplay is disallowed.
+    // Play/pause stays keyboard-reachable: detail === 0 is a KEYBOARD
+    // activation (Enter/Space on the focused surface). Pointer clicks are
+    // deliberately inert — the pointer control is hover below.
+    if (event.detail !== 0) return;
     const btn = target.closest<HTMLButtonElement>('[data-play-toggle]');
     if (!btn) return;
     const card = btn.closest<HTMLElement>('[data-video-card]');
@@ -603,6 +596,37 @@ export function initVideoPlayback() {
     }
     apply();
   });
+
+  // HOVER = the pointer control (mouse-primary devices only; touch and
+  // pens fall through to the autoplay controller). Entering a card plays
+  // it with the visitor's own mute choice untouched — audio stays exactly
+  // as they left it. Leaving pauses it UNLESS the controller already
+  // autoplays the card as a winner: a drive-by hover must not pause (and
+  // re-play) ambient playback. Per-card listeners, not delegation — the
+  // cards are static and the intent state lives in this closure anyway.
+  if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    for (const card of allCards()) {
+      const video = videoOf(card);
+      if (!video) continue;
+      card.addEventListener('pointerenter', () => {
+        touch(card);
+        blocked.delete(card);
+        card.removeAttribute('data-blocked');
+        focus = { card, mode: 'play' };
+        warm(video);
+        video.play().catch(() => {
+          blocked.add(card);
+          card.dataset.blocked = 'true';
+        });
+        apply();
+      });
+      card.addEventListener('pointerleave', () => {
+        if (focus?.card === card) focus = null;
+        if (!incumbents.includes(card) && !video.paused) video.pause();
+        apply();
+      });
+    }
+  }
 
   // Initial pass: labels and mute-icon state must be correct before any
   // event fires (the SSR markup hardcodes the muted default).
