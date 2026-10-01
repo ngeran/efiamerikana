@@ -6,184 +6,218 @@
 
 # Test info
 
-- Name: video.spec.ts >> video section >> iPad landscape: centered fit and no arrows — fingers do the navigating
-- Location: tests/e2e/video.spec.ts:115:3
+- Name: video.spec.ts >> video section >> when every card fits, the group centers and the arrows retire
+- Location: tests/e2e/video.spec.ts:83:3
 
 # Error details
 
 ```
-Error: Playwright Test did not expect test.use() to be called here.
-Most common reasons include:
-- You are calling test.use() in a configuration file.
-- You are calling test.use() in a file that is imported by the configuration file.
-- You have two different versions of @playwright/test. This usually happens
-  when one of the dependencies in your package.json depends on @playwright/test.
-- You are calling test.use() from an async test.describe() block. Only sync ones are supported.
+Error: expect(received).toBeCloseTo(expected, precision)
+
+Expected: 640
+Received: 486
+
+Expected precision:    -1
+Expected difference: < 5
+Received difference:   154
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
 ```
 
 # Page snapshot
 
 ```yaml
-- generic [active] [ref=e1]:
-  - link "Skip to content" [ref=e2] [cursor=pointer]:
+- generic [active] [ref=f1e1]:
+  - link "Skip to content" [ref=f1e2] [cursor=pointer]:
     - /url: "#main"
-  - banner [ref=e3]:
-    - generic [ref=e4]:
-      - link "efiamerikana" [ref=e5] [cursor=pointer]:
+  - banner [ref=f1e3]:
+    - generic [ref=f1e4]:
+      - link "efiamerikana" [ref=f1e5] [cursor=pointer]:
         - /url: /en
-      - generic [ref=e6]:
-        - link "Send an email (effaki7@gmail.com)" [ref=e7] [cursor=pointer]:
-          - /url: mailto:effaki7@gmail.com
-        - button "Open menu" [ref=e11]
-  - main [ref=e15]:
-    - generic [ref=e18]:
-      - img "Placeholder artwork for the hero portrait of Effie Kazantzidis — replace via the CMS." [ref=e20]
-      - generic [ref=e21]:
-        - paragraph [ref=e22]: efiamerikana
-        - heading "Effie Kazantzidis" [level=1] [ref=e23]
-        - generic [ref=e25]:
-          - paragraph [ref=e26]: Greek-American Home Cook
-          - paragraph [ref=e27]: Food • Lifestyle • UGC Content
-        - paragraph [ref=e28]: Real food. Real life. Real personality.
-        - generic [ref=e29]:
-          - link "TikTok" [ref=e30] [cursor=pointer]:
-            - /url: https://www.tiktok.com/@efiamerikana
-          - link "Instagram" [ref=e33] [cursor=pointer]:
-            - /url: https://www.instagram.com/efi.amerikana
-    - link "view my portfolio" [ref=e36] [cursor=pointer]:
-      - /url: "#videos"
-    - region [ref=e40]:
-      - generic [ref=e43]:
-        - heading "Selected works" [level=2] [ref=e44]
-        - paragraph [ref=e45]: Portrait cuts from the kitchen archives — TikToks, Reels and Shorts with the textures of real ingredients.
-      - list "Videos, horizontally scrollable" [ref=e48]:
-        - listitem [ref=e49]:
-          - generic "Down Town" [ref=e52]
-          - button "Play video — Down Town" [ref=e53] [cursor=pointer]
-          - button "Unmute" [ref=e54]
-          - button "Show video details" [ref=e59]
+      - navigation "Main navigation" [ref=f1e6]:
+        - list [ref=f1e7]:
+          - listitem [ref=f1e8]:
+            - link "Home" [ref=f1e9] [cursor=pointer]:
+              - /url: "#hero"
+          - listitem [ref=f1e10]:
+            - link "Videos" [ref=f1e11] [cursor=pointer]:
+              - /url: "#videos"
+          - listitem [ref=f1e12]:
+            - link "Pictures" [ref=f1e13] [cursor=pointer]:
+              - /url: "#pictures"
+          - listitem [ref=f1e14]:
+            - link "About" [ref=f1e15] [cursor=pointer]:
+              - /url: "#about"
+          - listitem [ref=f1e16]:
+            - link "Analytics" [ref=f1e17] [cursor=pointer]:
+              - /url: "#analytics"
+          - listitem [ref=f1e18]:
+            - link "Contact" [ref=f1e19] [cursor=pointer]:
+              - /url: "#contact"
+      - link "Send an email (effaki7@gmail.com)" [ref=f1e21] [cursor=pointer]:
+        - /url: mailto:effaki7@gmail.com
+        - generic [ref=f1e25]: Email me
+  - main [ref=f1e26]:
+    - generic [ref=f1e27]:
+      - generic [ref=f1e29]:
+        - img "Placeholder artwork for the hero portrait of Effie Kazantzidis — replace via the CMS." [ref=f1e31]
+        - generic [ref=f1e32]:
+          - paragraph [ref=f1e33]: efiamerikana
+          - heading "Effie Kazantzidis" [level=1] [ref=f1e34]
+          - generic [ref=f1e36]:
+            - paragraph [ref=f1e37]: Greek-American Home Cook
+            - paragraph [ref=f1e38]: Food • Lifestyle • UGC Content
+          - paragraph [ref=f1e39]: Real food. Real life. Real personality.
+          - generic [ref=f1e40]:
+            - link "TikTok" [ref=f1e41] [cursor=pointer]:
+              - /url: https://www.tiktok.com/@efiamerikana
+            - link "Instagram" [ref=f1e44] [cursor=pointer]:
+              - /url: https://www.instagram.com/efi.amerikana
+      - link "view my portfolio" [ref=f1e50] [cursor=pointer]:
+        - /url: "#videos"
+    - region [ref=f1e54]:
+      - generic [ref=f1e57]:
+        - heading "Selected works" [level=2] [ref=f1e58]
+        - paragraph [ref=f1e59]: Portrait cuts from the kitchen archives — TikToks, Reels and Shorts with the textures of real ingredients.
+      - list "Videos, horizontally scrollable" [ref=f1e62]:
+        - listitem [ref=f1e63]:
+          - generic "Down Town" [ref=f1e66]
+          - button "Pause video — Down Town" [ref=f1e67] [cursor=pointer]
+          - button "Unmute" [ref=f1e68]
+          - button "Show video details" [ref=f1e73]
           - generic:
             - heading "Down Town" [level=3]
-        - listitem [ref=e61]:
-          - generic "Crimpit" [ref=e64]
-          - button "Play video — Crimpit" [ref=e65] [cursor=pointer]
-          - button "Unmute" [ref=e66]
-          - button "Show video details" [ref=e71]
+        - listitem [ref=f1e75]:
+          - generic "Crimpit" [ref=f1e78]
+          - button "Pause video — Crimpit" [ref=f1e79] [cursor=pointer]
+          - button "Unmute" [ref=f1e80]
+          - button "Show video details" [ref=f1e85]
           - generic:
             - heading "Crimpit" [level=3]
-        - listitem [ref=e73]:
-          - generic "Lipstick" [ref=e76]
-          - button "Play video — Lipstick" [ref=e77] [cursor=pointer]
-          - button "Unmute" [ref=e78]
-          - button "Show video details" [ref=e83]
+        - listitem [ref=f1e87]:
+          - generic "Lipstick" [ref=f1e90]
+          - button "Play video — Lipstick" [ref=f1e91] [cursor=pointer]
+          - button "Unmute" [ref=f1e92]
+          - button "Show video details" [ref=f1e97]
           - generic:
             - heading "Lipstick" [level=3]
-        - listitem [ref=e85]:
-          - generic "Dunkin" [ref=e88]
-          - button "Play video — Dunkin" [ref=e89] [cursor=pointer]
-          - button "Unmute" [ref=e90]
-          - button "Show video details" [ref=e95]
+        - listitem [ref=f1e99]:
+          - generic "Dunkin" [ref=f1e102]
+          - button "Play video — Dunkin" [ref=f1e103] [cursor=pointer]
+          - button "Unmute" [ref=f1e104]
+          - button "Show video details" [ref=f1e109]
           - generic:
             - heading "Dunkin" [level=3]
-    - region [ref=e97]:
-      - generic [ref=e100]:
-        - heading "The gallery" [level=2] [ref=e101]
-        - paragraph [ref=e102]: Stills from the kitchen and the road — select a photo for the story behind it.
-      - list "Pictures, horizontally scrollable" [ref=e105]:
-        - listitem [ref=e106]:
-          - img "Argo" [ref=e109]
-          - generic:
-            - heading "Argo" [level=3]
-        - listitem [ref=e110]:
-          - img "dawn" [ref=e113]
-          - generic:
-            - heading "dawn" [level=3]
-        - listitem [ref=e114]:
-          - img "dought" [ref=e117]
-          - generic:
-            - heading "dought" [level=3]
-        - listitem [ref=e118]:
-          - img "products" [ref=e121]
-          - generic:
-            - heading "products" [level=3]
-        - listitem [ref=e122]:
-          - img "salad" [ref=e125]
-          - generic:
-            - heading "salad" [level=3]
-    - region [ref=e126]:
-      - generic [ref=e127]:
-        - generic [ref=e128]:
-          - heading "Authenticity is the main ingredient." [level=2] [ref=e131]
-          - paragraph [ref=e133]: I'm not a chef. I'm a home cook. I create authentic food and lifestyle content from my kitchens in Greece and the United States. I love discovering new recipes, testing everyday kitchen products, and showing people what actually works in a real home kitchen. My food isn't styled for perfection. Sometimes I cook in my pajamas. Sometimes my recipes fail and I share those too. Because that's real life. What matters most to me is creating content that feels natural, relatable and trustworthy, not like an advertisement. Real meals, real kitchens, real ingredients, real me
-          - blockquote [ref=e134]: No fuss, no pretension — just bold flavours and honest ingredients.
-          - link "Let's collaborate" [ref=e136] [cursor=pointer]:
+    - region [ref=f1e111]:
+      - generic [ref=f1e114]:
+        - heading "The gallery" [level=2] [ref=f1e115]
+        - paragraph [ref=f1e116]: Stills from the kitchen and the road — select a photo for the story behind it.
+      - generic [ref=f1e118]:
+        - button "Scroll pictures back" [ref=f1e119]
+        - button "Scroll pictures forward" [ref=f1e122]
+        - list "Pictures, horizontally scrollable" [ref=f1e125]:
+          - listitem [ref=f1e126]:
+            - img "Argo" [ref=f1e129]
+            - generic:
+              - heading "Argo" [level=3]
+          - listitem [ref=f1e130]:
+            - img "dawn" [ref=f1e133]
+            - generic:
+              - heading "dawn" [level=3]
+          - listitem [ref=f1e134]:
+            - img "dought" [ref=f1e137]
+            - generic:
+              - heading "dought" [level=3]
+          - listitem [ref=f1e138]:
+            - img "products" [ref=f1e141]
+            - generic:
+              - heading "products" [level=3]
+          - listitem [ref=f1e142]:
+            - img "salad" [ref=f1e145]
+            - generic:
+              - heading "salad" [level=3]
+    - region [ref=f1e146]:
+      - generic [ref=f1e147]:
+        - generic [ref=f1e148]:
+          - heading "Authenticity is the main ingredient." [level=2] [ref=f1e151]
+          - paragraph [ref=f1e153]: I'm not a chef. I'm a home cook. I create authentic food and lifestyle content from my kitchens in Greece and the United States. I love discovering new recipes, testing everyday kitchen products, and showing people what actually works in a real home kitchen. My food isn't styled for perfection. Sometimes I cook in my pajamas. Sometimes my recipes fail and I share those too. Because that's real life. What matters most to me is creating content that feels natural, relatable and trustworthy, not like an advertisement. Real meals, real kitchens, real ingredients, real me
+          - blockquote [ref=f1e154]: No fuss, no pretension — just bold flavours and honest ingredients.
+          - link "Let's collaborate" [ref=f1e156] [cursor=pointer]:
             - /url: "#contact"
-        - img "Placeholder artwork for the about portrait of Effie Kazantzidis — replace via the CMS." [ref=e138]
-    - region [ref=e139]:
-      - generic [ref=e140]:
-        - generic [ref=e141]:
-          - heading "Analytics 60 days!" [level=2] [ref=e142]
-          - paragraph [ref=e143]:
+        - img "Placeholder artwork for the about portrait of Effie Kazantzidis — replace via the CMS." [ref=f1e158]
+    - region [ref=f1e159]:
+      - generic [ref=f1e160]:
+        - generic [ref=f1e161]:
+          - heading "Analytics 60 days!" [level=2] [ref=f1e162]
+          - paragraph [ref=f1e163]:
             - text: 5.8M
-            - generic [ref=e144]: Views
-          - paragraph [ref=e145]: Real performance numbers from my content.
-        - generic [ref=e146]:
-          - generic [ref=e147]:
-            - generic [ref=e150]: 266.4K
-            - generic [ref=e151]: Likes
-            - paragraph [ref=e152]: Total likes on all content
-          - generic [ref=e153]:
-            - generic [ref=e157]: "42.4"
-            - generic [ref=e158]: Shares
-            - paragraph [ref=e159]: Total content shares
-          - generic [ref=e160]:
-            - generic [ref=e164]: 22.2K
-            - generic [ref=e165]: Followers
-            - paragraph [ref=e166]: Total community across platforms
-          - generic [ref=e167]:
-            - generic [ref=e170]: 5.40%
-            - generic [ref=e171]: Engagement by views
-            - paragraph [ref=e172]: Engagement rate relative to views
-          - generic [ref=e173]:
-            - generic [ref=e176]: 1,423.64%
-            - generic [ref=e177]: Engagement by followers
-            - paragraph [ref=e178]: Engagement rate relative to followers
-        - paragraph [ref=e179]: Data reflects 60-day period across all platforms.
-    - region [ref=e180]:
-      - generic [ref=e181]:
-        - heading "LET'S WORK TOGETHER" [level=2] [ref=e182]
-        - paragraph [ref=e183]: Available for brand partnerships, recipe development and UGC campaigns.
-        - link "effaki7@gmail.com" [ref=e184] [cursor=pointer]:
+            - generic [ref=f1e164]: Views
+          - paragraph [ref=f1e165]: Real performance numbers from my content.
+        - generic [ref=f1e166]:
+          - generic [ref=f1e167]:
+            - generic [ref=f1e170]: 266.4K
+            - generic [ref=f1e171]: Likes
+            - paragraph [ref=f1e172]: Total likes on all content
+          - generic [ref=f1e173]:
+            - generic [ref=f1e177]: "42.4"
+            - generic [ref=f1e178]: Shares
+            - paragraph [ref=f1e179]: Total content shares
+          - generic [ref=f1e180]:
+            - generic [ref=f1e184]: 22.2K
+            - generic [ref=f1e185]: Followers
+            - paragraph [ref=f1e186]: Total community across platforms
+          - generic [ref=f1e187]:
+            - generic [ref=f1e190]: 5.40%
+            - generic [ref=f1e191]: Engagement by views
+            - paragraph [ref=f1e192]: Engagement rate relative to views
+          - generic [ref=f1e193]:
+            - generic [ref=f1e196]: 1,423.64%
+            - generic [ref=f1e197]: Engagement by followers
+            - paragraph [ref=f1e198]: Engagement rate relative to followers
+        - paragraph [ref=f1e199]: Data reflects 60-day period across all platforms.
+    - region [ref=f1e200]:
+      - generic [ref=f1e201]:
+        - heading "LET'S WORK TOGETHER" [level=2] [ref=f1e202]
+        - paragraph [ref=f1e203]: Available for brand partnerships, recipe development and UGC campaigns.
+        - link "effaki7@gmail.com" [ref=f1e204] [cursor=pointer]:
           - /url: mailto:effaki7@gmail.com
-        - generic [ref=e185]:
-          - heading "Ways to reach me" [level=3] [ref=e186]
-          - list [ref=e187]:
-            - listitem [ref=e188]:
-              - generic [ref=e191]: "Phone:"
-              - link "+484-340-8784" [ref=e192] [cursor=pointer]:
+        - generic [ref=f1e205]:
+          - heading "Ways to reach me" [level=3] [ref=f1e206]
+          - list [ref=f1e207]:
+            - listitem [ref=f1e208]:
+              - generic [ref=f1e211]: "Phone:"
+              - link "+484-340-8784" [ref=f1e212] [cursor=pointer]:
                 - /url: tel:+4843408784
-            - listitem [ref=e193]:
-              - generic [ref=e196]: "Phone:"
-              - link "+306977208612" [ref=e197] [cursor=pointer]:
+            - listitem [ref=f1e213]:
+              - generic [ref=f1e216]: "Phone:"
+              - link "+306977208612" [ref=f1e217] [cursor=pointer]:
                 - /url: tel:+306977208612
-        - generic [ref=e198]:
-          - heading "Follow along" [level=3] [ref=e199]
-          - list [ref=e200]:
-            - listitem [ref=e201]:
-              - link "TikTok" [ref=e202] [cursor=pointer]:
+        - generic [ref=f1e218]:
+          - heading "Follow along" [level=3] [ref=f1e219]
+          - list [ref=f1e220]:
+            - listitem [ref=f1e221]:
+              - link "TikTok" [ref=f1e222] [cursor=pointer]:
                 - /url: https://www.tiktok.com/@efiamerikana
-            - listitem [ref=e205]:
-              - link "Instagram" [ref=e206] [cursor=pointer]:
+            - listitem [ref=f1e225]:
+              - link "Instagram" [ref=f1e226] [cursor=pointer]:
                 - /url: https://www.instagram.com/efi.amerikana
-        - link "Get in touch" [ref=e209] [cursor=pointer]:
+        - link "Get in touch" [ref=f1e229] [cursor=pointer]:
           - /url: mailto:effaki7@gmail.com
-  - contentinfo [ref=e212]:
-    - paragraph [ref=e214]: © 2026 EFIAMERIKANA · All rights reserved.
+  - contentinfo [ref=f1e232]:
+    - paragraph [ref=f1e234]: © 2026 EFIAMERIKANA · All rights reserved.
 ```
 
 # Test source
 
 ```ts
+  11  |     // also multiply DOM copies behind data-sets, so assert ≥1 and uniqueness
+  12  |     // of the details-overlay ids rather than an exact total.
+  13  |     const cards = section.locator('[data-video-card]');
+  14  |     expect(await cards.count()).toBeGreaterThanOrEqual(3);
+  15  | 
+  16  |     // :not([inert]) skips the loop's clone copies (inert is a bare boolean
+  17  |     // attribute; with data-sets=1 nothing is inert, so this is a no-op there).
   18  |     // Interaction tests below need a REAL card: clones are aria-hidden (the
   19  |     // playback controller skips them) and parked off-screen by the loop's
   20  |     // normalise, which would fight scrollIntoViewIfNeeded forever.
@@ -277,15 +311,15 @@ Most common reasons include:
   108 |           const box = await middle.boundingBox();
   109 |           return box ? box.x + box.width / 2 : 0;
   110 |         })
-  111 |         .toBeCloseTo(width / 2, -1);
+> 111 |         .toBeCloseTo(width / 2, -1);
+      |          ^ Error: expect(received).toBeCloseTo(expected, precision)
   112 |     }
   113 |   });
   114 | 
   115 |   test('iPad landscape: centered fit and no arrows — fingers do the navigating', async ({
   116 |     page,
   117 |   }) => {
-> 118 |     test.use({ hasTouch: true, isMobile: true });
-      |          ^ Error: Playwright Test did not expect test.use() to be called here.
+  118 |     test.use({ hasTouch: true, isMobile: true });
   119 |     test.skip(
   120 |       test.info().project.name !== 'desktop-chromium',
   121 |       'isMobile is a Chromium context option',
@@ -379,11 +413,4 @@ Most common reasons include:
   209 |       const top = el.getBoundingClientRect().top;
   210 |       window.scrollBy(0, top);
   211 |     });
-  212 |     await expect
-  213 |       .poll(() => video.evaluate((v) => (v as HTMLVideoElement).paused), { timeout: 8_000 })
-  214 |       .toBe(false);
-  215 |   });
-  216 | 
-  217 |   test('returning to a played card resumes where it left off (no re-warm restart)', async ({
-  218 |     page,
 ```

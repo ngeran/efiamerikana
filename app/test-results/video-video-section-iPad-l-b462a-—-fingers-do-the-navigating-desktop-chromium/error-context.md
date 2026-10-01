@@ -85,116 +85,123 @@ Most common reasons include:
           - generic:
             - heading "Down Town" [level=3]
         - listitem [ref=e75]:
-          - generic "Lipstick" [ref=e78]
-          - button "Play video — Lipstick" [ref=e79] [cursor=pointer]
+          - generic "Crimpit" [ref=e78]
+          - button "Play video — Crimpit" [ref=e79] [cursor=pointer]
           - button "Unmute" [ref=e80]
           - button "Show video details" [ref=e85]
           - generic:
-            - heading "Lipstick" [level=3]
+            - heading "Crimpit" [level=3]
         - listitem [ref=e87]:
-          - generic "Dunkin" [ref=e90]
-          - button "Play video — Dunkin" [ref=e91] [cursor=pointer]
+          - generic "Lipstick" [ref=e90]
+          - button "Play video — Lipstick" [ref=e91] [cursor=pointer]
           - button "Unmute" [ref=e92]
           - button "Show video details" [ref=e97]
           - generic:
+            - heading "Lipstick" [level=3]
+        - listitem [ref=e99]:
+          - generic "Dunkin" [ref=e102]
+          - button "Play video — Dunkin" [ref=e103] [cursor=pointer]
+          - button "Unmute" [ref=e104]
+          - button "Show video details" [ref=e109]
+          - generic:
             - heading "Dunkin" [level=3]
-    - region [ref=e99]:
-      - generic [ref=e102]:
-        - heading "The gallery" [level=2] [ref=e103]
-        - paragraph [ref=e104]: Stills from the kitchen and the road — select a photo for the story behind it.
-      - generic [ref=e106]:
-        - button "Scroll pictures back" [ref=e107]
-        - button "Scroll pictures forward" [ref=e110]
-        - list "Pictures, horizontally scrollable" [ref=e113]:
-          - listitem [ref=e114]:
-            - img "Argo" [ref=e117]
+    - region [ref=e111]:
+      - generic [ref=e114]:
+        - heading "The gallery" [level=2] [ref=e115]
+        - paragraph [ref=e116]: Stills from the kitchen and the road — select a photo for the story behind it.
+      - generic [ref=e118]:
+        - button "Scroll pictures back" [ref=e119]
+        - button "Scroll pictures forward" [ref=e122]
+        - list "Pictures, horizontally scrollable" [ref=e125]:
+          - listitem [ref=e126]:
+            - img "Argo" [ref=e129]
             - generic:
               - heading "Argo" [level=3]
-          - listitem [ref=e118]:
-            - img "dawn" [ref=e121]
+          - listitem [ref=e130]:
+            - img "dawn" [ref=e133]
             - generic:
               - heading "dawn" [level=3]
-          - listitem [ref=e122]:
-            - img "dought" [ref=e125]
+          - listitem [ref=e134]:
+            - img "dought" [ref=e137]
             - generic:
               - heading "dought" [level=3]
-          - listitem [ref=e126]:
-            - img "products" [ref=e129]
+          - listitem [ref=e138]:
+            - img "products" [ref=e141]
             - generic:
               - heading "products" [level=3]
-          - listitem [ref=e130]:
-            - img "salad" [ref=e133]
+          - listitem [ref=e142]:
+            - img "salad" [ref=e145]
             - generic:
               - heading "salad" [level=3]
-    - region [ref=e134]:
-      - generic [ref=e135]:
-        - generic [ref=e136]:
-          - heading "Authenticity is the main ingredient." [level=2] [ref=e139]
-          - paragraph [ref=e141]: I'm not a chef. I'm a home cook. I create authentic food and lifestyle content from my kitchens in Greece and the United States. I love discovering new recipes, testing everyday kitchen products, and showing people what actually works in a real home kitchen. My food isn't styled for perfection. Sometimes I cook in my pajamas. Sometimes my recipes fail and I share those too. Because that's real life. What matters most to me is creating content that feels natural, relatable and trustworthy, not like an advertisement. Real meals, real kitchens, real ingredients, real me
-          - blockquote [ref=e142]: No fuss, no pretension — just bold flavours and honest ingredients.
-          - link "Let's collaborate" [ref=e144] [cursor=pointer]:
+    - region [ref=e146]:
+      - generic [ref=e147]:
+        - generic [ref=e148]:
+          - heading "Authenticity is the main ingredient." [level=2] [ref=e151]
+          - paragraph [ref=e153]: I'm not a chef. I'm a home cook. I create authentic food and lifestyle content from my kitchens in Greece and the United States. I love discovering new recipes, testing everyday kitchen products, and showing people what actually works in a real home kitchen. My food isn't styled for perfection. Sometimes I cook in my pajamas. Sometimes my recipes fail and I share those too. Because that's real life. What matters most to me is creating content that feels natural, relatable and trustworthy, not like an advertisement. Real meals, real kitchens, real ingredients, real me
+          - blockquote [ref=e154]: No fuss, no pretension — just bold flavours and honest ingredients.
+          - link "Let's collaborate" [ref=e156] [cursor=pointer]:
             - /url: "#contact"
-        - img "Placeholder artwork for the about portrait of Effie Kazantzidis — replace via the CMS." [ref=e146]
-    - region [ref=e147]:
-      - generic [ref=e148]:
-        - generic [ref=e149]:
-          - heading "Analytics 60 days!" [level=2] [ref=e150]
-          - paragraph [ref=e151]:
+        - img "Placeholder artwork for the about portrait of Effie Kazantzidis — replace via the CMS." [ref=e158]
+    - region [ref=e159]:
+      - generic [ref=e160]:
+        - generic [ref=e161]:
+          - heading "Analytics 60 days!" [level=2] [ref=e162]
+          - paragraph [ref=e163]:
             - text: 5.8M
-            - generic [ref=e152]: Views
-          - paragraph [ref=e153]: Real performance numbers from my content.
-        - generic [ref=e154]:
-          - generic [ref=e155]:
-            - generic [ref=e158]: 266.4K
-            - generic [ref=e159]: Likes
-            - paragraph [ref=e160]: Total likes on all content
-          - generic [ref=e161]:
-            - generic [ref=e165]: "42.4"
-            - generic [ref=e166]: Shares
-            - paragraph [ref=e167]: Total content shares
-          - generic [ref=e168]:
-            - generic [ref=e172]: 22.2K
-            - generic [ref=e173]: Followers
-            - paragraph [ref=e174]: Total community across platforms
-          - generic [ref=e175]:
-            - generic [ref=e178]: 5.40%
-            - generic [ref=e179]: Engagement by views
-            - paragraph [ref=e180]: Engagement rate relative to views
-          - generic [ref=e181]:
-            - generic [ref=e184]: 1,423.64%
-            - generic [ref=e185]: Engagement by followers
-            - paragraph [ref=e186]: Engagement rate relative to followers
-        - paragraph [ref=e187]: Data reflects 60-day period across all platforms.
-    - region [ref=e188]:
-      - generic [ref=e189]:
-        - heading "LET'S WORK TOGETHER" [level=2] [ref=e190]
-        - paragraph [ref=e191]: Available for brand partnerships, recipe development and UGC campaigns.
-        - link "effaki7@gmail.com" [ref=e192] [cursor=pointer]:
+            - generic [ref=e164]: Views
+          - paragraph [ref=e165]: Real performance numbers from my content.
+        - generic [ref=e166]:
+          - generic [ref=e167]:
+            - generic [ref=e170]: 266.4K
+            - generic [ref=e171]: Likes
+            - paragraph [ref=e172]: Total likes on all content
+          - generic [ref=e173]:
+            - generic [ref=e177]: "42.4"
+            - generic [ref=e178]: Shares
+            - paragraph [ref=e179]: Total content shares
+          - generic [ref=e180]:
+            - generic [ref=e184]: 22.2K
+            - generic [ref=e185]: Followers
+            - paragraph [ref=e186]: Total community across platforms
+          - generic [ref=e187]:
+            - generic [ref=e190]: 5.40%
+            - generic [ref=e191]: Engagement by views
+            - paragraph [ref=e192]: Engagement rate relative to views
+          - generic [ref=e193]:
+            - generic [ref=e196]: 1,423.64%
+            - generic [ref=e197]: Engagement by followers
+            - paragraph [ref=e198]: Engagement rate relative to followers
+        - paragraph [ref=e199]: Data reflects 60-day period across all platforms.
+    - region [ref=e200]:
+      - generic [ref=e201]:
+        - heading "LET'S WORK TOGETHER" [level=2] [ref=e202]
+        - paragraph [ref=e203]: Available for brand partnerships, recipe development and UGC campaigns.
+        - link "effaki7@gmail.com" [ref=e204] [cursor=pointer]:
           - /url: mailto:effaki7@gmail.com
-        - generic [ref=e193]:
-          - heading "Ways to reach me" [level=3] [ref=e194]
-          - list [ref=e195]:
-            - listitem [ref=e196]:
-              - generic [ref=e199]: "Phone:"
-              - link "+484-340-8784" [ref=e200] [cursor=pointer]:
+        - generic [ref=e205]:
+          - heading "Ways to reach me" [level=3] [ref=e206]
+          - list [ref=e207]:
+            - listitem [ref=e208]:
+              - generic [ref=e211]: "Phone:"
+              - link "+484-340-8784" [ref=e212] [cursor=pointer]:
                 - /url: tel:+4843408784
-            - listitem [ref=e201]:
-              - generic [ref=e204]: "Phone:"
-              - link "+306977208612" [ref=e205] [cursor=pointer]:
-                - /url: tel:+306977208612
-        - generic [ref=e206]:
-          - heading "Follow along" [level=3] [ref=e207]
-          - list [ref=e208]:
-            - listitem [ref=e209]:
-              - link "TikTok" [ref=e210] [cursor=pointer]:
-                - /url: https://www.tiktok.com/@efiamerikana
             - listitem [ref=e213]:
-              - link "Instagram" [ref=e214] [cursor=pointer]:
+              - generic [ref=e216]: "Phone:"
+              - link "+306977208612" [ref=e217] [cursor=pointer]:
+                - /url: tel:+306977208612
+        - generic [ref=e218]:
+          - heading "Follow along" [level=3] [ref=e219]
+          - list [ref=e220]:
+            - listitem [ref=e221]:
+              - link "TikTok" [ref=e222] [cursor=pointer]:
+                - /url: https://www.tiktok.com/@efiamerikana
+            - listitem [ref=e225]:
+              - link "Instagram" [ref=e226] [cursor=pointer]:
                 - /url: https://www.instagram.com/efi.amerikana
-        - link "Get in touch" [ref=e217] [cursor=pointer]:
+        - link "Get in touch" [ref=e229] [cursor=pointer]:
           - /url: mailto:effaki7@gmail.com
-  - contentinfo [ref=e220]:
-    - paragraph [ref=e222]: © 2026 EFIAMERIKANA · All rights reserved.
+  - contentinfo [ref=e232]:
+    - paragraph [ref=e234]: © 2026 EFIAMERIKANA · All rights reserved.
 ```
 
 # Test source
