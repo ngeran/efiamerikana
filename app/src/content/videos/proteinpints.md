@@ -2,6 +2,6 @@
 language: en
 title: 'Protein Pints'
 order: 6
-video: proteinpints.mov
+video: proteinpints.mp4
 draft: false
 ---

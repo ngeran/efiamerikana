@@ -48,6 +48,25 @@ duration-aware bitrate cap, 2s keyframes, `+faststart`. Conformant files are
 never re-touched. The transcode script needs `ffmpeg-static` — if its binary
 is missing after a fresh `npm ci`, run `npm install-scripts approve ffmpeg-static && npm rebuild ffmpeg-static`.
 
+## Trim (optional)
+
+When a clip's opening segment is unwanted (creator intro overlays, watermarks
+that only exist in the first seconds), re-encode from the ORIGINAL source with
+an input seek — never trim an already-transcoded file (generation loss), and
+never `-c copy` a seek cut (it snaps to keyframes and can keep up to 2s of
+unwanted content). Use the exact ladder flags so the result stays conformant:
+
+```bash
+# CAP = min(1800, floor(10*1024*1024*8 / 1000 / <trimmed-duration>s)) - 96
+ffmpeg -y -v error -ss <trim-point-s> -i <original-source> \
+  -vf "scale='min(720,iw)':-2" -c:v libx264 -pix_fmt yuv420p -crf 26 \
+  -preset slow -maxrate <CAP-96>k -bufsize $(( <CAP-96> * 2 ))k -g 60 \
+  -c:a aac -b:a 96k -ac 2 -movflags +faststart src/assets/media/<name>.mp4
+```
+
+Then re-run step 4 (posters regenerate because the video's mtime moved) and
+step 6 (verify).
+
 ## Step 4 — Posters
 
 ```bash
