@@ -126,8 +126,19 @@ const pauseLabel = `${t.pause} — ${video.title}`;
     playback controller attaches a source NEAR the viewport — duration and
     dimensions are then ready instantly at play() time, and the browser can
     begin streaming the first frames while the visitor is still scrolling.
+
+    The clip-path is a compositing guard, not styling: once a <video>
+    starts decoding it gets its own GPU layer, and Chromium lets composited
+    video escape the ancestor `border-radius + overflow-hidden` clip until
+    some event forces a recomposite — corners paint square and the layer
+    can draw offset (reads as a cut-off top), then self-heals on the next
+    scroll. clip-path IS applied on the compositor, so it clips the
+    accelerated layer reliably. It lives HERE — below the card root, whose
+    scroll-driven reveal transform is what aggravates the escape — and the
+    radius matches the card's rounded-[18px]. The card keeps its own
+    overflow-hidden for the chrome (buttons, overlay) and its shadow.
   -->
-  <MediaFrame backdrop={posterImage} fit="contain">
+  <MediaFrame backdrop={posterImage} fit="contain" class="[clip-path:inset(0_round_18px)]">
     {
       !posterOnly && (
         <video
