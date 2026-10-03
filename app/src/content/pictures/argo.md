@@ -1,7 +1,7 @@
 ---
 language: en
 title: Argo
-order: 100
+order: 1
 image: /media/argo.jpeg
 draft: false
 ---

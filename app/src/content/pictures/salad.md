@@ -1,7 +1,7 @@
 ---
 language: en
 title: salad
-order: 100
+order: 5
 image: /media/salad.jpeg
 draft: false
 ---
