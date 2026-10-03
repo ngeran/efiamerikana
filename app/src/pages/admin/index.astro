@@ -133,20 +133,29 @@
   CDN script — /admin/ rendered an empty shell in production. Self-hosting
   also makes the admin immune to CDN outages and version drift.
 -->
+    <!-- React UMD: the live previews below build their card mockups with
+         createElement. Decap v3's global no longer carries React, so the
+         renderer takes elements from this standalone copy (element identity
+         rides the global symbol registry, so the two copies interop). -->
+    <script is:inline src="/admin/react.js"></script>
     <script is:inline src="/admin/decap-cms.js"></script>
 
     <script is:inline>
       // ------------------------------------------------------------------
       // Live editor previews for the two content collections. Decap exposes
-      // React on window.CMS.React; we use createElement (no build step).
+      // React on its global (window.DecapCms.React since the Netlify→Decap
+      // rename — the old window.CMS name is gone in v3); we use createElement
+      // (no build step).
       // Previews mock the real cards closely enough to judge content: the
       // 9:16 video frame and the 4:5.5 picture frame, brand gradient
       // overlay, chip and copy placement. Image previews resolve through
       // the dev-only /media alias (see astro.config.mjs).
       // ------------------------------------------------------------------
       (function () {
-        const CMS = window.CMS;
-        const h = CMS.React.createElement;
+        const CMS = window.DecapCms ?? window.decapCMS ?? window.CMS;
+        // React lives in the standalone UMD now — Decap v3's global dropped it.
+        const h = window.React?.createElement ?? CMS.React?.createElement;
+        if (!CMS || !h) return; // previews are polish; never break the admin
 
         const CARD_FRAME = {
           position: 'relative',
