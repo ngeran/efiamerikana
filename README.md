@@ -186,9 +186,13 @@ The admin UI is static; it needs a Git-provider auth flow in front of GitHub:
    (github.com/settings/developers) and run a tiny token-exchange bridge
    (e.g. `decap-oauth` on a small host); point `base_url` at it.
 
-Until one of these is configured, `/admin/` loads but cannot authenticate —
-**production editorial access requires this setup**. No credentials, tokens
-or secrets are committed.
+The simplest production setup is already wired into the site: a same-origin
+OAuth bridge ships in `public/_worker.js`. Create a GitHub OAuth App
+(callback URL `https://<site-origin>/callback`), then set two Cloudflare
+Pages environment variables — `DECAP_GITHUB_CLIENT_ID` and
+`DECAP_GITHUB_CLIENT_SECRET` — and redeploy. Until that is done, `/admin/`
+loads but cannot authenticate. No credentials, tokens or secrets are
+committed.
 
 ---
 

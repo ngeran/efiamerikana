@@ -21,8 +21,8 @@ backend:
   name: github
   repo: ngeran/efiamerikana
   branch: main
-  # The same-origin OAuth bridge (functions/auth.ts + functions/callback.ts
-  # on Cloudflare Pages). Requires two Pages env vars:
+  # The same-origin OAuth bridge lives in public/_worker.js (Cloudflare
+  # Pages advanced mode). Requires two Pages env vars:
   #   DECAP_GITHUB_CLIENT_ID + DECAP_GITHUB_CLIENT_SECRET
   # from a GitHub OAuth App whose callback URL is
   #   https://efiamerikana.pages.dev/callback
