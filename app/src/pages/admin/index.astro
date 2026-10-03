@@ -127,7 +127,13 @@
   <body>
     <!-- Decap CMS is loaded from the unpkg CDN (standard setup; the admin
          bundle is not part of the site build). -->
-    <script is:inline src="https://unpkg.com/decap-cms@^3.6.0/dist/decap-cms.js"></script>
+    <!--
+  Self-hosted (public/admin/decap-cms.js): the site-wide CSP is
+  script-src 'self' 'unsafe-inline', which silently blocks the old unpkg
+  CDN script — /admin/ rendered an empty shell in production. Self-hosting
+  also makes the admin immune to CDN outages and version drift.
+-->
+    <script is:inline src="/admin/decap-cms.js"></script>
 
     <script is:inline>
       // ------------------------------------------------------------------

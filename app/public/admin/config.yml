@@ -21,6 +21,12 @@ backend:
   name: github
   repo: ngeran/efiamerikana
   branch: main
+  # The same-origin OAuth bridge (functions/auth.ts + functions/callback.ts
+  # on Cloudflare Pages). Requires two Pages env vars:
+  #   DECAP_GITHUB_CLIENT_ID + DECAP_GITHUB_CLIENT_SECRET
+  # from a GitHub OAuth App whose callback URL is
+  #   https://efiamerikana.pages.dev/callback
+  base_url: https://efiamerikana.pages.dev
 
 local_backend: true # requires `npm run admin` while developing locally
 
